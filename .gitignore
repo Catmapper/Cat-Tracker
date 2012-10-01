@@ -1,5 +1,11 @@
 .htaccess
 sitemap.xml
 sitemap.xml.gz
-wp-config.php
 files/
+shared/
+local-config.php
+sql-dump-*.sql
+db-sync
+content/upgrade/
+content/uploads/
+.DS_Store
