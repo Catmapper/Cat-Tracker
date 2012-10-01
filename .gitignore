@@ -9,3 +9,4 @@ db-sync
 content/upgrade/
 content/uploads/
 .DS_Store
+debug.log
