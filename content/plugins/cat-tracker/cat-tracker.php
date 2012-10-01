@@ -43,6 +43,11 @@ class Cat_Tracker {
 	private static $instance;
 
 	/**
+	 * current version # of this plugin
+	 */
+	const VERSION = 1.0;
+
+	/**
 	 * Singleton class for this Cat Tracker
 	 *
 	 * @since 1.0
@@ -50,7 +55,7 @@ class Cat_Tracker {
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
-			self::$instance = new bbPress;
+			self::$instance = new Cat_Tracker;
 			self::$instance->run_hooks();
 		}
 
@@ -75,6 +80,7 @@ class Cat_Tracker {
 
 		add_action( 'init', array( $this, 'register_post_types' ) );
 		add_action( 'admin_menu', array( $this, 'custom_fields' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue' ) );
 
 	}
 
@@ -181,6 +187,10 @@ class Cat_Tracker {
 
 	}
 
-
+	public function admin_enqueue() {
+		wp_enqueue_style( 'cat-tracker', plugins_url( 'resources/cat-tracker.css', __FILE__ ), array(), self::VERSION );
+	}
 
 }
+
+Cat_Tracker::instance();
