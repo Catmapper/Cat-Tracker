@@ -218,16 +218,21 @@ class Cat_Tracker {
 
 		do_action( 'cat_tracker_custom_fields' );
 
-		x_add_metadata_group( 'geo_information', array( 'map', 'marker' ), array( 'label' => 'Geographical Information' ) );
-		x_add_metadata_field( 'latitude', array( 'map', 'marker' ), array( 'field_type' => 'text', 'group' => 'geo_information', 'label' => 'Latitude' ) );
-		x_add_metadata_field( 'longitude', array( 'map', 'marker' ), array( 'field_type' => 'text', 'group' => 'geo_information', 'label' => 'Longitude' ) );
-		x_add_metadata_field( 'north_bounds', array( 'map' ), array( 'field_type' => 'text', 'group' => 'geo_information', 'label' => 'North bounds' ) );
-		x_add_metadata_field( 'south_bounds', array( 'map' ), array( 'field_type' => 'text', 'group' => 'geo_information', 'label' => 'South bounds' ) );
-		x_add_metadata_field( 'west_bounds', array( 'map' ), array( 'field_type' => 'text', 'group' => 'geo_information', 'label' => 'West bounds' ) );
-		x_add_metadata_field( 'east_bounds', array( 'map' ), array( 'field_type' => 'text', 'group' => 'geo_information', 'label' => 'East bounds' ) );
-		x_add_metadata_field( 'zoom_level', array( 'map' ), array( 'field_type' => 'text', 'group' => 'geo_information', 'label' => 'Zoom Level' ) );
+		x_add_metadata_group( 'map_geo_information', array( 'map' ), array( 'label' => 'Geographical Information' ) );
+		x_add_metadata_field( 'latitude', array( 'map' ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'Latitude' ) );
+		x_add_metadata_field( 'longitude', array( 'map' ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'Longitude' ) );
+		x_add_metadata_field( 'north_bounds', array( 'map' ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'North bounds' ) );
+		x_add_metadata_field( 'south_bounds', array( 'map' ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'South bounds' ) );
+		x_add_metadata_field( 'west_bounds', array( 'map' ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'West bounds' ) );
+		x_add_metadata_field( 'east_bounds', array( 'map' ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'East bounds' ) );
+		x_add_metadata_field( 'zoom_level', array( 'map' ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'Zoom Level' ) );
 
+		x_add_metadata_group( 'marker_geo_information', array( 'marker' ), array( 'label' => 'Geographical Information' ) );
+		x_add_metadata_field( 'latitude', array( 'marker' ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Latitude' ) );
+		x_add_metadata_field( 'longitude', array( 'marker' ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Longitude' ) );
 
+		x_add_metadata_group( 'marker_information', array( 'marker' ), array( 'label' => 'Sighting Information' ) );
+		x_add_metadata_field( 'map', array( 'marker' ), array( 'field_type' => 'text', 'group' => 'marker_information', 'label' => 'Map' ) );
 
 	}
 
@@ -242,8 +247,10 @@ class Cat_Tracker {
 
 		wp_enqueue_style( 'leaflet-css', plugins_url( 'resources/leaflet.css', __FILE__ ), array(), self::LEAFLET_VERSION );
 		wp_enqueue_style( 'cat-tracker', plugins_url( 'resources/cat-tracker.css', __FILE__ ), array(), self::VERSION );
+		wp_enqueue_style( 'marker-cluster-css', plugins_url( 'resources/marker-cluster.css', __FILE__ ), array( 'leaflet-css' ), self::LEAFLET_VERSION );
 		wp_enqueue_script( 'leaflet-js', plugins_url( 'resources/leaflet.js', __FILE__ ), array(), self::LEAFLET_VERSION, true );
-		wp_enqueue_script( 'cat-tracker-js', plugins_url( 'resources/cat-tracker.js', __FILE__ ), array( 'jquery' ), self::VERSION, true );
+		wp_enqueue_script( 'marker-cluster-js', plugins_url( 'resources/leaflet.markercluster.js', __FILE__ ), array( 'leaflet-js' ), self::LEAFLET_VERSION, true );
+		wp_enqueue_script( 'cat-tracker-js', plugins_url( 'resources/cat-tracker.js', __FILE__ ), array( 'jquery', 'underscore' ), self::VERSION, true );
 
 		wp_localize_script( 'cat-tracker-js', 'cat_tracker_vars', array(
 			'ajax_url' => esc_url( admin_url( 'admin-ajax.php' ) ),
@@ -256,6 +263,7 @@ class Cat_Tracker {
 			'map_west_bounds' => $this->get_map_west_bounds(),
 			'map_east_bounds' => $this->get_map_east_bounds(),
 			'map_zoom_level' => $this->get_map_zoom_level(),
+			'markers' => json_encode( $this->get_markers() ),
 			) );
 	}
 
@@ -263,6 +271,7 @@ class Cat_Tracker {
 		?>
 		<!--[if lte IE 8]>
     	<link rel="stylesheet" href="<?php echo esc_url( add_query_arg( array( 'ver' => self::LEAFLET_VERSION ), plugins_url( 'resources/leaflet.ie.css', __FILE__ ) ) ); ?>" />
+    	<link rel="stylesheet" href="<?php echo esc_url( add_query_arg( array( 'ver' => self::LEAFLET_VERSION ), plugins_url( 'resources/marker-cluster.ie.css', __FILE__ ) ) ); ?>" />
 		<![endif]-->
 		<?php
 	}
@@ -273,6 +282,40 @@ class Cat_Tracker {
 			$content = '<div id="map"></div>';
 
 		return $content;
+	}
+
+	public function get_markers() {
+		if ( ! is_singular( 'map' ) )
+			return false;
+
+		$markers = array();
+
+		$_markers = new WP_Query();
+		$_markers->query( array(
+			'post_type' => 'marker',
+			'meta_query' => array(
+				array(
+					'key' => 'map',
+					'value' => get_the_ID(),
+				),
+			),
+		) );
+
+		if ( ! have_posts( $_markers ) )
+			return $markers;
+
+		foreach( $_markers->posts as $marker ) {
+			$markers[] = array(
+				'id' => $marker->ID,
+				'title' => get_the_title( $marker->ID ),
+				'latitude' => get_post_meta( $marker->ID, 'latitude', true ),
+				'longitude' => get_post_meta( $marker->ID, 'longitude', true ),
+				'text' => get_the_title( $marker->ID ),
+			);
+		}
+
+		return $markers;
+
 	}
 
 	public function map_meta_helper( $meta_key, $singular = true ) {
