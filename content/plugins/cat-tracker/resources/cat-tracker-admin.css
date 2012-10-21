@@ -6,70 +6,70 @@
   font-style: normal;
 }
 
-#menu-posts-map .wp-menu-image:before,
-#menu-posts-map:hover .wp-menu-image:before,
-#menu-posts-map.wp-has-current-submenu .wp-menu-image:before,
-#icon-edit.icon32-posts-map:before {
+#menu-posts-cat_tracker_map .wp-menu-image:before,
+#menu-posts-cat_tracker_map:hover .wp-menu-image:before,
+#menu-posts-cat_tracker_map.wp-has-current-submenu .wp-menu-image:before,
+#icon-edit.icon32-posts-cat_tracker_map:before {
 	content: '\f0ac';
 	font-family: 'FontAwesome';
 }
 
-#menu-posts-marker .wp-menu-image:before,
-#menu-posts-marker:hover .wp-menu-image:before,
-#menu-posts-marker.wp-has-current-submenu .wp-menu-image:before,
-#icon-edit.icon32-posts-marker:before {
+#menu-posts-cat_tracker_marker .wp-menu-image:before,
+#menu-posts-cat_tracker_marker:hover .wp-menu-image:before,
+#menu-posts-cat_tracker_marker.wp-has-current-submenu .wp-menu-image:before,
+#icon-edit.icon32-posts-cat_tracker_marker:before {
 	content: "\f041";
 	font-family: 'FontAwesome';
 }
 
-#menu-posts-map .wp-menu-image:before,
-#menu-posts-map:hover .wp-menu-image:before,
-#menu-posts-map.wp-has-current-submenu .wp-menu-image:before {
+#menu-posts-cat_tracker_map .wp-menu-image:before,
+#menu-posts-cat_tracker_map:hover .wp-menu-image:before,
+#menu-posts-cat_tracker_map.wp-has-current-submenu .wp-menu-image:before {
 	font-size: 20px;
 	top: 8px;
 	left: 8px;
 	position: relative;
 }
 
-#menu-posts-marker .wp-menu-image:before,
-#menu-posts-marker:hover .wp-menu-image:before,
-#menu-posts-marker.wp-has-current-submenu .wp-menu-image:before {
+#menu-posts-cat_tracker_marker .wp-menu-image:before,
+#menu-posts-cat_tracker_marker:hover .wp-menu-image:before,
+#menu-posts-cat_tracker_marker.wp-has-current-submenu .wp-menu-image:before {
 	font-size: 20px;
 	top: 8px;
 	left: 10px;
 	position: relative;
 }
 
-#menu-posts-map .wp-menu-image:before,
-#menu-posts-marker .wp-menu-image:before,
-#icon-edit.icon32-posts-map:before,
-#icon-edit.icon32-posts-marker:before {
+#menu-posts-cat_tracker_map .wp-menu-image:before,
+#menu-posts-cat_tracker_marker .wp-menu-image:before,
+#icon-edit.icon32-posts-cat_tracker_map:before,
+#icon-edit.icon32-posts-cat_tracker_marker:before {
 	color: #6c6c6c;
 }
 
-#menu-posts-map:hover .wp-menu-image:before,
-#menu-posts-marker:hover .wp-menu-image:before {
+#menu-posts-cat_tracker_map:hover .wp-menu-image:before,
+#menu-posts-cat_tracker_marker:hover .wp-menu-image:before {
 	color: #21759B;
 }
 
-#menu-posts-map.wp-has-current-submenu .wp-menu-image:before,
-#menu-posts-marker.wp-has-current-submenu .wp-menu-image:before {
+#menu-posts-cat_tracker_map.wp-has-current-submenu .wp-menu-image:before,
+#menu-posts-cat_tracker_marker.wp-has-current-submenu .wp-menu-image:before {
 	color: #fff;
 }
 
-#icon-edit.icon32-posts-map,
-#icon-edit.icon32-posts-marker {
+#icon-edit.icon32-posts-cat_tracker_map,
+#icon-edit.icon32-posts-cat_tracker_marker {
 	background-image: none;
 }
 
-#icon-edit.icon32-posts-map:before {
+#icon-edit.icon32-posts-cat_tracker_map:before {
 	font-size: 32px;
 	top: 10px;
 	left: 5px;
 	position: relative;
 }
 
-#icon-edit.icon32-posts-marker:before {
+#icon-edit.icon32-posts-cat_tracker_marker:before {
 	font-size: 32px;
 	top: 10px;
 	left: 10px;
