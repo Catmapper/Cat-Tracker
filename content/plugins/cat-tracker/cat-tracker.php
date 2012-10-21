@@ -58,6 +58,11 @@ class Cat_Tracker {
 	const MARKER_POST_TYPE = 'cat_tracker_marker';
 
 	/**
+	 * cat tracker sighting taxonomy
+	 */
+	const MARKER_TAXONOMY = 'cat_tracker_marker_type';
+
+	/**
 	 * cat tracker map drodpdown transient/cache key
 	 */
 	const MAP_DROPDOWN_TRANSIENT = 'cat_tracker_map_admin_dropdown_1';
@@ -108,7 +113,7 @@ class Cat_Tracker {
 	 * @return void
 	 */
 	public function run_hooks() {
-		add_action( 'init', array( $this, 'register_post_types' ) );
+		add_action( 'init', array( $this, 'register_post_types_and_taxonomies' ) );
 		add_action( 'admin_menu', array( $this, 'custom_fields' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'frontend_enqueue' ) );
@@ -133,10 +138,10 @@ class Cat_Tracker {
 	/**
 	 * register post types needed for the cat tracker
 	 *
-	 * @since 1.0e
+	 * @since 1.0
 	 * @return void
 	 */
-	public function register_post_types() {
+	public function register_post_types_and_taxonomies() {
 
 		$maps_labels = apply_filters( 'cat_tracker_map_post_type_labels', array(
 			'name' => __( 'Maps', 'cat_tracker' ),
@@ -210,6 +215,35 @@ class Cat_Tracker {
 		) );
 
 		register_post_type( Cat_Tracker::MARKER_POST_TYPE, $markers_cpt_args );
+
+		$marker_taxonomy_labels = apply_filters( 'cat_tracker_marker_type_taxonomy_labels', array(
+	    'name' => __( 'Sighting Types', 'cat_tracker' ),
+	    'singular_name' => __( 'Sighting Type', 'cat_tracker' ),
+	    'search_items' => __( 'Search Sighting Types', 'cat_tracker' ),
+	    'all_items' => __( 'All Sighting Types', 'cat_tracker' ),
+	    'parent_item' => __( 'Parent Sighting Type', 'cat_tracker' ),
+	    'parent_item_colon' => __( 'Search Sighting:', 'cat_tracker' ),
+	    'edit_item' => __( 'Edit Sighting Type', 'cat_tracker' ),
+	    'update_item' => __( 'Update Sighting Type', 'cat_tracker' ),
+	    'add_new_item' => __( 'Add New Sighting Type', 'cat_tracker' ),
+	    'new_item_name' => __( 'New Sighting Type', 'cat_tracker' ),
+	    'separate_items_with_commas' => __( 'Separate Sighting Types with Commas', 'cat_tracker' ),
+	    'add_or_remove_items' => __( 'Add or remove sighting types', 'cat_tracker' ),
+	    'choose_from_most_used' => __( 'Choose from the most used sighting types', 'cat_tracker' ),
+	    'menu_name' => __( 'Types', 'cat_tracker' ),
+		) );
+
+		$marker_taxonomy_args = apply_filters( 'cat_tracker_marker_type_taxonomy_args', array(
+			'labels' => $marker_taxonomy_labels,
+			'hierarchical' => false,
+    	'show_ui' => true,
+    	'query_var' => false,
+    	'public' => false,
+    	'show_tagcloud' => false,
+
+		) );
+
+		register_taxonomy( Cat_Tracker::MARKER_TAXONOMY, Cat_Tracker::MARKER_POST_TYPE, $marker_taxonomy_args );
 
 	}
 
