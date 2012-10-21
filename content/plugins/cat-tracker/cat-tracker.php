@@ -460,7 +460,7 @@ class Cat_Tracker {
 	}
 
 	public function _meta_helper( $meta_key, $post_type, $post_id = null, $singular = true ) {
-		if ( ! is_singular( $post_type ) || $post_type != get_post_type( $post_id ) )
+		if ( ! is_singular( $post_type ) && $post_type != get_post_type( $post_id ) )
 			return false;
 
 		$post_id = ( empty( $post_id ) ) ? get_the_ID() : $post_id;
