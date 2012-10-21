@@ -113,6 +113,7 @@ class Cat_Tracker {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'frontend_enqueue' ) );
 		add_action( 'wp_head', array( $this, 'enqueue_ie_styles' ) );
+		add_action( 'save_post', array( $this, '_flush_map_dropdown_cache' ) );;
 		add_filter( 'the_content', array( $this, 'map_content' ) );
 	}
 
@@ -379,7 +380,7 @@ class Cat_Tracker {
 		return $dropdown;
 	}
 
-	private function _build_map_dropdown() {
+	public function _build_map_dropdown() {
 		$maps_dropdown = array();
 		$maps = new WP_Query();
 		$maps->query( array(
@@ -392,8 +393,15 @@ class Cat_Tracker {
 		foreach ( $maps->posts as $map_id )
 			$maps_dropdown[$map_id] = get_the_title( $map_id );
 		set_transient( Cat_Tracker::MAP_DROPDOWN_TRANSIENT, $maps_dropdown );
-		return $maps_dropdown;
 		wp_reset_query();
+		return $maps_dropdown;
+	}
+
+	public function _flush_map_dropdown_cache( $post_id ) {
+		if ( wp_is_post_revision( $post_id ) || Cat_Tracker::MAP_POST_TYPE != get_post_type( $post_id ) )
+			return;
+
+		$this->_build_map_dropdown();
 	}
 
 }
