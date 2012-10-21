@@ -3,7 +3,9 @@
    ================================================== */
 
 #cat_tracker_map,
-#s2id_cat_tracker_map {
+#s2id_cat_tracker_map,
+#cat_tracker_marker_type,
+#s2id_cat_tracker_marker_type {
   width: 250px;
 }
 
