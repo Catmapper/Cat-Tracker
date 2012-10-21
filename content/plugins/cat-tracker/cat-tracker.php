@@ -186,7 +186,6 @@ class Cat_Tracker {
 			'hierarchical' => false,
 			'query_var' => true,
 			'menu_icon' => '',
-			'rewrite' => array( 'slug' => 'map' ),
 		) );
 
 		register_post_type( Cat_Tracker::MAP_POST_TYPE, $maps_cpt_args );
@@ -267,11 +266,31 @@ class Cat_Tracker {
 	function post_updated_messages( $messages ) {
 	  global $post, $post_ID;
 
-	  if ( self::MARKER_POST_TYPE == get_post_type( $post_ID ) ) {
+	  if ( self::MAP_POST_TYPE == get_post_type( $post_ID ) ) {
+	  	$map_url = esc_url( get_permalink( $post_ID ) );
+
+		  $messages[self::MAP_POST_TYPE] = array(
+		    1 => sprintf( __( 'Map updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
+		    2 => sprintf( __( 'Map updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
+		    3 => sprintf( __( 'Map updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
+		    4 => sprintf( __( 'Map updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
+		    5 => isset( $_GET['revision'] ) ? sprintf( __( 'Map restored to revision from %s', 'cat_tracker '), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+		    6 => sprintf( __( 'Map published. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
+		    7 => __('Book saved.', 'cat_tracker'),
+		    6 => sprintf( __( 'Map published. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
+		    7 => __( 'Map saved.', 'cat_tracker' ),
+		    9 => sprintf( __( 'Map scheduled to appear on: <strong>%1$s</strong>. <a target="_blank" href="%2$s">View Map</a>', 'cat_tracker' ),
+		      // translators: Publish box date format, see http://php.net/date
+		      date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), $map_url ),
+		    10 => sprintf( __( 'Map draft updated.', 'cat_tracker' ) ),
+		  );
+
+		}
+
+		if ( self::MARKER_POST_TYPE == get_post_type( $post_ID ) ) {
 	  	$map_url = esc_url( get_permalink( $this->get_map_id_for_marker( $post_ID ) ) );
 
 		  $messages[self::MARKER_POST_TYPE] = array(
-		    0 => '', // Unused. Messages start at index 1.
 		    1 => sprintf( __( 'Sighting updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
 		    2 => sprintf( __( 'Sighting updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
 		    3 => sprintf( __( 'Sighting updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
@@ -281,7 +300,7 @@ class Cat_Tracker {
 		    7 => __('Book saved.', 'cat_tracker'),
 		    6 => sprintf( __( 'Sighting approved. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
 		    7 => __( 'Sighting saved.', 'cat_tracker' ),
-		    9 => sprintf( __( 'Sighting scheduled to appear in map on: <strong>%1$s</strong>. <a target="_blank" href="%2$s">View Mao</a>', 'cat_tracker' ),
+		    9 => sprintf( __( 'Sighting scheduled to appear in map on: <strong>%1$s</strong>. <a target="_blank" href="%2$s">View Map</a>', 'cat_tracker' ),
 		      // translators: Publish box date format, see http://php.net/date
 		      date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), $map_url ),
 		    10 => sprintf( __( 'Sighting draft updated.', 'cat_tracker' ) ),
@@ -344,6 +363,8 @@ class Cat_Tracker {
 		// move revisions to the side
 		remove_meta_box( 'revisionsdiv', Cat_Tracker::MARKER_POST_TYPE, 'side' );
 		add_meta_box( 'revisionsdiv', __( 'Revisions' ), 'post_revisions_meta_box', Cat_Tracker::MARKER_POST_TYPE, 'side', 'low' );
+		remove_meta_box( 'revisionsdiv', Cat_Tracker::MAP_POST_TYPE, 'side' );
+		add_meta_box( 'revisionsdiv', __( 'Revisions' ), 'post_revisions_meta_box', Cat_Tracker::MAP_POST_TYPE, 'side', 'low' );
 
 		// replace the publish metabox
 		remove_meta_box( 'submitdiv', Cat_Tracker::MARKER_POST_TYPE, 'side' );
