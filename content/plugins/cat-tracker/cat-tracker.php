@@ -48,6 +48,11 @@ class Cat_Tracker {
 	const LEAFLET_VERSION = '0.4.4';
 
 	/**
+	 * current select2 version incldued with this plugin
+	 */
+	const SELECT2_VERSION = '3.2';
+
+	/**
 	 * cat tracker map post type
 	 */
 	const MAP_POST_TYPE = 'cat_tracker_map';
@@ -61,6 +66,11 @@ class Cat_Tracker {
 	 * cat tracker sighting taxonomy
 	 */
 	const MARKER_TAXONOMY = 'cat_tracker_marker_type';
+
+	/**
+	 * cat tracker metadata prefix
+	 */
+	const META_PREFIX = 'cat_tracker_';
 
 	/**
 	 * cat tracker map drodpdown transient/cache key
@@ -136,7 +146,7 @@ class Cat_Tracker {
 	}
 
 	/**
-	 * register post types needed for the cat tracker
+	 * register post types & taxonomies
 	 *
 	 * @since 1.0
 	 * @return void
@@ -262,7 +272,6 @@ class Cat_Tracker {
  		 * @link http://wordpress.org/extend/plugins/custom-metadata/
  		 *
  		 * bail if the needed functions don't exist
- 		 * TODO: provide a better error
 		 */
 		if ( ! function_exists( 'x_add_metadata_field' ) || ! function_exists( 'x_add_metadata_group' ) )
 			return;
@@ -270,27 +279,29 @@ class Cat_Tracker {
 		do_action( 'cat_tracker_pre_custom_fields' );
 
 		x_add_metadata_group( 'map_geo_information', array( Cat_Tracker::MAP_POST_TYPE ), array( 'label' => 'Geographical Information' ) );
-		x_add_metadata_field( 'latitude', array(  Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'Latitude' ) );
-		x_add_metadata_field( 'longitude', array(  Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'Longitude' ) );
-		x_add_metadata_field( 'north_bounds', array(  Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'North bounds' ) );
-		x_add_metadata_field( 'south_bounds', array(  Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'South bounds' ) );
-		x_add_metadata_field( 'west_bounds', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'West bounds' ) );
-		x_add_metadata_field( 'east_bounds', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'East bounds' ) );
-		x_add_metadata_field( 'zoom_level', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'Zoom Level' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'latitude', array(  Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'Latitude' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'longitude', array(  Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'Longitude' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'north_bounds', array(  Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'North bounds' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'south_bounds', array(  Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'South bounds' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'west_bounds', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'West bounds' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'east_bounds', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'East bounds' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'zoom_level', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'Zoom Level' ) );
 
 		x_add_metadata_group( 'marker_geo_information', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'label' => 'Geographical Information' ) );
-		x_add_metadata_field( 'latitude', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Latitude' ) );
-		x_add_metadata_field( 'longitude', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Longitude' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'latitude', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Latitude' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'longitude', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Longitude' ) );
 
 		x_add_metadata_group( 'marker_information', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'label' => 'Sighting Information' ) );
-		x_add_metadata_field( 'map', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'select', 'group' => 'marker_information', 'label' => 'Map', 'values' => $this->get_map_dropdown() ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'map', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'select', 'group' => 'marker_geo_information', 'label' => 'Map to display this sighting on', 'values' => $this->get_map_dropdown() ) );
 
 		do_action( 'cat_tracker_did_custom_fields' );
 
 	}
 
 	public function admin_enqueue() {
-		wp_enqueue_style( 'cat-tracker-admin', plugins_url( 'resources/cat-tracker-admin.css', __FILE__ ), array(), self::VERSION );
+		wp_enqueue_style( 'cat-tracker-admin-css', plugins_url( 'resources/cat-tracker-admin.css', __FILE__ ), array(), self::VERSION );
+		wp_enqueue_script( 'select2-js', plugins_url( 'resources/select2.js', __FILE__ ), array(), self::SELECT2_VERSION, true );
+		wp_enqueue_script( 'cat-tracker-admin-js', plugins_url( 'resources/cat-tracker-admin.js', __FILE__ ), array( 'select2-js' ), self::VERSION, true );
 	}
 
 	public function frontend_enqueue() {
@@ -376,7 +387,10 @@ class Cat_Tracker {
 		if ( ! is_singular( Cat_Tracker::MAP_POST_TYPE ) )
 			return false;
 
-		return get_post_meta( get_the_ID(), $meta_key, $singular );
+		if ( false === strpos( $meta_key, Cat_Tracker::META_PREFIX ) )
+			$meta_key = Cat_Tracker::META_PREFIX . $meta_key;
+
+		return get_post_meta( get_the_ID(), $meta_key, (bool) $singular );
 	}
 
 	public function get_map_latitude() {
