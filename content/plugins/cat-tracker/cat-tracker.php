@@ -345,6 +345,7 @@ class Cat_Tracker {
 		x_add_metadata_group( 'marker_information', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'label' => 'Sighting Information', 'priority' => 'high' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'description', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'textarea', 'group' => 'marker_information', 'label' => 'Description of the situation' ) );
 		x_add_metadata_field( Cat_Tracker::MARKER_TAXONOMY, array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'taxonomy_select', 'taxonomy' => Cat_Tracker::MARKER_TAXONOMY, 'group' => 'marker_information', 'label' => 'Sighting Type' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'sighting_date', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'datepicker', 'group' => 'marker_information', 'label' => 'Date of sighting' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'name_of_reporter', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_information', 'label' => 'Name of Reporter' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'email_of_reporter', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_information', 'label' => 'Email address of Reporter' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'telephone_of_reporter', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_information', 'label' => 'Phone number of Reporter' ) );
@@ -352,8 +353,12 @@ class Cat_Tracker {
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'browser_info_of_reporter', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_information', 'label' => 'Browser Info for Reporter', 'readonly' => true ) );
 
 		x_add_metadata_group( 'marker_geo_information', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'label' => 'Geographical Information', 'priority' => 'high' ) );
-		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'latitude', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Latitude', 'readonly' => true ) );
-		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'longitude', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Longitude', 'readonly' => true ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'sighting_map', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Map', 'display_callback' => 'cat_tracker_sighting_map' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'address', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Address' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'cross_street', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Cross Street' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'postal_code', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Postal Code' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'latitude', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Latitude', ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'longitude', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Longitude' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'map', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'select', 'group' => 'marker_geo_information', 'label' => 'Map to display this sighting on', 'values' => $this->get_map_dropdown() ) );
 
 		// remove meta boxes
@@ -384,9 +389,7 @@ class Cat_Tracker {
 			return;
 
 		wp_enqueue_style( 'leaflet-css', plugins_url( 'resources/leaflet.css', __FILE__ ), array(), self::LEAFLET_VERSION );
-		wp_enqueue_style( 'marker-cluster-css', plugins_url( 'resources/marker-cluster.css', __FILE__ ), array( 'leaflet-css' ), self::LEAFLET_VERSION );
-		wp_enqueue_script( 'leaflet-js', plugins_url( 'resources/leaflet.js', __FILE__ ), array(), self::LEAFLET_VERSION, true );
-		wp_enqueue_script( 'marker-cluster-js', plugins_url( 'resources/leaflet.markercluster.js', __FILE__ ), array( 'leaflet-js' ), self::LEAFLET_VERSION, true );
+		wp_enqueue_script( 'leaflet-js', plugins_url( 'resources/leaflet.js', __FILE__ ), array(), self::LEAFLET_VERSION );
 
 	}
 
@@ -434,8 +437,10 @@ class Cat_Tracker {
 		return $content;
 	}
 
-	public function get_markers() {
-		if ( ! is_singular( Cat_Tracker::MAP_POST_TYPE ) )
+	public function get_markers( $map_id = null ) {
+		$map_id = ( empty( $map_id ) ) ? get_the_ID() : $map_id;
+
+		if ( ! is_singular( $map_id ) && Cat_Tracker::MAP_POST_TYPE != get_post_type( $map_id ) )
 			return false;
 
 		$markers = array();
@@ -447,7 +452,7 @@ class Cat_Tracker {
 			'meta_query' => array(
 				array(
 					'key' => 'map',
-					'value' => get_the_ID(),
+					'value' => $map_id,
 				),
 			),
 		) );
@@ -470,10 +475,9 @@ class Cat_Tracker {
 	}
 
 	public function _meta_helper( $meta_key, $post_type, $post_id = null, $singular = true ) {
-		if ( ! is_singular( $post_type ) && $post_type != get_post_type( $post_id ) )
-			return false;
-
 		$post_id = ( empty( $post_id ) ) ? get_the_ID() : $post_id;
+		if ( $post_type != get_post_type( $post_id ) )
+			return false;
 
 		if ( false === strpos( $meta_key, Cat_Tracker::META_PREFIX ) )
 			$meta_key = Cat_Tracker::META_PREFIX . $meta_key;
@@ -482,43 +486,51 @@ class Cat_Tracker {
 	}
 
 	public function map_meta_helper( $meta_key, $map_id = null, $singular = true ) {
-		return $this->_meta_helper( $meta_key, Cat_Tracker::MAP_POST_TYPE, $map_id, $singular );
+		return $this->_meta_helper( $meta_key, self::MAP_POST_TYPE, $map_id, $singular );
 	}
 
 	public function marker_meta_helper( $meta_key, $marker_id = null, $singular = true ) {
-		return $this->_meta_helper( $meta_key, Cat_Tracker::MARKER_POST_TYPE, $marker_id, $singular );
+		return $this->_meta_helper( $meta_key, self::MARKER_POST_TYPE, $marker_id, $singular );
 	}
 
 	public function get_map_latitude( $map_id = null ) {
-		return $this->map_meta_helper( 'latitude' );
+		return $this->map_meta_helper( 'latitude', $map_id );
 	}
 
 	public function get_map_longitude( $map_id = null ) {
-		return $this->map_meta_helper( 'longitude' );
+		return $this->map_meta_helper( 'longitude', $map_id );
 	}
 
 	public function get_map_north_bounds( $map_id = null ) {
-		return $this->map_meta_helper( 'north_bounds' );
+		return $this->map_meta_helper( 'north_bounds', $map_id );
 	}
 
 	public function get_map_south_bounds( $map_id = null ) {
-		return $this->map_meta_helper( 'south_bounds' );
+		return $this->map_meta_helper( 'south_bounds', $map_id );
 	}
 
 	public function get_map_west_bounds( $map_id = null ) {
-		return $this->map_meta_helper( 'west_bounds' );
+		return $this->map_meta_helper( 'west_bounds', $map_id );
 	}
 
 	public function get_map_east_bounds( $map_id = null ) {
-		return $this->map_meta_helper( 'east_bounds' );
+		return $this->map_meta_helper( 'east_bounds', $map_id );
 	}
 
 	public function get_map_zoom_level( $map_id = null ) {
-		return $this->map_meta_helper( 'zoom_level' );
+		return $this->map_meta_helper( 'zoom_level', $map_id );
 	}
 
 	public function get_map_id_for_marker( $marker_id = null ) {
 		return $this->marker_meta_helper( 'map', $marker_id );
+	}
+
+	public function get_marker_latitude( $marker_id = null ) {
+		return $this->marker_meta_helper( 'latitude', $marker_id );
+	}
+
+	public function get_marker_longitude( $marker_id = null ) {
+		return $this->marker_meta_helper( 'longitude', $marker_id );
 	}
 
 	public function get_map_dropdown() {
@@ -526,6 +538,21 @@ class Cat_Tracker {
 		if ( empty( $dropdown ) )
 			$dropdown = $this->_build_map_dropdown();
 		return $dropdown;
+	}
+
+	public function get_marker( $marker_id = null ) {
+		$marker_id = ( empty( $marker_id ) ) ? get_the_ID() : $marker_id;
+		if ( self::MARKER_POST_TYPE != get_post_type( $marker_id ) )
+			return false;
+
+		return array(
+			'id' => $marker_id,
+			'title' => get_the_title( $marker_id ),
+			'latitude' => $this->get_marker_latitude( $marker_id ),
+			'longitude' => $this->get_marker_longitude( $marker_id ),
+			'text' => get_the_title( $marker_id ),
+		);
+
 	}
 
 	public function _build_map_dropdown() {
@@ -552,6 +579,52 @@ class Cat_Tracker {
 		$this->_build_map_dropdown();
 	}
 
+	public function sighting_map( $field_slug, $field, $object_type, $object_id, $value ) {
+		if ( self::MARKER_POST_TYPE != $object_type )
+			return;
+
+		echo '<div class="custom-metadata-field text">';
+			echo '<label>Sighting Preview</label>';
+
+			$map = get_post( $this->get_map_id_for_marker( $object_id ) );
+			if ( empty( $map ) || self::MAP_POST_TYPE != get_post_type( $map->ID ) ) {
+				echo '<p>' . __( 'Please select a map below and save the sighting to get a preview', 'cat_tracker' ) . '</p>';
+				return;
+			}
+
+			$latitude = $this->get_marker_latitude( $object_id );
+			$longitude = $this->get_marker_longitude( $object_id );
+			if ( empty( $latitude ) || empty( $longitude ) ) {
+				echo '<p>' . __( 'Please set a latitude and longitude below and save the sighting to get a preview', 'cat_tracker' ) . '</p>';
+				return;
+			}
+
+
+			?>
+			<div id="sightingmap_preview"></div>
+			<script type="text/javascript">
+				jQuery( document ).ready(function($){
+					var cat_tracker_sighting_map_preview = {};
+
+					cat_tracker_sighting_map_preview.center = [<?php echo esc_js( $latitude ); ?>, <?php echo esc_js( $longitude ); ?>],
+
+					cat_tracker_sighting_map_preview.marker = $.parseJSON( '<?php echo json_encode( $this->get_marker( $object_id ) ); ?>' );
+					cat_tracker_sighting_map_preview.markers = L.layerGroup( [ L.marker( [cat_tracker_sighting_map_preview.marker.latitude, cat_tracker_sighting_map_preview.marker.longitude], { title : cat_tracker_sighting_map_preview.marker.title } ).bindPopup( cat_tracker_sighting_map_preview.marker.text ) ] );
+
+					cat_tracker_sighting_map_preview.layers = [L.tileLayer( '<?php echo esc_js( $this->map_source ); ?>', {attribution : '<?php echo esc_js( $this->map_attribution ); ?>'} ), cat_tracker_sighting_map_preview.markers ],
+
+					cat_tracker_sighting_map_preview.map = L.map( 'sightingmap_preview', {
+						center : cat_tracker_sighting_map_preview.center,
+						layers : cat_tracker_sighting_map_preview.layers,
+						zoom : 15,
+						minZoom: 10
+					});
+				});
+				</script>
+		</div>
+		<?php
+	}
+
 	public function marker_publish_meta_box( $post ) {
 		include_once( 'includes/marker-meta-box.php' );
 	}
@@ -559,3 +632,7 @@ class Cat_Tracker {
 }
 
 Cat_Tracker::instance();
+
+function cat_tracker_sighting_map( $field_slug, $field, $object_type, $object_id, $value ) {
+	Cat_Tracker::instance()->sighting_map( $field_slug, $field, $object_type, $object_id, $value );
+}
