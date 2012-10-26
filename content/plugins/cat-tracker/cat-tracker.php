@@ -131,6 +131,7 @@ class Cat_Tracker {
 		add_action( 'save_post', array( $this, '_flush_map_dropdown_cache' ) );
 		add_filter( 'post_updated_messages', array( $this, 'post_updated_messages' ) );
 		add_filter( 'the_content', array( $this, 'map_content' ) );
+		add_filter( 'the_title', array( $this, 'submission_title' ), 10, 2 );
 	}
 
 	/**
@@ -430,11 +431,42 @@ class Cat_Tracker {
 	}
 
 	public function map_content( $content ) {
-
-		if ( is_singular( Cat_Tracker::MAP_POST_TYPE ) )
-			$content = '<div id="map"></div>';
+		if ( $this->is_submission_mode() ) {
+			$content = $this->submission_form();
+		} elseif ( is_singular( Cat_Tracker::MAP_POST_TYPE ) ) {
+			$content = '<p class="cat-tracker-submission"><a href="' . esc_url( add_query_arg( array( 'submission' => 'new' ), get_permalink( get_the_ID() ) ) ) . '">' . __( 'Report a new sighting', 'cat-tracker' ) . '</a>';
+			$content .= '<div id="map"></div>';
+		}
 
 		return $content;
+	}
+
+	public function is_submission_mode() {
+		return ( is_singular( Cat_Tracker::MAP_POST_TYPE ) && isset( $_GET['submission'] ) && 'new' == $_GET['submission'] );
+	}
+
+	public function submission_title( $title, $post_id ) {
+
+		if ( $this->is_submission_mode() )
+			$title = sprintf( _x( 'Report a new sighting for %s', 'the title of the map', 'cat-tracker' ), $title );
+
+		return $title;
+	}
+
+	public function submission_form() {
+		$submission_form = '<form id="cat-tracker-new-submission">';
+		$submission_form .= '<fieldset><label for="cat-tracker-submitter-name">' . __( 'Your name', 'cat-tracker' ) . '<input type="text" id="cat-tracker-submitter-name" name="cat-tracker-submitter-name"></label></fieldset>';
+		$submission_form .= '<fieldset><label for="cat-tracker-submitter-phone">' . __( 'Your phone', 'cat-tracker' ) . '<input type="phone" id="cat-tracker-submitter-phone" name="cat-tracker-submitter-phone"></label></fieldset>';
+		$submission_form .= '<fieldset><label for="cat-tracker-submitter-email">' . __( 'Your email address', 'cat-tracker' ) . '<input type="email" id="cat-tracker-submitter-email" name="cat-tracker-submitter-email"></label></fieldset>';
+		$submission_form .= '<fieldset><label for="cat-tracker-submission-date">' . __( 'Date of sighting', 'cat-tracker' ) . '<input type="date" id="cat-tracker-submission-date" name="cat-tracker-submission-date"></label></fieldset>';
+		$submission_form .= '<fieldset><label for="cat-tracker-submisison-description">' . __( 'Please describe the situation', 'cat-tracker' ) . '<textarea id="cat-tracker-submisison-description" name="cat-tracker-submisison-description"></textarea></label</fieldset>';
+		$submission_form .= '<fieldset><label for="cat-tracker-submisison-type">' . __( 'Type of sighting', 'cat-tracker' ) . '</label>';
+		$submission_form .= wp_dropdown_categories( array( 'name' => 'cat-tracker-submisison-type', 'hide_empty' => false, 'id' => 'cat-tracker-submisison-type', 'taxonomy' => Cat_Tracker::MARKER_TAXONOMY, 'echo' => false ) );
+		$submission_form .= '</fieldset>';
+		$submission_form .= '<p>' . __( 'Please provide the location of the sighting using the map below.', 'cat-tracker' ) . '</p>';
+		$submission_form .= '<div id="submission-map></div>';
+		$submission_form .= '</form>';
+		return $submission_form;
 	}
 
 	public function get_markers( $map_id = null ) {
