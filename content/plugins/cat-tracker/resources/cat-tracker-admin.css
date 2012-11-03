@@ -9,7 +9,7 @@
   width: 250px;
 }
 
-#sightingmap_preview {
+.cat-tracker-map-preview {
   height: 400px; 
   width: 75%;
   max-width: 800px;
