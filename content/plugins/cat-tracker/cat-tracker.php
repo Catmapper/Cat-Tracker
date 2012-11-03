@@ -391,6 +391,28 @@ class Cat_Tracker {
 
 		wp_enqueue_style( 'leaflet-css', plugins_url( 'resources/leaflet.css', __FILE__ ), array(), self::LEAFLET_VERSION );
 		wp_enqueue_script( 'leaflet-js', plugins_url( 'resources/leaflet.js', __FILE__ ), array(), self::LEAFLET_VERSION );
+		wp_enqueue_script( 'cat-tracker-js', plugins_url( 'resources/cat-tracker.js', __FILE__ ), array( 'jquery', 'underscore' ), self::VERSION, true );
+
+		$map_id = $this->get_map_id_for_marker( $post->ID );
+
+		wp_localize_script( 'cat-tracker-js', 'cat_tracker_vars', array(
+			'ajax_url' => esc_url( admin_url( 'admin-ajax.php' ) ),
+			'map_source' => $this->map_source,
+			'map_attribution' => $this->map_attribution,
+			'maps' => array(
+				'map-' . $map_id => array(
+					'map_id' => 'map-' . $map_id,
+					'map_latitude' => $this->get_map_latitude( $map_id ),
+					'map_longitude' => $this->get_map_longitude( $map_id ),
+					'map_north_bounds' => $this->get_map_north_bounds( $map_id ),
+					'map_south_bounds' => $this->get_map_south_bounds( $map_id ),
+					'map_west_bounds' => $this->get_map_west_bounds( $map_id ),
+					'map_east_bounds' => $this->get_map_east_bounds( $map_id ),
+					'map_zoom_level' => $this->get_map_zoom_level( $map_id ),
+					'markers' => ( ! $this->is_submission_mode() ) ? json_encode( array( $this->get_marker( $post->ID ) ) ) : array(),
+				),
+			),
+		) );
 
 	}
 
@@ -410,15 +432,22 @@ class Cat_Tracker {
 			'ajax_url' => esc_url( admin_url( 'admin-ajax.php' ) ),
 			'map_source' => $this->map_source,
 			'map_attribution' => $this->map_attribution,
-			'map_latitude' => $this->get_map_latitude(),
-			'map_longitude' => $this->get_map_longitude(),
-			'map_north_bounds' => $this->get_map_north_bounds(),
-			'map_south_bounds' => $this->get_map_south_bounds(),
-			'map_west_bounds' => $this->get_map_west_bounds(),
-			'map_east_bounds' => $this->get_map_east_bounds(),
-			'map_zoom_level' => $this->get_map_zoom_level(),
-			'markers' => json_encode( $this->get_markers() ),
-			) );
+			'is_submission_mode' => $this->is_submission_mode(),
+			'new_submission_popup_text' => __( 'Your sighting', 'cat-tracker' ),
+			'maps' => array(
+				'map-' . get_the_id() => array(
+					'map_id' => 'map-' . get_the_id(),
+					'map_latitude' => $this->get_map_latitude(),
+					'map_longitude' => $this->get_map_longitude(),
+					'map_north_bounds' => $this->get_map_north_bounds(),
+					'map_south_bounds' => $this->get_map_south_bounds(),
+					'map_west_bounds' => $this->get_map_west_bounds(),
+					'map_east_bounds' => $this->get_map_east_bounds(),
+					'map_zoom_level' => $this->get_map_zoom_level(),
+					'markers' => json_encode( $this->get_markers() ),
+				),
+			),
+		) );
 	}
 
 	public function enqueue_ie_styles() {
