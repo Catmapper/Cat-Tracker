@@ -1,61 +1,79 @@
 (function($) {
 
-	var cat_tracker = {
+	function catMap( map_args ) {
 
-		map : {},
-		map_source : cat_tracker_vars.map_source,
-		map_attribution : cat_tracker_vars.map_attribution,
-		map_latitude : cat_tracker_vars.map_latitude,
-		map_longitude : cat_tracker_vars.map_longitude,
-		map_north_bounds : cat_tracker_vars.map_north_bounds,
-		map_south_bounds : cat_tracker_vars.map_south_bounds,
-		map_west_bounds : cat_tracker_vars.map_west_bounds,
-		map_east_bounds : cat_tracker_vars.map_east_bounds,
-		map_zoom_level : cat_tracker_vars.map_zoom_level,
-		sightings : $.parseJSON( cat_tracker_vars.markers ),
+		var click_count = 0;
+		load_map( map_args.map_id );
 
-		load_map : function( selector ) {
+		function load_map( selector ) {
 
-			default_layer = L.tileLayer( cat_tracker.map_source, {attribution : cat_tracker.map_attribution} );
-			cat_tracker.markers = cat_tracker.build_markers( cat_tracker.sightings );
-			console.log( cat_tracker.markers );
+			var default_layer = L.tileLayer( cat_tracker_vars.map_source, {attribution : cat_tracker_vars.map_attribution} );
 
-			cat_tracker.map = L.map(selector, {
-				center : [cat_tracker.map_latitude, cat_tracker.map_longitude],
-				layers : [default_layer, cat_tracker.markers],
-				zoom : cat_tracker.map_zoom_level,
-				maxBounds : cat_tracker.get_max_bounds()
-			});
+			if ( cat_tracker_vars.is_submission_mode ) {
 
-		},
+				map = L.map( selector, {
+					center : [map_args.map_latitude, map_args.map_longitude],
+					layers : [default_layer],
+					zoom : map_args.map_zoom_level,
+					maxBounds : get_max_bounds(),
+				});
 
-		get_max_bounds : function() {
-			var south_west_bounds = new L.LatLng( cat_tracker.map_south_bounds, cat_tracker.map_west_bounds ),
-	  			north_east_bounds = new L.LatLng( cat_tracker.map_north_bounds, cat_tracker.map_east_bounds );
+				map.on( 'click', capture_click );
+
+			} else {
+
+				markers = build_markers( $.parseJSON( map_args.markers ) );
+				map = L.map( selector, {
+					center : [map_args.map_latitude, map_args.map_longitude],
+					layers : [default_layer, markers],
+					zoom : map_args.map_zoom_level,
+					maxBounds : get_max_bounds(),
+				});
+
+			}
+
+		}
+
+		function get_max_bounds() {
+			var south_west_bounds = new L.LatLng( map_args.map_south_bounds, map_args.map_west_bounds ),
+	  			north_east_bounds = new L.LatLng( map_args.map_north_bounds, map_args.map_east_bounds );
 			return new L.LatLngBounds( south_west_bounds, north_east_bounds );
-		},
+		}
 
-		build_markers : function( sightings ) {
+		function build_markers( sightings ) {
 			var markers = new Array();
 			_.each( sightings, function( sighting ){
 				markers.push( L.marker( [sighting.latitude, sighting.longitude], { title : sighting.title } ).bindPopup( sighting.text ) );
 			});
 			return L.layerGroup( markers );
-		},
+		}
 
-		capture_click : function( e ) {
-			console.log( e.latlng );
+		// TODO: complete this for submissions
+		function capture_click( e ) {
+			click_count++;
+			setTimeout( function(){
+				if ( click_count != 1 ) {
+					click_count = 0;
+					return;
+				}
+				click_count = 0;
+
+	    	L.popup()
+	    		.setLatLng( e.latlng )
+	        .setContent( cat_tracker_vars.new_submission_popup_text )
+	        .openOn( map );
+	      $( '#cat-tracker-submisison-latitude' ).val( e.latlng.lat );
+  	    $( '#cat-tracker-submisison-longitude' ).val( e.latlng.lng );
+			}, 200 );
 		}
 
 
-	};
+	}
 
 	jQuery( document ).ready(function($){
 
-		cat_tracker.load_map( 'map' );
-
-		cat_tracker.map.on( 'click', function( e ){
-			cat_tracker.capture_click( e );
+		_.each( cat_tracker_vars.maps, function( map_args ){
+			var cat_map = new catMap( map_args );
 		});
 
 	});
