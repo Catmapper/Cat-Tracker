@@ -93,6 +93,11 @@ class Cat_Tracker {
 	public $theme_path;
 
 	/**
+	 * @var current sighting submission, if there is one
+	 */
+	public $sighting_submission;
+
+	/**
 	 * Singleton class for this Cat Tracker
 	 *
 	 * @since 1.0
@@ -101,6 +106,7 @@ class Cat_Tracker {
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
 			self::$instance = new Cat_Tracker;
+			self::$instance->includes();
 			self::$instance->run_hooks();
 			self::$instance->setup_vars();
 		}
@@ -117,6 +123,16 @@ class Cat_Tracker {
 	public function __construct() {}
 
 	/**
+	 * include included files
+	 *
+	 * @since 1.0
+	 * @return void
+	 */
+	public function includes() {
+		include_once( $this->path . 'classes/cat-tracker-sighting-submissions.php' );
+	}
+
+	/**
 	 * the meat & potatoes of this plugin
 	 *
 	 * @since 1.0
@@ -128,6 +144,7 @@ class Cat_Tracker {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'frontend_enqueue' ) );
 		add_action( 'wp_head', array( $this, 'enqueue_ie_styles' ) );
+		add_action( 'template_redirect', array( $this, 'maybe_process_submission' ) );
 		add_action( 'save_post', array( $this, '_flush_map_dropdown_cache' ) );
 		add_filter( 'post_updated_messages', array( $this, 'post_updated_messages' ) );
 		add_filter( 'the_content', array( $this, 'map_content' ) );
@@ -461,10 +478,14 @@ class Cat_Tracker {
 
 	public function map_content( $content ) {
 		if ( $this->is_submission_mode() ) {
-			$content = $this->submission_form();
+			$content = '';
+			if ( ! empty( $this->sighting_submission ) && is_object( $this->sighting_submission ) && method_exists( $this->sighting_submission, 'get_errors' ) ) {
+				$content .= $this->sighting_submission->get_errors();
+			}
+			$content .= $this->submission_form();
 		} elseif ( is_singular( Cat_Tracker::MAP_POST_TYPE ) ) {
-			$content = '<p class="cat-tracker-submission"><a href="' . esc_url( add_query_arg( array( 'submission' => 'new' ), get_permalink( get_the_ID() ) ) ) . '">' . __( 'Report a new sighting', 'cat-tracker' ) . '</a>';
-			$content .= '<div id="map"></div>';
+			$content = '<a class="cat-tracker-report-new-sighting-button" href="' . esc_url( add_query_arg( array( 'submission' => 'new' ), get_permalink( get_the_ID() ) ) ) . '">' . __( 'Report a new sighting', 'cat-tracker' ) . '</a>';
+			$content .= '<div class="cat-tracker-map" id="' . esc_attr( 'map-' . get_the_ID() ) . '"></div>';
 		}
 
 		return $content;
@@ -474,26 +495,38 @@ class Cat_Tracker {
 		return ( is_singular( Cat_Tracker::MAP_POST_TYPE ) && isset( $_GET['submission'] ) && 'new' == $_GET['submission'] );
 	}
 
+	public function maybe_process_submission() {
+		if ( ! $this->is_submission_mode() || ! isset( $_POST['cat-tracker-submisison-submit'] ) )
+			return;
+
+		$this->sighting_submission = new Cat_Tracker_Sighting_Submission();
+		$this->sighting_submission->process();
+	}
+
 	public function submission_title( $title, $post_id ) {
 
-		if ( $this->is_submission_mode() )
+		if ( $this->is_submission_mode() && in_the_loop() )
 			$title = sprintf( _x( 'Report a new sighting for %s', 'the title of the map', 'cat-tracker' ), $title );
 
 		return $title;
 	}
 
 	public function submission_form() {
-		$submission_form = '<form id="cat-tracker-new-submission">';
+		$submission_form = '<form id="cat-tracker-new-submission" method="post">';
 		$submission_form .= '<fieldset><label for="cat-tracker-submitter-name">' . __( 'Your name', 'cat-tracker' ) . '<input type="text" id="cat-tracker-submitter-name" name="cat-tracker-submitter-name"></label></fieldset>';
 		$submission_form .= '<fieldset><label for="cat-tracker-submitter-phone">' . __( 'Your phone', 'cat-tracker' ) . '<input type="phone" id="cat-tracker-submitter-phone" name="cat-tracker-submitter-phone"></label></fieldset>';
 		$submission_form .= '<fieldset><label for="cat-tracker-submitter-email">' . __( 'Your email address', 'cat-tracker' ) . '<input type="email" id="cat-tracker-submitter-email" name="cat-tracker-submitter-email"></label></fieldset>';
 		$submission_form .= '<fieldset><label for="cat-tracker-submission-date">' . __( 'Date of sighting', 'cat-tracker' ) . '<input type="date" id="cat-tracker-submission-date" name="cat-tracker-submission-date"></label></fieldset>';
-		$submission_form .= '<fieldset><label for="cat-tracker-submisison-description">' . __( 'Please describe the situation', 'cat-tracker' ) . '<textarea id="cat-tracker-submisison-description" name="cat-tracker-submisison-description"></textarea></label</fieldset>';
-		$submission_form .= '<fieldset><label for="cat-tracker-submisison-type">' . __( 'Type of sighting', 'cat-tracker' ) . '</label>';
+		$submission_form .= '<fieldset><label for="cat-tracker-submisison-description">' . __( 'Please describe the situation', 'cat-tracker' ) . '<textarea id="cat-tracker-submisison-description" name="cat-tracker-submisison-description"></textarea></label></fieldset>';
+		$submission_form .= '<fieldset><label for="cat-tracker-submisison-type">' . __( 'Type of sighting', 'cat-tracker' );
 		$submission_form .= wp_dropdown_categories( array( 'name' => 'cat-tracker-submisison-type', 'hide_empty' => false, 'id' => 'cat-tracker-submisison-type', 'taxonomy' => Cat_Tracker::MARKER_TAXONOMY, 'echo' => false ) );
-		$submission_form .= '</fieldset>';
+		$submission_form .= '</label></fieldset>';
 		$submission_form .= '<p>' . __( 'Please provide the location of the sighting using the map below.', 'cat-tracker' ) . '</p>';
-		$submission_form .= '<div id="submission-map></div>';
+		$submission_form .= '<div class="cat-tracker-submission-map" id="' . esc_attr( 'map-' . get_the_ID() ) . '"></div>';
+		$submission_form .= wp_nonce_field( 'cat_tracker_confirm_submission', 'cat_tracker_confirm_submission', true, false );
+		$submission_form .= '<input type="hidden" name="cat-tracker-submisison-latitude" id="cat-tracker-submisison-latitude">';
+		$submission_form .= '<input type="hidden" name="cat-tracker-submisison-longitude" id="cat-tracker-submisison-longitude">';
+		$submission_form .= '<input type="submit" name="cat-tracker-submisison-submit" id="cat-tracker-submisison-submit" value="Submit">';
 		$submission_form .= '</form>';
 		return $submission_form;
 	}
@@ -524,10 +557,10 @@ class Cat_Tracker {
 		foreach( $_markers->posts as $marker_id ) {
 			$markers[] = array(
 				'id' => $marker_id,
-				'title' => get_the_title( $marker_id ),
-				'latitude' => get_post_meta( $marker_id, 'latitude', true ),
-				'longitude' => get_post_meta( $marker_id, 'longitude', true ),
-				'text' => get_the_title( $marker_id ),
+				'title' => $this->get_marker_text( $marker_id ),
+				'latitude' =>  $this->get_marker_latitude( $marker_id ),
+				'longitude' =>  $this->get_marker_longitude( $marker_id ),
+				'text' => $this->get_marker_text( $marker_id ),
 			);
 		}
 
@@ -586,6 +619,20 @@ class Cat_Tracker {
 		return $this->marker_meta_helper( 'map', $marker_id );
 	}
 
+	public function get_marker_description( $marker_id = null ) {
+		return $this->marker_meta_helper( 'description', $marker_id );
+	}
+
+	public function get_marker_type( $marker_id ) {
+		$_types = wp_get_object_terms( $marker_id, Cat_Tracker::MARKER_TAXONOMY, array( 'fields' => 'name' ) );
+		$type = ( ! empty( $_types ) ) ? $_types[0] : 'n/a';
+		return $type;
+	}
+
+	public function get_marker_text( $marker_id ) {
+		return __( 'Submission type:', 'cat-tracker' ) . ' ' . $this->get_marker_type( $marker_id ) . "<br>\n" . ' ' . __( 'Description:', 'cat-tracker' ) . ' ' . $this->get_marker_description();
+	}
+
 	public function get_marker_latitude( $marker_id = null ) {
 		return $this->marker_meta_helper( 'latitude', $marker_id );
 	}
@@ -608,10 +655,10 @@ class Cat_Tracker {
 
 		return array(
 			'id' => $marker_id,
-			'title' => get_the_title( $marker_id ),
+			'title' => $this->get_marker_text( $marker_id ),
 			'latitude' => $this->get_marker_latitude( $marker_id ),
 			'longitude' => $this->get_marker_longitude( $marker_id ),
-			'text' => get_the_title( $marker_id ),
+			'text' => $this->get_marker_text( $marker_id ),
 		);
 
 	}
@@ -662,26 +709,7 @@ class Cat_Tracker {
 
 
 			?>
-			<div id="sightingmap_preview"></div>
-			<script type="text/javascript">
-				jQuery( document ).ready(function($){
-					var cat_tracker_sighting_map_preview = {};
-
-					cat_tracker_sighting_map_preview.center = [<?php echo esc_js( $latitude ); ?>, <?php echo esc_js( $longitude ); ?>],
-
-					cat_tracker_sighting_map_preview.marker = $.parseJSON( '<?php echo json_encode( $this->get_marker( $object_id ) ); ?>' );
-					cat_tracker_sighting_map_preview.markers = L.layerGroup( [ L.marker( [cat_tracker_sighting_map_preview.marker.latitude, cat_tracker_sighting_map_preview.marker.longitude], { title : cat_tracker_sighting_map_preview.marker.title } ).bindPopup( cat_tracker_sighting_map_preview.marker.text ) ] );
-
-					cat_tracker_sighting_map_preview.layers = [L.tileLayer( '<?php echo esc_js( $this->map_source ); ?>', {attribution : '<?php echo esc_js( $this->map_attribution ); ?>'} ), cat_tracker_sighting_map_preview.markers ],
-
-					cat_tracker_sighting_map_preview.map = L.map( 'sightingmap_preview', {
-						center : cat_tracker_sighting_map_preview.center,
-						layers : cat_tracker_sighting_map_preview.layers,
-						zoom : 15,
-						minZoom: 10
-					});
-				});
-				</script>
+			<div class="cat-tracker-map-preview" id="<?php echo esc_attr( 'map-' . $this->get_map_id_for_marker( get_the_ID() ) ); ?>"></div>
 		</div>
 		<?php
 	}
