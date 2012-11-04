@@ -135,6 +135,7 @@ class Cat_Tracker {
 	 */
 	public function includes() {
 		include_once( $this->path . 'classes/cat-tracker-sighting-submissions.php' );
+		include_once( $this->path . 'classes/cat-tracker-utils.php' );
 	}
 
 	/**
