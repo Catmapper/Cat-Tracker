@@ -426,7 +426,7 @@ class Cat_Tracker {
 					'map_west_bounds' => $this->get_map_west_bounds( $map_id ),
 					'map_east_bounds' => $this->get_map_east_bounds( $map_id ),
 					'map_zoom_level' => $this->get_map_zoom_level( $map_id ),
-					'markers' => ( ! $this->is_submission_mode() ) ? json_encode( array( $this->get_marker( $post->ID ) ) ) : array(),
+					'markers' => ( ! Cat_Tracker::is_submission_mode() ) ? json_encode( array( $this->get_marker( $post->ID ) ) ) : array(),
 				),
 			),
 		) );
@@ -449,7 +449,7 @@ class Cat_Tracker {
 			'ajax_url' => esc_url( admin_url( 'admin-ajax.php' ) ),
 			'map_source' => $this->map_source,
 			'map_attribution' => $this->map_attribution,
-			'is_submission_mode' => $this->is_submission_mode(),
+			'is_submission_mode' => Cat_Tracker::is_submission_mode(),
 			'new_submission_popup_text' => __( 'Your sighting', 'cat-tracker' ),
 			'maps' => array(
 				'map-' . get_the_id() => array(
@@ -477,7 +477,7 @@ class Cat_Tracker {
 	}
 
 	public function map_content( $content ) {
-		if ( $this->is_submission_mode() ) {
+		if ( Cat_Tracker::is_submission_mode() ) {
 			$content = '';
 			if ( ! empty( $this->sighting_submission ) && is_object( $this->sighting_submission ) && method_exists( $this->sighting_submission, 'get_errors' ) ) {
 				$content .= $this->sighting_submission->get_errors();
@@ -491,12 +491,12 @@ class Cat_Tracker {
 		return $content;
 	}
 
-	public function is_submission_mode() {
-		return ( is_singular( Cat_Tracker::MAP_POST_TYPE ) && isset( $_GET['submission'] ) && 'new' == $_GET['submission'] );
+	public static function is_submission_mode() {
+		return ( ! is_admin() && isset( $_GET['submission'] ) && 'new' == $_GET['submission'] && is_singular( Cat_Tracker::MAP_POST_TYPE ) );
 	}
 
 	public function maybe_process_submission() {
-		if ( ! $this->is_submission_mode() || ! isset( $_POST['cat-tracker-submisison-submit'] ) )
+		if ( ! Cat_Tracker::is_submission_mode() || ! isset( $_POST['cat-tracker-submisison-submit'] ) )
 			return;
 
 		$this->sighting_submission = new Cat_Tracker_Sighting_Submission();
@@ -505,7 +505,7 @@ class Cat_Tracker {
 
 	public function submission_title( $title, $post_id ) {
 
-		if ( $this->is_submission_mode() && in_the_loop() )
+		if ( Cat_Tracker::is_submission_mode() && in_the_loop() )
 			$title = sprintf( _x( 'Report a new sighting for %s', 'the title of the map', 'cat-tracker' ), $title );
 
 		return $title;
@@ -555,11 +555,14 @@ class Cat_Tracker {
 			return $markers;
 
 		foreach( $_markers->posts as $marker_id ) {
+			$latitude = $this->get_marker_latitude( $marker_id );
+			$longitude = $this->get_marker_longitude( $marker_id );
+			if ( empty( $latitude ) || empty( $longitude ) )
 			$markers[] = array(
 				'id' => $marker_id,
 				'title' => $this->get_marker_text( $marker_id ),
-				'latitude' =>  $this->get_marker_latitude( $marker_id ),
-				'longitude' =>  $this->get_marker_longitude( $marker_id ),
+				'latitude' => $this->get_marker_latitude( $marker_id ),
+				'longitude' => $this->get_marker_longitude( $marker_id ),
 				'text' => $this->get_marker_text( $marker_id ),
 			);
 		}
@@ -717,6 +720,7 @@ class Cat_Tracker {
 	public function marker_publish_meta_box( $post ) {
 		include_once( 'includes/marker-meta-box.php' );
 	}
+
 
 }
 
