@@ -642,7 +642,7 @@ class Cat_Tracker {
 	}
 
 	public function get_marker_text( $marker_id ) {
-		return __( 'Submission type:', 'cat-tracker' ) . ' ' . $this->get_marker_type( $marker_id ) . "<br>\n" . ' ' . __( 'Description:', 'cat-tracker' ) . ' ' . $this->get_marker_description();
+		return __( 'Submission type:', 'cat-tracker' ) . ' ' . $this->get_marker_type( $marker_id ) . "<br>\n" . ' ' . __( 'Description:', 'cat-tracker' ) . ' ' . $this->get_marker_description( $marker_id );
 	}
 
 	public function get_marker_latitude( $marker_id = null ) {
