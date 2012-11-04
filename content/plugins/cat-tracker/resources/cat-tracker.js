@@ -15,7 +15,7 @@
 					center : [map_args.map_latitude, map_args.map_longitude],
 					layers : [default_layer],
 					zoom : map_args.map_zoom_level,
-					maxBounds : get_max_bounds(),
+					maxBounds : get_max_bounds()
 				});
 
 				map.on( 'click', capture_click );
@@ -26,7 +26,8 @@
 					center : [map_args.map_latitude, map_args.map_longitude],
 					layers : [default_layer],
 					zoom : map_args.map_zoom_level,
-					maxBounds : get_max_bounds(),
+					maxZoom : map_args.map_max_zoom_level,
+					maxBounds : get_max_bounds()
 				});
 				build_markers( $.parseJSON( map_args.markers ) );
 
@@ -43,12 +44,11 @@
 		function build_markers( sightings ) {
 			var markers = new L.MarkerClusterGroup();
 			_.each( sightings, function( sighting ){
-				markers.addLayer( L.marker( [sighting.latitude, sighting.longitude], { title : sighting.title } ).bindPopup( sighting.text ) );
+				markers.addLayer( L.marker( [sighting.latitude, sighting.longitude] ).bindPopup( sighting.text ) );
 			});
 			map.addLayer( markers );
 		}
 
-		// TODO: complete this for submissions
 		function capture_click( e ) {
 			click_count++;
 			setTimeout( function(){

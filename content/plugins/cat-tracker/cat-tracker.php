@@ -364,7 +364,8 @@ class Cat_Tracker {
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'south_bounds', array(  Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'South bounds' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'west_bounds', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'West bounds' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'east_bounds', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'East bounds' ) );
-		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'zoom_level', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'Zoom Level' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'zoom_level', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'Default Zoom Level' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'max_zoom_level', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'Max Zoom Level' ) );
 
 		x_add_metadata_group( 'marker_information', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'label' => 'Sighting Information', 'priority' => 'high' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'description', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'textarea', 'group' => 'marker_information', 'label' => 'Description of the situation' ) );
@@ -467,6 +468,7 @@ class Cat_Tracker {
 					'map_west_bounds' => $this->get_map_west_bounds(),
 					'map_east_bounds' => $this->get_map_east_bounds(),
 					'map_zoom_level' => $this->get_map_zoom_level(),
+					'map_max_zoom_level' => $this->get_map_max_zoom_level(),
 					'markers' => json_encode( $this->get_markers() ),
 				),
 			),
@@ -625,6 +627,10 @@ class Cat_Tracker {
 
 	public function get_map_zoom_level( $map_id = null ) {
 		return $this->map_meta_helper( 'zoom_level', $map_id );
+	}
+
+	public function get_map_max_zoom_level( $map_id = null ) {
+		return $this->map_meta_helper( 'max_zoom_level', $map_id );
 	}
 
 	public function get_map_id_for_marker( $marker_id = null ) {
