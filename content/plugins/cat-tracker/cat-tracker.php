@@ -602,49 +602,49 @@ class Cat_Tracker {
 	}
 
 	public function get_map_latitude( $map_id = null ) {
-		return $this->map_meta_helper( 'latitude', $map_id );
+		return floatval( $this->map_meta_helper( 'latitude', $map_id ) );
 	}
 
 	public function get_map_longitude( $map_id = null ) {
-		return $this->map_meta_helper( 'longitude', $map_id );
+		return floatval( $this->map_meta_helper( 'longitude', $map_id ) );
 	}
 
 	public function get_map_north_bounds( $map_id = null ) {
-		return $this->map_meta_helper( 'north_bounds', $map_id );
+		return floatval( $this->map_meta_helper( 'north_bounds', $map_id ) );
 	}
 
 	public function get_map_south_bounds( $map_id = null ) {
-		return $this->map_meta_helper( 'south_bounds', $map_id );
+		return floatval( $this->map_meta_helper( 'south_bounds', $map_id ) );
 	}
 
 	public function get_map_west_bounds( $map_id = null ) {
-		return $this->map_meta_helper( 'west_bounds', $map_id );
+		return floatval( $this->map_meta_helper( 'west_bounds', $map_id ) );
 	}
 
 	public function get_map_east_bounds( $map_id = null ) {
-		return $this->map_meta_helper( 'east_bounds', $map_id );
+		return floatval( $this->map_meta_helper( 'east_bounds', $map_id ) );
 	}
 
 	public function get_map_zoom_level( $map_id = null ) {
-		return $this->map_meta_helper( 'zoom_level', $map_id );
+		return absint( $this->map_meta_helper( 'zoom_level', $map_id ) );
 	}
 
 	public function get_map_max_zoom_level( $map_id = null ) {
-		return $this->map_meta_helper( 'max_zoom_level', $map_id );
+		return absint( $this->map_meta_helper( 'max_zoom_level', $map_id ) );
 	}
 
 	public function get_map_id_for_marker( $marker_id = null ) {
-		return $this->marker_meta_helper( 'map', $marker_id );
+		return absint( $this->marker_meta_helper( 'map', $marker_id ) );
 	}
 
 	public function get_marker_description( $marker_id = null ) {
-		return $this->marker_meta_helper( 'description', $marker_id );
+		return esc_html( $this->marker_meta_helper( 'description', $marker_id ) );
 	}
 
 	public function get_marker_type( $marker_id ) {
 		$_types = wp_get_object_terms( $marker_id, Cat_Tracker::MARKER_TAXONOMY, array( 'fields' => 'names' ) );
 		$type = ( ! empty( $_types ) ) ? $_types[0] : 'n/a';
-		return $type;
+		return esc_html( $type );
 	}
 
 	public function get_marker_text( $marker_id ) {
@@ -652,11 +652,11 @@ class Cat_Tracker {
 	}
 
 	public function get_marker_latitude( $marker_id = null ) {
-		return $this->marker_meta_helper( 'latitude', $marker_id );
+		return floatval( $this->marker_meta_helper( 'latitude', $marker_id ) );
 	}
 
 	public function get_marker_longitude( $marker_id = null ) {
-		return $this->marker_meta_helper( 'longitude', $marker_id );
+		return floatval( $this->marker_meta_helper( 'longitude', $marker_id ) );
 	}
 
 	public function get_map_dropdown() {
@@ -692,7 +692,7 @@ class Cat_Tracker {
 		if ( empty( $maps->posts ) )
 			return $maps_dropdown;
 		foreach ( $maps->posts as $map_id )
-			$maps_dropdown[$map_id] = get_the_title( $map_id );
+			$maps_dropdown[$map_id] = esc_html( get_the_title( $map_id ) );
 		set_transient( Cat_Tracker::MAP_DROPDOWN_TRANSIENT, $maps_dropdown );
 		wp_reset_query();
 		return $maps_dropdown;
