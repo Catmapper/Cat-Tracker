@@ -78,6 +78,11 @@ class Cat_Tracker {
 	const MAP_DROPDOWN_TRANSIENT = 'cat_tracker_map_admin_dropdown_1';
 
 	/**
+	 * cat tracker limit the number of markers per map for performance reasons
+	 */
+	const MARKERS_LIMIT_PER_MAP = 1000;
+
+	/**
 	 * @var the one true Cat Tracker
 	 */
 	private static $instance;
