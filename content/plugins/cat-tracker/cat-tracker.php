@@ -564,7 +564,9 @@ class Cat_Tracker {
 		foreach( $_markers->posts as $marker_id ) {
 			$latitude = $this->get_marker_latitude( $marker_id );
 			$longitude = $this->get_marker_longitude( $marker_id );
-			if ( empty( $latitude ) || empty( $longitude ) )
+			if ( ! Cat_Tracker_Utils::validate_latitude( $latitude ) || ! Cat_Tracker_Utils::validate_longitude( $longitude ) )
+				continue;
+
 			$markers[] = array(
 				'id' => $marker_id,
 				'title' => $this->get_marker_text( $marker_id ),
