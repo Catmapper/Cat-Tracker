@@ -532,7 +532,7 @@ class Cat_Tracker {
 		$submission_form .= '<fieldset><label for="cat-tracker-submisison-type">' . __( 'Type of sighting', 'cat-tracker' );
 		$submission_form .= wp_dropdown_categories( array( 'name' => 'cat-tracker-submisison-type', 'hide_empty' => false, 'id' => 'cat-tracker-submisison-type', 'taxonomy' => Cat_Tracker::MARKER_TAXONOMY, 'echo' => false ) );
 		$submission_form .= '</label></fieldset>';
-		$submission_form .= '<p>' . __( 'Please provide the location of the sighting using the map below.', 'cat-tracker' ) . '</p>';
+		$submission_form .= '<p>' . __( 'Please provide the location of the sighting using the map below. You can zoom in using the controls on the left-hand side, or by double clicking on the map. Click on the map once to define the location of the sighting. You can then re-click the map or click and drag the marker to re-set the location of the sighting.', 'cat-tracker' ) . '</p>';
 		$submission_form .= '<div class="cat-tracker-submission-map" id="' . esc_attr( 'map-' . get_the_ID() ) . '"></div>';
 		$submission_form .= wp_nonce_field( 'cat_tracker_confirm_submission', 'cat_tracker_confirm_submission', true, false );
 		$submission_form .= '<input type="hidden" name="cat-tracker-submisison-latitude" id="cat-tracker-submisison-latitude">';
