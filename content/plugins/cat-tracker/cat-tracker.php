@@ -636,7 +636,7 @@ class Cat_Tracker {
 	}
 
 	public function get_marker_type( $marker_id ) {
-		$_types = wp_get_object_terms( $marker_id, Cat_Tracker::MARKER_TAXONOMY, array( 'fields' => 'name' ) );
+		$_types = wp_get_object_terms( $marker_id, Cat_Tracker::MARKER_TAXONOMY, array( 'fields' => 'names' ) );
 		$type = ( ! empty( $_types ) ) ? $_types[0] : 'n/a';
 		return $type;
 	}
