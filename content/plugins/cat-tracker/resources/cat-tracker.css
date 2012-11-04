@@ -11,6 +11,13 @@
 	width: 100%;
 }
 
+.cat-tracker-map img,
+.cat-tracker-submission-map img,
+.entry-content .cat-tracker-map img,
+.entry-content .cat-tracker-submission-map img {
+	box-shadow: none;
+}
+
 .cat-tracker-submission-map {
 	cursor: pointer;
 }
