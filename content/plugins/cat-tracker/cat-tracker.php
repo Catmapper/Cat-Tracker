@@ -447,9 +447,11 @@ class Cat_Tracker {
 
 		wp_enqueue_style( 'leaflet-css', plugins_url( 'resources/leaflet.css', __FILE__ ), array(), self::LEAFLET_VERSION );
 		wp_enqueue_style( 'cat-tracker', plugins_url( 'resources/cat-tracker.css', __FILE__ ), array(), self::VERSION );
-		wp_enqueue_style( 'marker-cluster-css', plugins_url( 'resources/marker-cluster.css', __FILE__ ), array( 'leaflet-css' ), self::LEAFLET_VERSION );
+		wp_enqueue_style( 'leaflet-marker-cluster-css', plugins_url( 'resources/leaflet-markercluster.css', __FILE__ ), array( 'leaflet-css' ), self::LEAFLET_VERSION );
+		wp_enqueue_style( 'leaflet-pan-css', plugins_url( 'resources/leaflet-pan.css', __FILE__ ), array( 'leaflet-css' ), self::LEAFLET_VERSION );
 		wp_enqueue_script( 'leaflet-js', plugins_url( 'resources/leaflet.js', __FILE__ ), array(), self::LEAFLET_VERSION, true );
-		wp_enqueue_script( 'marker-cluster-js', plugins_url( 'resources/leaflet.markercluster.js', __FILE__ ), array( 'leaflet-js' ), self::LEAFLET_VERSION, true );
+		wp_enqueue_script( 'leaflet-marker-cluster-js', plugins_url( 'resources/leaflet-markercluster.js', __FILE__ ), array( 'leaflet-js' ), self::LEAFLET_VERSION, true );
+		wp_enqueue_script( 'leaflet-pan-js', plugins_url( 'resources/leaflet-pan.js', __FILE__ ), array( 'leaflet-js' ), self::LEAFLET_VERSION, true );
 		wp_enqueue_script( 'cat-tracker-js', plugins_url( 'resources/cat-tracker.js', __FILE__ ), array( 'jquery', 'underscore' ), self::VERSION, true );
 
 		wp_localize_script( 'cat-tracker-js', 'cat_tracker_vars', array(
@@ -478,8 +480,9 @@ class Cat_Tracker {
 	public function enqueue_ie_styles() {
 		?>
 		<!--[if lte IE 8]>
-    	<link rel="stylesheet" href="<?php echo esc_url( add_query_arg( array( 'ver' => self::LEAFLET_VERSION ), plugins_url( 'resources/leaflet.ie.css', __FILE__ ) ) ); ?>" />
-    	<link rel="stylesheet" href="<?php echo esc_url( add_query_arg( array( 'ver' => self::LEAFLET_VERSION ), plugins_url( 'resources/marker-cluster.ie.css', __FILE__ ) ) ); ?>" />
+    	<link rel="stylesheet" href="<?php echo esc_url( add_query_arg( array( 'ver' => self::LEAFLET_VERSION ), plugins_url( 'resources/leaflet-ie.css', __FILE__ ) ) ); ?>" />
+    	<link rel="stylesheet" href="<?php echo esc_url( add_query_arg( array( 'ver' => self::LEAFLET_VERSION ), plugins_url( 'resources/leaflet-marker-cluster-ie.css', __FILE__ ) ) ); ?>" />
+    	<link rel="stylesheet" href="<?php echo esc_url( add_query_arg( array( 'ver' => self::LEAFLET_VERSION ), plugins_url( 'resources/leaflet-pan-ie.css', __FILE__ ) ) ); ?>" />
 		<![endif]-->
 		<?php
 	}
