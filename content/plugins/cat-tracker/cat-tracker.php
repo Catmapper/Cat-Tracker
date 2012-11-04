@@ -548,10 +548,11 @@ class Cat_Tracker {
 		$_markers = new WP_Query();
 		$_markers->query( array(
 			'post_type' => Cat_Tracker::MARKER_POST_TYPE,
+			'posts_per_page' => Cat_Tracker::MARKERS_LIMIT_PER_MAP,
 			'fields' => 'ids',
 			'meta_query' => array(
 				array(
-					'key' => 'map',
+					'key' => Cat_Tracker::META_PREFIX . 'map',
 					'value' => $map_id,
 				),
 			),
