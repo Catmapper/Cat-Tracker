@@ -22,13 +22,13 @@
 
 			} else {
 
-				markers = build_markers( $.parseJSON( map_args.markers ) );
 				map = L.map( selector, {
 					center : [map_args.map_latitude, map_args.map_longitude],
-					layers : [default_layer, markers],
+					layers : [default_layer],
 					zoom : map_args.map_zoom_level,
 					maxBounds : get_max_bounds(),
 				});
+				build_markers( $.parseJSON( map_args.markers ) );
 
 			}
 
@@ -41,11 +41,11 @@
 		}
 
 		function build_markers( sightings ) {
-			var markers = new Array();
+			var markers = new L.MarkerClusterGroup();
 			_.each( sightings, function( sighting ){
-				markers.push( L.marker( [sighting.latitude, sighting.longitude], { title : sighting.title } ).bindPopup( sighting.text ) );
+				markers.addLayer( L.marker( [sighting.latitude, sighting.longitude], { title : sighting.title } ).bindPopup( sighting.text ) );
 			});
-			return L.layerGroup( markers );
+			map.addLayer( markers );
 		}
 
 		// TODO: complete this for submissions
