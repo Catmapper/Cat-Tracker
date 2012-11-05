@@ -497,6 +497,18 @@ class Cat_Tracker {
 		} elseif ( is_singular( Cat_Tracker::MAP_POST_TYPE ) ) {
 			$content = '<a class="cat-tracker-report-new-sighting-button" href="' . esc_url( add_query_arg( array( 'submission' => 'new' ), get_permalink( get_the_ID() ) ) ) . '">' . __( 'Report a new sighting', 'cat-tracker' ) . '</a>';
 			$content .= '<div class="cat-tracker-map" id="' . esc_attr( 'map-' . get_the_ID() ) . '"></div>';
+
+			$marker_types = $this->get_markers();
+			if ( empty( $marker_types ) )
+				return $content;
+
+			$content .= '<div class="leaflet-control-layers leaflet-control leaflet-control-layers-expanded" id="cat-tracker-custom-controls"><div class="leaflet-control-layers-overlays">';
+			$content .= '<span>' . __( 'Select types of sightings:', 'cat-tracker' ) . '</span>';
+			$content .= '<form>';
+			foreach ( $marker_types as $marker_type )
+				$content .= '<label><input data-marker-type="' . esc_attr( $marker_type['slug'] ) . '" class="cat-tracker-layer-control" type="checkbox" checked="checked">' . esc_html( $marker_type['title'] ) . '</label>';
+			$content .= '</div></form></div>';
+			return $content;
 		}
 
 		return $content;
@@ -542,6 +554,9 @@ class Cat_Tracker {
 		return $submission_form;
 	}
 
+	/**
+	 * @todo: add caching
+	 */
 	public function get_markers( $map_id = null ) {
 		$map_id = ( empty( $map_id ) ) ? get_the_ID() : $map_id;
 
@@ -572,7 +587,18 @@ class Cat_Tracker {
 			if ( ! Cat_Tracker_Utils::validate_latitude( $latitude ) || ! Cat_Tracker_Utils::validate_longitude( $longitude ) )
 				continue;
 
-			$markers[] = array(
+			$array_slug = $this->get_marker_type_slug($marker_id);
+
+			if ( ! isset( $markers[$array_slug] ) ) {
+				$markers[$array_slug] = array(
+					'title' => $this->get_marker_type( $marker_id ),
+					'slug' => $array_slug,
+					'sightings' => array(),
+				);
+			}
+
+
+			$markers[$array_slug]['sightings'][] = array(
 				'id' => $marker_id,
 				'title' => $this->get_marker_text( $marker_id ),
 				'latitude' => $this->get_marker_latitude( $marker_id ),
@@ -644,10 +670,18 @@ class Cat_Tracker {
 		return esc_html( $this->marker_meta_helper( 'description', $marker_id ) );
 	}
 
-	public function get_marker_type( $marker_id ) {
-		$_types = wp_get_object_terms( $marker_id, Cat_Tracker::MARKER_TAXONOMY, array( 'fields' => 'names' ) );
+	public function _get_marker_type_helper( $marker_id, $fields ) {
+		$_types = wp_get_object_terms( $marker_id, Cat_Tracker::MARKER_TAXONOMY, array( 'fields' => $fields ) );
 		$type = ( ! empty( $_types ) ) ? $_types[0] : 'n/a';
 		return esc_html( $type );
+	}
+
+	public function get_marker_type( $marker_id ) {
+		return $this->_get_marker_type_helper( $marker_id, 'names' );
+	}
+
+	public function get_marker_type_slug( $marker_id ) {
+		return $this->_get_marker_type_helper( $marker_id, 'slugs' );
 	}
 
 	public function get_marker_text( $marker_id ) {

@@ -6,6 +6,19 @@
   font-style: normal;
 }
 
+
+.cat-tracker-map-icon:before {
+	content: "\f041";
+	font-family: 'FontAwesome';
+	font-size: 32px;
+	color: #2682D0;
+	display: block;
+	position: relative;
+	margin: inherit;
+	top: -24px;
+	left: 2px;
+}
+
 .cat-tracker-map, .cat-tracker-submission-map {
 	height: 500px;
 	width: 100%;
