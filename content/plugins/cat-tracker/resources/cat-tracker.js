@@ -19,7 +19,7 @@
 					maxBounds : get_max_bounds(),
 				});
 
-				map.on( 'click', capture_click );
+				map.on( 'click', capture_submission_click );
 
 			} else {
 
@@ -31,9 +31,7 @@
 					maxBounds : get_max_bounds(),
 				});
 				build_markers( $.parseJSON( map_args.markers ) );
-
 			}
-
 		}
 
 		function get_max_bounds() {
@@ -50,7 +48,7 @@
 			map.addLayer( markers );
 		}
 
-		function capture_click( e ) {
+		function capture_submission_click( e ) {
 			click_count++;
 			setTimeout( function(){
 				if ( click_count != 1 ) {
@@ -61,7 +59,7 @@
 
 				if ( _.isEmpty( submission_marker ) ) {
 	      	submission_marker = new L.Marker( e.latlng , { title : cat_tracker_vars.new_submission_popup_text, clickable : true, draggable : true } ).addTo( map );
-		     	submission_marker.on( 'dragend', capture_marker_drag_end );
+		     	submission_marker.on( 'dragend', capture_submission_marker_drag_end );
 	     	} else {
 	     		submission_marker.setLatLng( e.latlng )
 	     	}
@@ -70,7 +68,7 @@
 			}, 200 );
 		}
 
-		function capture_marker_drag_end( e ) {
+		function capture_submission_marker_drag_end( e ) {
       $( '#cat-tracker-submisison-latitude' ).val( e.target._latlng.lat );
 	    $( '#cat-tracker-submisison-longitude' ).val( e.target._latlng.lng );
 		}
@@ -80,7 +78,7 @@
 
 	jQuery( document ).ready(function($){
 
-		_.each( cat_tracker_vars.maps, function( map_args ){
+		$.each( cat_tracker_vars.maps, function( i, map_args ){
 			var cat_map = new catMap( map_args );
 		});
 
