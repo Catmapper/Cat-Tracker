@@ -15,13 +15,29 @@
 	display: block;
 	position: relative;
 	margin: inherit;
-	top: -24px;
-	left: 2px;
 }
 
 .cat-tracker-map, .cat-tracker-submission-map {
 	height: 500px;
 	width: 100%;
+}
+
+.cat-tracker-map.leaflet-fullscreen, .cat-tracker-submission-map.leaflet-fullscreen {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 28px!important;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.leaflet-control-fullscreen {
+  background-image: url( 'images/icon-fullscreen.png' );
+  margin-bottom: 5px;
 }
 
 .cat-tracker-map img,

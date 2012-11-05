@@ -21,7 +21,7 @@
 					center : [map_args.map_latitude, map_args.map_longitude],
 					layers : [default_layer],
 					zoom : map_args.map_zoom_level,
-					maxBounds : get_max_bounds(),
+					maxBounds : get_max_bounds()
 				});
 
 				map.on( 'click', capture_submission_click );
@@ -34,9 +34,13 @@
 					zoom : map_args.map_zoom_level,
 					maxZoom : map_args.map_max_zoom_level,
 					maxBounds : get_max_bounds(),
+					zoomControl : false
 				});
 				build_markers( $.parseJSON( map_args.markers ) );
 			}
+
+	    map.addControl( new L.Control.ZoomFS() );
+
 		}
 
 		function get_max_bounds() {

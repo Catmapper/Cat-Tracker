@@ -415,6 +415,7 @@ class Cat_Tracker {
 
 		wp_enqueue_style( 'leaflet-css', plugins_url( 'resources/leaflet.css', __FILE__ ), array(), self::LEAFLET_VERSION );
 		wp_enqueue_script( 'leaflet-js', plugins_url( 'resources/leaflet.js', __FILE__ ), array(), self::LEAFLET_VERSION );
+		wp_enqueue_script( 'leaflet-zoomfs-js', plugins_url( 'resources/leaflet-zoomfs.js', __FILE__ ), array( 'leaflet-js' ), self::LEAFLET_VERSION, true );
 		wp_enqueue_script( 'cat-tracker-js', plugins_url( 'resources/cat-tracker.js', __FILE__ ), array( 'jquery', 'underscore' ), self::VERSION, true );
 
 		$map_id = $this->get_map_id_for_marker( $post->ID );
@@ -450,6 +451,7 @@ class Cat_Tracker {
 		wp_enqueue_style( 'leaflet-marker-cluster-css', plugins_url( 'resources/leaflet-markercluster.css', __FILE__ ), array( 'leaflet-css' ), self::LEAFLET_VERSION );
 		wp_enqueue_script( 'leaflet-js', plugins_url( 'resources/leaflet.js', __FILE__ ), array(), self::LEAFLET_VERSION, true );
 		wp_enqueue_script( 'leaflet-marker-cluster-js', plugins_url( 'resources/leaflet-markercluster.js', __FILE__ ), array( 'leaflet-js' ), self::LEAFLET_VERSION, true );
+		wp_enqueue_script( 'leaflet-zoomfs-js', plugins_url( 'resources/leaflet-zoomfs.js', __FILE__ ), array( 'leaflet-js' ), self::LEAFLET_VERSION, true );
 		wp_enqueue_script( 'cat-tracker-js', plugins_url( 'resources/cat-tracker.js', __FILE__ ), array( 'jquery', 'underscore' ), self::VERSION, true );
 
 		wp_localize_script( 'cat-tracker-js', 'cat_tracker_vars', array(
