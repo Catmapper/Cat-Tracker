@@ -58,16 +58,48 @@ class Cat_Tracker_Geocode {
 	 *
 	 * @since 1.0
 	 * @param (object) $response_data the json response data
-	 * @return WP_Error|array error on failure or array of latitude + longitude on success
+	 * @return WP_Error|array error on failure or array of coordinates, formatted address and confidence level
 	 */
 	static function get_coordinates_for_first_address_in_response( $response_data ) {
 		if ( empty( $response_data->resourceSets[0]->resources[0]->point->coordinates ) )
 			return new WP_Error( 'no-coordinates', __( 'The provided address did not return valid coordinates', 'cat-tracker' ) );
 
+		$first_address = $response_data->resourceSets[0]->resources[0];
+
 		return array(
-			'latitude' => $response_data->resourceSets[0]->resources[0]->point->coordinates[0],
-			'longitude' => $response_data->resourceSets[0]->resources[0]->point->coordinates[1]
+			'formatted_address' => self::get_formatted_address_from_address( $first_address ),
+			'confidence' => self::get_confidence_level_from_address( $first_address ),
+			'latitude' => $first_address->point->coordinates[0],
+			'longitude' => $first_address->point->coordinates[1]
 		);
+	}
+
+	/**
+	 * given an address object, return the confidence level
+	 *
+	 * @since 1.0
+	 * @param (object) $address the address object
+	 * @return null|string null on failure or confidence level
+	 */
+	static function get_confidence_level_from_address( $address ) {
+		if ( empty( $address->confidence ) )
+			return null;
+
+		return strtolower( $address->confidence );
+	}
+
+	/**
+	 * given an address object, return the formatted address
+	 *
+	 * @since 1.0
+	 * @param (object) $address the address object
+	 * @return null|string null on failure or formatted address
+	 */
+	static function get_formatted_address_from_address( $address ) {
+		if ( empty( $address->address->formattedAddress ) )
+			return null;
+
+		return $address->address->formattedAddress;
 	}
 
 	/**
