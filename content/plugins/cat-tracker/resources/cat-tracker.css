@@ -152,3 +152,7 @@
 #cat-tracker-submission-errors ul {
 	list-style-type: none;
 }
+
+#cat-tracker-submisison-submit {
+	margin-top: 20px;
+}
