@@ -109,12 +109,12 @@ class Cat_Tracker {
 	 * @return object $instance the singleton instance of this class
 	 */
 	public static function instance() {
-		if ( ! isset( self::$instance ) ) {
-			self::$instance = new Cat_Tracker;
-			self::$instance->includes();
-			self::$instance->run_hooks();
-			self::$instance->setup_vars();
-		}
+		if ( isset( self::$instance ) )
+			return;
+		self::$instance = new Cat_Tracker;
+		self::$instance->includes();
+		self::$instance->run_hooks();
+		self::$instance->setup_vars();
 
 		return self::$instance;
 	}
@@ -781,5 +781,7 @@ class Cat_Tracker {
 Cat_Tracker::instance();
 
 function cat_tracker_sighting_map( $field_slug, $field, $object_type, $object_id, $value ) {
-	Cat_Tracker::instance()->sighting_map( $field_slug, $field, $object_type, $object_id, $value );
+	$cat_tracker = Cat_Tracker::instance();
+	if ( is_object( $cat_tracker ) && is_a( $cat_tracker, 'Cat_Tracker' ) )
+		$cat_tracker->sighting_map( $field_slug, $field, $object_type, $object_id, $value );
 }
