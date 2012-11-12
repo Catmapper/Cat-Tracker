@@ -381,8 +381,9 @@ class Cat_Tracker {
 		x_add_metadata_group( 'marker_geo_information', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'label' => 'Geographical Information', 'priority' => 'high' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'sighting_map', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Map', 'display_callback' => 'cat_tracker_sighting_map' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'address', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Address' ) );
-		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'cross_street', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Cross Street' ) );
-		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'postal_code', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Postal Code' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'confidence_level', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Confidence Level', 'readonly' => true ) );
+		// x_add_metadata_field( Cat_Tracker::META_PREFIX . 'cross_street', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Cross Street' ) );
+		// x_add_metadata_field( Cat_Tracker::META_PREFIX . 'postal_code', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Postal Code' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'latitude', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Latitude', ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'longitude', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Longitude' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'map', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'select', 'group' => 'marker_geo_information', 'label' => 'Map to display this sighting on', 'values' => $this->get_map_dropdown() ) );
@@ -536,14 +537,15 @@ class Cat_Tracker {
 
 	public function submission_form() {
 		$submission_form = '<form id="cat-tracker-new-submission" method="post">';
-		$submission_form .= '<fieldset><label for="cat-tracker-submitter-name">' . __( 'Your name', 'cat-tracker' ) . '<input type="text" id="cat-tracker-submitter-name" name="cat-tracker-submitter-name"></label></fieldset>';
-		$submission_form .= '<fieldset><label for="cat-tracker-submitter-phone">' . __( 'Your phone', 'cat-tracker' ) . '<input type="phone" id="cat-tracker-submitter-phone" name="cat-tracker-submitter-phone"></label></fieldset>';
-		$submission_form .= '<fieldset><label for="cat-tracker-submitter-email">' . __( 'Your email address', 'cat-tracker' ) . '<input type="email" id="cat-tracker-submitter-email" name="cat-tracker-submitter-email"></label></fieldset>';
-		$submission_form .= '<fieldset><label for="cat-tracker-submission-date">' . __( 'Date of sighting', 'cat-tracker' ) . '<input type="date" id="cat-tracker-submission-date" name="cat-tracker-submission-date"></label></fieldset>';
-		$submission_form .= '<fieldset><label for="cat-tracker-submisison-description">' . __( 'Please describe the situation', 'cat-tracker' ) . '<textarea id="cat-tracker-submisison-description" name="cat-tracker-submisison-description"></textarea></label></fieldset>';
-		$submission_form .= '<fieldset><label for="cat-tracker-submisison-type">' . __( 'Type of sighting', 'cat-tracker' );
+		$submission_form .= '<fieldset><label for="cat-tracker-submitter-name">' . __( 'First name*:', 'cat-tracker' ) . '<input type="text" id="cat-tracker-submitter-name" name="cat-tracker-submitter-name"></label></fieldset>';
+		$submission_form .= '<fieldset><label for="cat-tracker-submitter-phone">' . __( 'Your phone (optional):', 'cat-tracker' ) . '<input type="phone" id="cat-tracker-submitter-phone" name="cat-tracker-submitter-phone"></label></fieldset>';
+		$submission_form .= '<fieldset><label for="cat-tracker-submitter-email">' . __( 'Your email address (optional):', 'cat-tracker' ) . '<input type="email" id="cat-tracker-submitter-email" name="cat-tracker-submitter-email"></label></fieldset>';
+		$submission_form .= '<fieldset><label for="cat-tracker-submission-date">' . __( 'Date of sighting (optional):', 'cat-tracker' ) . '<input type="date" id="cat-tracker-submission-date" name="cat-tracker-submission-date"></label></fieldset>';
+		$submission_form .= '<fieldset><label for="cat-tracker-submisison-description">' . __( 'Please describe the situation*: how many cats are there? are they being fed? are they fixed? what do they look like?', 'cat-tracker' ) . '<textarea id="cat-tracker-submisison-description" name="cat-tracker-submisison-description"></textarea></label></fieldset>'; // todo: adjust the description
+		$submission_form .= '<fieldset><label for="cat-tracker-submisison-type">' . __( 'Type of sighting:', 'cat-tracker' );
 		$submission_form .= wp_dropdown_categories( array( 'name' => 'cat-tracker-submisison-type', 'hide_empty' => false, 'id' => 'cat-tracker-submisison-type', 'taxonomy' => Cat_Tracker::MARKER_TAXONOMY, 'echo' => false ) );
 		$submission_form .= '</label></fieldset>';
+		$submission_form .= '<p>' . __( "Fields marked with '*' are mandatory." ) . '</p>';
 		$submission_form .= '<p>' . __( 'Please provide the location of the sighting using the map below. You can zoom in using the controls on the left-hand side, or by double clicking on the map. Click on the map once to define the location of the sighting. You can then re-click the map or click and drag the marker to re-set the location of the sighting.', 'cat-tracker' ) . '</p>';
 		$submission_form .= '<div class="cat-tracker-submission-map" id="' . esc_attr( 'map-' . get_the_ID() ) . '"></div>';
 		$submission_form .= wp_nonce_field( 'cat_tracker_confirm_submission', 'cat_tracker_confirm_submission', true, false );
