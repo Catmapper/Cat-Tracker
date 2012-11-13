@@ -85,5 +85,37 @@ function cat_mapper_custom_fields() {
 	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'breed', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Animal breed', 'readonly' => true ) );
 	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'color', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Animal color', 'readonly' => true ) );
 	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'gender', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Animal gender', 'readonly' => true ) );
+}
 
+/**
+ * exclude bcspca
+ *
+ * @since 1.0
+ * @return void
+ */
+add_filter( 'cat_tracker_submission_form_dropdown_categories_args', 'cat_mapper_excluded_types_from_submission' );
+function cat_mapper_excluded_types_from_submission( $args ) {
+	$type_of_sightings = get_terms( Cat_Tracker::MARKER_TAXONOMY, array( 'hide_empty' => false ) );
+	if ( empty( $type_of_sightings ) )
+		return $args;
+
+	$sighting_ids_and_slugs = array_combine( wp_list_pluck( $type_of_sightings, 'term_id' ), wp_list_pluck( $type_of_sightings, 'slug' ) );
+	if ( empty( $sighting_ids_and_slugs ) )
+		return $args;
+
+	$excluded_slugs = array(
+		'bcspca-unowned-intake-cat',
+		'bcspca-unowned-intake-kitten',
+		'katies-place-unowned-intake-cat',
+		'katies-place-unowned-intake-kitten',
+	);
+
+	$excluded_ids = array();
+	foreach ( $excluded_slugs as $excluded_slug )
+		$excluded_ids[] = array_search( $excluded_slug, $sighting_ids_and_slugs );
+
+	if ( ! empty( $excluded_ids ) )
+		$args['exclude'] = $excluded_ids;
+
+	return $args;
 }
