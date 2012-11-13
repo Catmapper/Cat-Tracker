@@ -114,7 +114,6 @@ class Cat_Tracker {
 		self::$instance = new Cat_Tracker;
 		self::$instance->includes();
 		self::$instance->run_hooks();
-		self::$instance->setup_vars();
 
 		return self::$instance;
 	}
@@ -165,8 +164,6 @@ class Cat_Tracker {
 	 * @return void
 	 */
 	public function setup_vars() {
-		$this->path = trailingslashit( dirname( __FILE__ ) );
-		$this->theme_path = $this->path . trailingslashit( 'theme-compat' );
 		$this->map_source = apply_filters( 'cat_tracker_map_source', 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' );
 		$this->map_attribution = apply_filters( 'cat_tracker_map_attribution', __( 'Map data © OpenStreetMap contributors', 'cat-tracker' ) );
 	}
@@ -455,6 +452,8 @@ class Cat_Tracker {
 		wp_enqueue_script( 'leaflet-marker-cluster-js', plugins_url( 'resources/leaflet-markercluster.js', __FILE__ ), array( 'leaflet-js' ), self::LEAFLET_VERSION, true );
 		wp_enqueue_script( 'leaflet-zoomfs-js', plugins_url( 'resources/leaflet-zoomfs.js', __FILE__ ), array( 'leaflet-js' ), self::LEAFLET_VERSION, true );
 		wp_enqueue_script( 'cat-tracker-js', plugins_url( 'resources/cat-tracker.js', __FILE__ ), array( 'jquery', 'underscore' ), self::VERSION, true );
+
+		$this->setup_vars(); // setup map source + attribution
 
 		wp_localize_script( 'cat-tracker-js', 'cat_tracker_vars', array(
 			'ajax_url' => esc_url( admin_url( 'admin-ajax.php' ) ),
