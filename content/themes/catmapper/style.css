@@ -1,0 +1,17 @@
+/*
+Theme Name: Cat Mapper Twenty Twelve Child Theme
+Theme URI: http://wordpress.org/extend/themes/twentytwelve
+Author: Joey Kudish
+Author URI: http://jkudish.com
+Description: CatMapper.ca Twenty Twelve Child Theme
+Version: 1.0
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: twentytwelve
+Template: twentytwelve
+
+This theme, like WordPress, is licensed under the GPL.
+Use it to make something cool, have fun, and share what you've learned with others.
+*/
+
+@import url( '../twentytwelve/style.css' );
