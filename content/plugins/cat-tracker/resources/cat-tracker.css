@@ -123,6 +123,22 @@
 #cat-tracker-new-submission label {
 	display: block;
 }
+
+#cat-tracker-submisison-description {
+	margin-left: 60px;
+}
+
+#cat-tracker-new-submission .cat-tracker-submissison-extra-description {
+	font-size: 13px;
+	color: #888;
+}
+
+#cat-tracker-new-submission .cat-tracker-mandatory-fields {
+	font-style: italic;
+	font-size: 13px;
+	color: #888;
+}
+
 #cat-tracker-new-submission input[type="text"],
 #cat-tracker-new-submission input[type="password"],
 #cat-tracker-new-submission input[type="email"],

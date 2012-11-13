@@ -495,7 +495,7 @@ class Cat_Tracker {
 			}
 			$content .= $this->submission_form();
 		} elseif ( is_singular( Cat_Tracker::MAP_POST_TYPE ) ) {
-			$content = '<a class="cat-tracker-report-new-sighting-button" href="' . esc_url( add_query_arg( array( 'submission' => 'new' ), get_permalink( get_the_ID() ) ) ) . '">' . __( 'Report a new sighting', 'cat-tracker' ) . '</a>';
+			$content = '<a class="cat-tracker-report-new-sighting-button" href="' . esc_url( add_query_arg( array( 'submission' => 'new' ), get_permalink( get_the_ID() ) ) ) . '">' . __( 'Report a new community cat sighting', 'cat-tracker' ) . '</a>';
 			$content .= '<div class="cat-tracker-map" id="' . esc_attr( 'map-' . get_the_ID() ) . '"></div>';
 
 			$marker_types = $this->get_markers();
@@ -529,7 +529,7 @@ class Cat_Tracker {
 	public function submission_title( $title, $post_id ) {
 
 		if ( Cat_Tracker::is_submission_mode() && in_the_loop() )
-			$title = sprintf( _x( 'Report a new sighting for %s', 'the title of the map', 'cat-tracker' ), $title );
+			$title = sprintf( _x( 'Have you spotted a community cat? Are you feeding a community cat? Do you have a colony of fixed cats nearby? Report a new sighting for %s.', 'the title of the map', 'cat-tracker' ), $title );
 
 		return $title;
 	}
@@ -540,11 +540,11 @@ class Cat_Tracker {
 		$submission_form .= '<fieldset><label for="cat-tracker-submitter-phone">' . __( 'Your phone (optional):', 'cat-tracker' ) . '<input type="phone" id="cat-tracker-submitter-phone" name="cat-tracker-submitter-phone"></label></fieldset>';
 		$submission_form .= '<fieldset><label for="cat-tracker-submitter-email">' . __( 'Your email address (optional):', 'cat-tracker' ) . '<input type="email" id="cat-tracker-submitter-email" name="cat-tracker-submitter-email"></label></fieldset>';
 		$submission_form .= '<fieldset><label for="cat-tracker-submission-date">' . __( 'Date of sighting (optional):', 'cat-tracker' ) . '<input type="date" id="cat-tracker-submission-date" name="cat-tracker-submission-date"></label></fieldset>';
-		$submission_form .= '<fieldset><label for="cat-tracker-submisison-description">' . __( 'Please describe the situation*: how many cats are there? are they being fed? are they fixed? what do they look like?', 'cat-tracker' ) . '<textarea id="cat-tracker-submisison-description" name="cat-tracker-submisison-description"></textarea></label></fieldset>'; // todo: adjust the description
-		$submission_form .= '<fieldset><label for="cat-tracker-submisison-type">' . __( 'Type of sighting:', 'cat-tracker' );
-		$submission_form .= wp_dropdown_categories( apply_filters( 'cat_tracker_submission_form_dropdown_categories_args', array( 'name' => 'cat-tracker-submisison-type', 'hide_empty' => false, 'id' => 'cat-tracker-submisison-type', 'taxonomy' => Cat_Tracker::MARKER_TAXONOMY, 'echo' => false ) ) );
+		$submission_form .= '<fieldset><label for="cat-tracker-submissison-description">' . __( 'Please describe the situation*:', 'cat-tracker' ) . '<textarea id="cat-tracker-submisison-description" name="cat-tracker-submisison-description"></textarea> <br> <span class="cat-tracker-submissison-extra-description">' . __( 'How many cats are there? Are they being fed? Are they fixed? What do they look like?', 'cat-tracker' ) . '</label></fieldset>'; // todo: adjust the description
+		$submission_form .= '<fieldset><label for="cat-tracker-submissison-type">' . __( 'Type of sighting:', 'cat-tracker' );
+		$submission_form .= wp_dropdown_categories( apply_filters( 'cat_tracker_submission_form_dropdown_categories_args', array( 'name' => 'cat-tracker-submissison-type', 'hide_empty' => false, 'id' => 'cat-tracker-submissison-type', 'taxonomy' => Cat_Tracker::MARKER_TAXONOMY, 'echo' => false ) ) );
 		$submission_form .= '</label></fieldset>';
-		$submission_form .= '<p>' . __( "Fields marked with '*' are mandatory." ) . '</p>';
+		$submission_form .= '<p class="cat-tracker-mandatory-fields">' . __( "Fields marked with '*' are mandatory." ) . '</p>';
 		$submission_form .= '<p>' . __( 'Please provide the location of the sighting using the map below. You can zoom in using the controls on the left-hand side, or by double clicking on the map. Click on the map once to define the location of the sighting. You can then re-click the map or click and drag the marker to re-set the location of the sighting.', 'cat-tracker' ) . '</p>';
 		$submission_form .= '<div class="cat-tracker-submission-map" id="' . esc_attr( 'map-' . get_the_ID() ) . '"></div>';
 		$submission_form .= wp_nonce_field( 'cat_tracker_confirm_submission', 'cat_tracker_confirm_submission', true, false );
