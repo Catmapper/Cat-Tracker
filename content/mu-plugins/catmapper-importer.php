@@ -262,14 +262,12 @@ class Cat_Mapper_Importer {
 			$start_importing = false;
 			$excluded_sources = apply_filters( 'cat_mapper_importer_excluded_sources', array( 'return', 'owner surrender', 'returns', 'owner surrenders' ) );
 			$type = 'cat';
-			$count_imported = $count_excluded = $count_no_address = $count_bad_address = 0;
+			$count_imported = $dupe = $count_excluded = $count_no_address = $count_bad_address = 0;
 			while ( $row_data = fgetcsv( $open_file ) ) {
         $row_num++;
 
         if ( empty( $row_data[0] ) || empty( $row_data[7] ) )
         	continue;
-
-        // todo: if dupe animal ID, update instead of insert
 
         $animal_id = $row_data[0];
         $animal_name = $row_data[1];
@@ -296,6 +294,20 @@ class Cat_Mapper_Importer {
         if ( ! $start_importing )
         	continue;
 
+      	$_already_exists = new WP_Query();
+      	$_already_exists->query( array(
+      		'post_type' => Cat_Tracker::MARKER_POST_TYPE,
+        	'meta_key' => Cat_Tracker::META_PREFIX . 'animal_id',
+        	'meta_value' => $animal_id,
+        	'fields' => 'ids',
+        ) );
+
+        if ( $_already_exists->have_posts() ) {
+        	$dupe++;
+					printf( '<p>' . __( 'Animal ID #%d has already been imported and is being to be skipped from this import.' ) . '</p>', $animal_id );
+        	continue;
+        }
+
         // exclude returns & owner surrenders
         if ( in_array( strtolower( $source ), $excluded_sources ) ) {
         	$count_excluded++;
@@ -318,7 +330,11 @@ class Cat_Mapper_Importer {
 					continue;
 				}
 
-				$description = sprintf( __( "%s %s.\nColor: %s.\nGender: %s.\nBreed: %d", 'cat-tracker' ), $source, $type, $color, $gender, $breed );
+				if ( 'stray' == strtolower( $source ) ) {
+					$description = sprintf( __( "%s %s.\nColor: %s.\nGender: %s.\nBreed: %d", 'cat-tracker' ), $source, $type, $color, $gender, $breed );
+				} else {
+					$description = sprintf( __( "%s.\nColor: %s.\nGender: %s.\nBreed: %d", 'cat-tracker' ), $type, $color, $gender, $breed );
+				}
 
 				$sighting_id = wp_insert_post( array(
 						'post_title' => sprintf( _x( 'Community cat sighting from imported file at %s', 'Post title for imported sightings with the current timestamp/date', 'cat_tracker' ), date( 'Y-m-d g:i:a' ) ),
@@ -357,8 +373,8 @@ class Cat_Mapper_Importer {
 			}
 
 			fclose( $open_file );
-			// todo: delete the file
-			printf( '<p class="cat-mapper-import-result">' . __( '%d sightings succesfully imported. %d sightings excluded because of their source, %d sightings not imported because they did not have an address at all and %d sightings not imported because they did not have a valid address.' ) . '</p>', $count_imported, $count_excluded, $count_no_address, $count_bad_address );
+			wp_delete_attachment( $attachment_id );
+			printf( '<p class="cat-mapper-import-result">' . __( '%d sightings succesfully imported. %d were duplicate animal IDs. %d sightings excluded because of their source, %d sightings not imported because they did not have an address at all and %d sightings not imported because they did not have a valid address.' ) . '</p>', $count_imported, $dupe, $count_excluded, $count_no_address, $count_bad_address );
 
 		}
 	}
