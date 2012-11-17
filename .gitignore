@@ -10,4 +10,6 @@ content/upgrade/
 content/uploads/
 .DS_Store
 debug.log
-/content/themes/twentytwelve/page-api-test.php
+content/themes/twentytwelve/page-api-test.php
+imports/
+search-replace.php
