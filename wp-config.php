@@ -40,7 +40,7 @@ define( 'BLOG_ID_CURRENT_SITE', 1 );
 define( 'EMPTY_TRASH_DAYS', 5 );
 define( 'WP_POST_REVISIONS', 10 );
 define( 'WP_MEMORY_LIMIT', '128M' );
-define( 'DISALLOW_FILE_EDIT',true );
+define( 'DISALLOW_FILE_EDIT', true );
 
 // ===================
 // Bootstrap WordPress
