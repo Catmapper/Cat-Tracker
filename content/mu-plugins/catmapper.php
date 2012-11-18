@@ -59,6 +59,15 @@ function cat_mapper_remove_admin_menus() {
 
 }
 
+/**
+ * remove all help screens
+ *
+ * @since 1.0
+ * @return void
+ */
+add_action( 'admin_head', 'cat_mapper_remove_screen_help' );
+function cat_mapper_remove_screen_help() {
+	get_current_screen()->remove_help_tabs();
 }
 
 /**
