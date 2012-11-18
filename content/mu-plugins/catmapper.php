@@ -287,6 +287,171 @@ function cat_mapper_excluded_types_from_submission( $args ) {
 		$args['exclude'] = $excluded_ids;
 
 	return $args;
+}
+
+/**
+ * filter the admin bar
+ *
+ * @since 1.0
+ * @return void
+ */
+add_action( 'init', 'cat_mapper_admin_bar', 100 );
+function cat_mapper_admin_bar() {
+	remove_action( 'admin_bar_menu', 'wp_admin_bar_wp_menu', 10 );
+	remove_action( 'admin_bar_menu', 'wp_admin_bar_my_sites_menu', 20 );
+	remove_action( 'admin_bar_menu', 'wp_admin_bar_comments_menu', 60 );
+	remove_action( 'admin_bar_menu', 'wp_admin_bar_new_content_menu', 70 );
+
+	add_action( 'admin_bar_menu', 'cat_mapper_admin_bar_sites_menu', 20 );
+	add_action( 'admin_bar_menu', 'cat_mapper_admin_bar_sightings_menu', 60 );
+}
+
+/**
+ * Add the "Cat Mapper" general menu and all submenus.
+ *
+ * @since 1.0
+ * @return void
+ */
+function cat_mapper_admin_bar_sites_menu( $wp_admin_bar ) {
+	global $wpdb;
+
+	// Don't show for logged out users or single site mode.
+	if ( ! is_user_logged_in() || ! is_multisite() )
+		return;
+
+	// Show only when the user has at least one site, or they're a super admin.
+	if ( count( $wp_admin_bar->user->blogs ) < 1 && ! is_super_admin() )
+		return;
+
+	$wp_admin_bar->add_menu( array(
+		'id'    => 'my-sites',
+		'title' => __( 'Cat Mapper Communities', 'cat-mapper' ),
+		'href'  => admin_url( 'my-sites.php' ),
+	) );
+
+	if ( is_super_admin() ) {
+		$wp_admin_bar->add_group( array(
+			'parent' => 'my-sites',
+			'id'     => 'my-sites-super-admin',
+		) );
+
+		$wp_admin_bar->add_menu( array(
+			'parent' => 'my-sites-super-admin',
+			'id'     => 'network-admin',
+			'title'  => __('Network Admin'),
+			'href'   => network_admin_url(),
+		) );
+
+		$wp_admin_bar->add_menu( array(
+			'parent' => 'network-admin',
+			'id'     => 'network-admin-d',
+			'title'  => __( 'Dashboard' ),
+			'href'   => network_admin_url(),
+		) );
+		$wp_admin_bar->add_menu( array(
+			'parent' => 'network-admin',
+			'id'     => 'network-admin-s',
+			'title'  => __( 'Sites' ),
+			'href'   => network_admin_url( 'sites.php' ),
+		) );
+		$wp_admin_bar->add_menu( array(
+			'parent' => 'network-admin',
+			'id'     => 'network-admin-u',
+			'title'  => __( 'Users' ),
+			'href'   => network_admin_url( 'users.php' ),
+		) );
+		$wp_admin_bar->add_menu( array(
+			'parent' => 'network-admin',
+			'id'     => 'network-admin-v',
+			'title'  => __( 'Visit Network' ),
+			'href'   => network_home_url(),
+		) );
+	}
+
+	// Add site links
+	$wp_admin_bar->add_group( array(
+		'parent' => 'my-sites',
+		'id'     => 'my-sites-list',
+		'meta'   => array(
+			'class' => is_super_admin() ? 'ab-sub-secondary' : '',
+		),
+	) );
+
+	foreach ( (array) $wp_admin_bar->user->blogs as $blog ) {
+		switch_to_blog( $blog->userblog_id );
+
+		$blavatar = '<div class="blavatar"></div>';
+
+		$blogname = empty( $blog->blogname ) ? $blog->domain : $blog->blogname;
+		$menu_id  = 'blog-' . $blog->userblog_id;
+
+		$wp_admin_bar->add_menu( array(
+			'parent'    => 'my-sites-list',
+			'id'        => $menu_id,
+			'title'     => $blavatar . $blogname,
+			'href'      => admin_url(),
+		) );
+
+		$wp_admin_bar->add_menu( array(
+			'parent' => $menu_id,
+			'id'     => $menu_id . '-d',
+			'title'  => __( 'Dashboard' ),
+			'href'   => admin_url(),
+		) );
+
+		if ( ! is_main_site() && current_user_can( 'edit_posts' ) ) {
+			$wp_admin_bar->add_menu( array(
+				'parent' => $menu_id,
+				'id'     => $menu_id . '-n',
+				'title'  => __( 'New Sighting', 'cat-mapper' ),
+				'href'   => add_query_arg( array( 'post_type' => Cat_Tracker::MARKER_POST_TYPE ), admin_url( 'post-new.php' ) ),
+			) );
+			$wp_admin_bar->add_menu( array(
+				'parent' => $menu_id,
+				'id'     => $menu_id . '-c',
+				'title'  => __( 'Manage Sightings', 'cat-mapper' ),
+				'href'   => add_query_arg( array( 'post_type' => Cat_Tracker::MARKER_POST_TYPE ), admin_url( 'edit.php' ) ),
+			) );
+		}
+
+		$wp_admin_bar->add_menu( array(
+			'parent' => $menu_id,
+			'id'     => $menu_id . '-v',
+			'title'  => __( 'Visit Site' ),
+			'href'   => home_url( '/' ),
+		) );
+
+		restore_current_blog();
+	}
+}
+
+/**
+ * Sightings admin bar menu
+ *
+ * @since 1.0
+ * @return void
+ */
+function cat_mapper_admin_bar_sightings_menu( $wp_admin_bar ) {
+	if ( is_main_site() || ! current_user_can( 'edit_posts' ) )
+		return;
+
+	$awaiting_mod = wp_count_posts( Cat_Tracker::MARKER_POST_TYPE );
+	$awaiting_mod = $awaiting_mod->pending;
+	$awaiting_title = esc_attr( sprintf( _n( '%s sighting awaiting moderation', '%s sightings awaiting moderation', $awaiting_mod ), number_format_i18n( $awaiting_mod ) ) );
+
+	$class = 'ab-icon';
+	if ( $awaiting_mod > 0 )
+		$class .= ' has-pending';
+	$icon  = '<span class="' . esc_attr( $class ) . '"></span>';
+	$title = '<span id="ab-awaiting-mod" class="ab-label awaiting-mod pending-count count-' . $awaiting_mod . '">' . number_format_i18n( $awaiting_mod ) . '</span>';
+
+	$wp_admin_bar->add_menu( array(
+		'id'    => 'sightings',
+		'title' => $icon . $title,
+		'href'  => add_query_arg( array( 'post_type' => Cat_Tracker::MARKER_POST_TYPE ), admin_url( 'edit.php' ) ),
+		'meta'  => array( 'title' => $awaiting_title ),
+	) );
+}
 
 /**
  * load css for admin bar
