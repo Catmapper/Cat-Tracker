@@ -1,7 +1,6 @@
 /* ===================================================
    custom fields
    ================================================== */
-
 #cat_tracker_map,
 #s2id_cat_tracker_map,
 #cat_tracker_marker_type,
@@ -36,13 +35,7 @@
 /* ===================================================
    icons
    ================================================== */
-@font-face {
-  font-family: "FontAwesome";
-  src: url('fontawesome-webfont.eot');
-  src: url('fontawesome-webfont.eot?#iefix') format('eot'), url('fontawesome-webfont.woff') format('woff'), url('fontawesome-webfont.ttf') format('truetype'), url('fontawesome-webfont.svg#FontAwesome') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
+@import url( 'font-awesome.css' );
 
 #menu-posts-cat_tracker_map .wp-menu-image:before,
 #menu-posts-cat_tracker_map:hover .wp-menu-image:before,

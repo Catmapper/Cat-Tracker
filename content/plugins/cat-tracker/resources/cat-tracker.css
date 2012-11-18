@@ -1,10 +1,4 @@
-@font-face {
-  font-family: "FontAwesome";
-  src: url('fontawesome-webfont.eot');
-  src: url('fontawesome-webfont.eot?#iefix') format('eot'), url('fontawesome-webfont.woff') format('woff'), url('fontawesome-webfont.ttf') format('truetype'), url('fontawesome-webfont.svg#FontAwesome') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
+@import	url( 'font-awesome.css' );
 
 
 .cat-tracker-map-icon:before {
