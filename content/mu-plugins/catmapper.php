@@ -81,6 +81,23 @@ function cat_mapper_map_attribution( $map_attribution ) {
 }
 
 /**
+ * deregister post types from main site aka blog ID #1
+ *
+ * @since 1.0
+ * @return void
+ */
+add_action( 'init', 'catmapper_deregister_post_types', 20 );
+function catmapper_deregister_post_types() {
+	if ( 1 !== get_current_blog_id() )
+		return;
+
+	global $wp_post_types;
+	foreach ( array( Cat_Tracker::MAP_POST_TYPE, Cat_Tracker::MARKER_POST_TYPE ) as $post_type ) {
+		if ( isset( $wp_post_types[$post_type] ) )
+			unset( $wp_post_types[$post_type] );
+	}
+}
+
  * add new fields specific to catmapper
  *
  * @since 1.0
