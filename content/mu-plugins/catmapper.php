@@ -192,6 +192,25 @@ function cat_mapper_enter_title_here( $title, $post ) {
 }
 
 /**
+ * adjust which dashboard widgets show and which don't
+ *
+ * @since 1.0
+ * @return void
+ */
+add_action( 'wp_dashboard_setup', 'catmapper_adjust_dashboard_widgets' );
+function catmapper_adjust_dashboard_widgets() {
+	global $wp_meta_boxes;
+	// unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_right_now']); // right now [content, discussion, theme, etc]
+	unset( $wp_meta_boxes['dashboard']['normal']['core']['dashboard_plugins'] ); // plugins
+	unset( $wp_meta_boxes['dashboard']['normal']['core']['dashboard_incoming_links'] ); // incoming links
+	unset( $wp_meta_boxes['dashboard']['side']['core']['dashboard_primary'] ); // wordpress blog
+	unset( $wp_meta_boxes['dashboard']['side']['core']['dashboard_secondary'] ); // other wordpress news
+	unset( $wp_meta_boxes['dashboard']['side']['core']['dashboard_quick_press'] ); // quickpress
+	unset( $wp_meta_boxes['dashboard']['side']['core']['dashboard_recent_drafts'] ); // drafts
+	unset( $wp_meta_boxes['dashboard']['normal']['core']['dashboard_recent_comments'] ); // comments
+}
+
+/**
  * add new fields specific to catmapper
  *
  * @since 1.0
