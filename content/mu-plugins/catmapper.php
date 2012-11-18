@@ -214,4 +214,16 @@ function cat_mapper_excluded_types_from_submission( $args ) {
 		$args['exclude'] = $excluded_ids;
 
 	return $args;
+
+/**
+ * load css for admin bar
+ *
+ * @since 1.0
+ * @return void
+ */
+add_action( 'wp_enqueue_scripts', 'cat_mapper_admin_bar_css', 100 );
+add_action( 'admin_enqueue_scripts', 'cat_mapper_admin_bar_css', 100 );
+add_action( 'login_enqueue_scripts', 'cat_mapper_admin_bar_css', 100 );
+function cat_mapper_admin_bar_css() {
+	wp_enqueue_style( 'catmapper-universal-styles', plugins_url( 'catmapper-universal-styles.css', __FILE__ ), array(), Cat_Tracker::VERSION );
 }
