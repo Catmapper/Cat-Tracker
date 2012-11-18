@@ -150,6 +150,23 @@ function catmapper_new_community_created( $blog_id, $user_id ) {
 	restore_current_blog();
 }
 
+/**
+ * filter enter title here text on new maps to be the name of the current community
+ *
+ * @since 1.0
+ * @param (string) $title the title to filter
+ * @param (object) $post the post object for the current post
+ * @return void
+ */
+add_filter( 'enter_title_here', 'cat_mapper_enter_title_here', 10, 2 );
+function cat_mapper_enter_title_here( $title, $post ) {
+	if ( Cat_Tracker::MAP_POST_TYPE == get_post_type( $post ) )
+		$title = get_bloginfo( 'name' );
+
+	return $title;
+}
+
+/**
  * add new fields specific to catmapper
  *
  * @since 1.0
