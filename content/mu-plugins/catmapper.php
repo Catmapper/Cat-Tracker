@@ -44,6 +44,7 @@ function cat_mapper_remove_admin_menus() {
 		return;
 
 	remove_menu_page( 'edit.php' ); // Posts
+	remove_menu_page( 'upload.php' ); // Media
 	remove_menu_page( 'edit-comments.php' ); // Comments
 	remove_menu_page( 'tools.php' ); // Tools
 	remove_menu_page( 'plugins.php' ); // Plugins
