@@ -171,7 +171,8 @@ function catmapper_new_community_created( $blog_id, $user_id ) {
 	$theme_options['nav_menu_locations']['primary'] = $menu_id;
 	update_option( "mods_$theme", $theme_options );
 
-	restore_current_blog();
+	wp_redirect( add_query_arg( array( 'post_type' => Cat_Tracker::MAP_POST_TYPE, 'message' => 11 ), admin_url( 'post-new.php' ) ) );
+	exit;
 }
 
 /**
