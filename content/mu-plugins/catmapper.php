@@ -98,6 +98,58 @@ function catmapper_deregister_post_types() {
 	}
 }
 
+/**
+ * do default stuff when a new community is created
+ *
+ * @since 1.0
+ * @param (int) $blog_id, the newly created community's blog id
+ * @param (int) $user_id, the newly created community's user id
+ * @return void
+ */
+add_action( 'wpmu_new_blog', 'catmapper_new_community_created', 100, 2 );
+function catmapper_new_community_created( $blog_id, $user_id ) {
+	global $wp_rewrite, $wpdb, $current_site;
+	switch_to_blog( $blog_id );
+
+	// delete default links
+	foreach( range( 1, 7 ) as $link_id )
+		wp_delete_link( $link_id );
+
+	// delete first comment
+	wp_delete_comment( 1 );
+
+	// delete first post & first page
+	wp_delete_post( 1 );
+	wp_delete_post( 2 );
+
+	// set default options
+	$default_options = array(
+		'blogdescription' => 'Cat Mapper by the BC SPCA',
+		'timezone_string' => 'America/Vancouver',
+		'permalink_structure' => '/%postname%/',
+		'default_pingback_flag' => false,
+		'default_ping_status' => false,
+		'default_comment_status' => false,
+		'comment_moderation' => true,
+		'sidebars_widgets' => array(),
+	);
+
+	foreach ( $default_options as $option_key => $option_value )
+		update_option( $option_key, $option_value );
+
+	flush_rewrite_rules();
+
+	// set a default/empty menu
+	$menu_id = wp_create_nav_menu( 'blank' );
+	$theme = wp_get_theme();
+	$theme = $theme->Name;
+	$theme_options = get_option( "mods_$theme" );
+	$theme_options['nav_menu_locations']['primary'] = $menu_id;
+	update_option( "mods_$theme", $theme_options );
+
+	restore_current_blog();
+}
+
  * add new fields specific to catmapper
  *
  * @since 1.0
