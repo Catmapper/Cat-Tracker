@@ -148,7 +148,7 @@ function catmapper_new_community_created( $blog_id, $user_id ) {
 
 	// set default options
 	$default_options = array(
-		'blogdescription' => 'Cat Mapper by the BC SPCA',
+		'blogdescription' => 'Cat Mapper',
 		'timezone_string' => 'America/Vancouver',
 		'permalink_structure' => '/%postname%/',
 		'default_pingback_flag' => false,
@@ -259,6 +259,7 @@ function cat_mapper_map_post_type_args( $cpt_args ) {
 /**
  * exclude bcspca
  *
+ * @todo: rewrite this to use meta
  * @since 1.0
  * @return void
  */
