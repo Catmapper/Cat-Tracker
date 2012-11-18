@@ -53,6 +53,12 @@ function cat_mapper_remove_admin_menus() {
 	remove_submenu_page( 'options-general.php', 'options-reading.php' ); // Reading options
 	remove_submenu_page( 'options-general.php', 'options-media.php' ); // Media options
 	remove_submenu_page( 'options-general.php', 'options-permalink.php' ); // Permalink options
+
+	if ( ! is_main_site() )
+		remove_menu_page( 'edit.php?post_type=page' ); // pages
+
+}
+
 }
 
 /**
