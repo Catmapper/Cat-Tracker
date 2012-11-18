@@ -138,6 +138,14 @@ function catmapper_new_community_created( $blog_id, $user_id ) {
 	wp_delete_post( 1 );
 	wp_delete_post( 2 );
 
+	// create default sighting types
+	wp_create_term( 'TNR Colony', Cat_Tracker::MARKER_TAXONOMY );
+	wp_create_term( 'Group of community cats', Cat_Tracker::MARKER_TAXONOMY );
+	wp_create_term( 'Community cat', Cat_Tracker::MARKER_TAXONOMY );
+	wp_create_term( 'Community cat with kittens', Cat_Tracker::MARKER_TAXONOMY );
+	wp_create_term( 'BC SPCA unowned intake - Cat', Cat_Tracker::MARKER_TAXONOMY );
+	wp_create_term( 'BC SPCA unowned intake - Kitten', Cat_Tracker::MARKER_TAXONOMY );
+
 	// set default options
 	$default_options = array(
 		'blogdescription' => 'Cat Mapper by the BC SPCA',
