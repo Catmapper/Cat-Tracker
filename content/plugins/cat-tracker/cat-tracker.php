@@ -305,6 +305,7 @@ class Cat_Tracker {
 		      // translators: Publish box date format, see http://php.net/date
 		      date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), $map_url ),
 		    10 => sprintf( __( 'Map draft updated.', 'cat_tracker' ) ),
+		    11 => sprintf( __( "The new community site for <strong>%s</strong> has been created. Now, please create a map for this community.", 'cat_tracker' ), get_bloginfo( 'name' ) ),
 		  );
 
 		}
