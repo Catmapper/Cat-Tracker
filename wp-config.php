@@ -33,6 +33,10 @@ define( 'MULTISITE', true );
 define( 'SUBDOMAIN_INSTALL', true );
 define( 'SITE_ID_CURRENT_SITE', 1 );
 define( 'BLOG_ID_CURRENT_SITE', 1 );
+if ( '/wp/wp-admin/network/' == $_SERVER['REQUEST_URI'] || '/wp-admin/network/' == $_SERVER['REQUEST_URI'] || ( isset( $_GET['redirect_to'] ) && strpos( $_GET['redirect_to'], 'network' ) ) )
+	define( 'PATH_CURRENT_SITE', '/' );
+else
+	define( 'PATH_CURRENT_SITE', '/wp/' );
 
 // ===================
 // Security, trash & memory
