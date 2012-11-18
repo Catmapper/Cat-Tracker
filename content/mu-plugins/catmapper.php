@@ -228,6 +228,35 @@ function cat_mapper_custom_fields() {
 }
 
 /**
+ * filter maps CPT labels
+ *
+ * @since 1.0
+ * @param (array) $labels the labels for the CPT
+ * @return (array) $labels the filtered labels
+ */
+add_filter( 'cat_tracker_map_post_type_labels', 'cat_mapper_map_post_type_labels' );
+function cat_mapper_map_post_type_labels( $labels ) {
+	$labels['edit_item'] = sprintf( __( 'Edit %s map', 'cat-mapper' ), get_bloginfo( 'name' ) );
+	return $labels;
+}
+
+/**
+ * filter maps CPT
+ *
+ * @since 1.0
+ * @param (array) $cpt_args the args for the CPT
+ * @return (array) $cpt_args the filtered args
+ */
+add_filter( 'cat_tracker_map_post_type_args', 'cat_mapper_map_post_type_args' );
+function cat_mapper_map_post_type_args( $cpt_args ) {
+	$cpt_args['supports'] = array( 'revisions' );
+	$cpt_args['rewrite'] = array();
+	$cpt_args['public'] = false;
+	$cpt_args['show_ui'] = false;
+	return $cpt_args;
+}
+
+/**
  * exclude bcspca
  *
  * @since 1.0
