@@ -478,3 +478,29 @@ add_action( 'login_enqueue_scripts', 'cat_mapper_admin_bar_css', 100 );
 function cat_mapper_admin_bar_css() {
 	wp_enqueue_style( 'catmapper-universal-styles', plugins_url( 'catmapper-universal-styles.css', __FILE__ ), array(), Cat_Tracker::VERSION );
 }
+
+/**
+ * modify the content on the front page
+ *
+ * @since 1.0
+ * @param (object) the query object
+ * @return (object) the filtered query object
+ * @return void
+ */
+add_filter( 'cat_tracker_is_showing_map', 'cat_mapper_is_showing_map' );
+function cat_mapper_is_showing_map( $is_showing_map ) {
+	if ( is_front_page() )
+		return true;
+
+	return $is_showing_map;
+}
+
+add_filter( 'cat_tracker_map_content_map_id', 'cat_mapper_map_content_map_id' );
+function cat_mapper_map_content_map_id( $map_id ) {
+	if ( is_front_page() )
+		return get_option( 'catmapper_community_main_map_id' );
+
+	return $map_id;
+}
+
+add_filter( 'cat_tracker_show_map_to_display_sighting_on_admin_field', '__return_false' );
