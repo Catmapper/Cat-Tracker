@@ -416,6 +416,7 @@ class Cat_Tracker {
 		wp_enqueue_script( 'leaflet-zoomfs-js', plugins_url( 'resources/leaflet-zoomfs.js', __FILE__ ), array( 'leaflet-js' ), self::LEAFLET_VERSION, true );
 		wp_enqueue_script( 'cat-tracker-js', plugins_url( 'resources/cat-tracker.js', __FILE__ ), array( 'jquery', 'underscore' ), self::VERSION, true );
 
+		$this->setup_vars(); // setup map source + attribution
 		$map_id = $this->get_map_id_for_marker( $post->ID );
 
 		wp_localize_script( 'cat-tracker-js', 'cat_tracker_vars', array(
