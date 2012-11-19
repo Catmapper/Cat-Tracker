@@ -269,21 +269,6 @@ function cat_mapper_map_post_type_labels( $labels ) {
 }
 
 /**
- * filter maps CPT
- *
- * @since 1.0
- * @param (array) $cpt_args the args for the CPT
- * @return (array) $cpt_args the filtered args
- */
-add_filter( 'cat_tracker_map_post_type_args', 'cat_mapper_map_post_type_args' );
-function cat_mapper_map_post_type_args( $cpt_args ) {
-	$cpt_args['supports'] = array( 'revisions' );
-	$cpt_args['rewrite'] = array();
-	$cpt_args['public'] = false;
-	$cpt_args['show_ui'] = false;
-	return $cpt_args;
-}
-
 /**
  * exclude bcspca
  *
