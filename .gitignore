@@ -12,3 +12,5 @@ debug.log
 content/themes/twentytwelve/page-api-test.php
 imports/
 search-replace.php
+.svn
+wp-content/
