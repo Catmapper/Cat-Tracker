@@ -264,8 +264,8 @@ class Cat_Mapper_Importer {
         $source = $row_data[4];
         $breed = $row_data[12];
         $color = $row_data[13];
-        $age_group = $row_data[16];
-        $gender = $row_data[17];
+        $age_group = $row_data[15];
+        $gender = $row_data[16];
         $incoming_spay_neuter_status = $row_data[17];
         $current_spay_neuter_status = $row_data[18];
         $address = $row_data[23];
