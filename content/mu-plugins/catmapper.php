@@ -155,8 +155,12 @@ function catmapper_new_community_created( $blog_id, $user_id ) {
 	add_term_meta( $bcspca_cat['term_id'], 'color', '#636363' ); // grey
 	add_term_meta( $bcspca_kitten['term_id'], 'color', '#636363' ); // grey
 
+	// switch to the correct theme
+	switch_theme( 'catmapper' );
+
 	// set default options
 	$default_options = array(
+		'home' => trailingslashit( str_ireplace( '/wp', '', home_url() ) ),
 		'blogdescription' => 'Cat Mapper',
 		'timezone_string' => 'America/Vancouver',
 		'permalink_structure' => '/%postname%/',
@@ -174,11 +178,8 @@ function catmapper_new_community_created( $blog_id, $user_id ) {
 
 	// set a default/empty menu
 	$menu_id = wp_create_nav_menu( 'blank' );
-	$theme = wp_get_theme();
-	$theme = $theme->Name;
-	$theme_options = get_option( "mods_$theme" );
-	$theme_options['nav_menu_locations']['primary'] = $menu_id;
-	update_option( "mods_$theme", $theme_options );
+	set_theme_mod( 'nav_menu_locations', array( 'primary' => $menu_id ) );
+
 
 	wp_redirect( add_query_arg( array( 'post_type' => Cat_Tracker::MAP_POST_TYPE, 'message' => 11 ), admin_url( 'post-new.php' ) ) );
 	exit;
