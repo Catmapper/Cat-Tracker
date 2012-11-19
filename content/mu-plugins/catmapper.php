@@ -269,8 +269,7 @@ function cat_mapper_map_post_type_labels( $labels ) {
 }
 
 /**
-/**
- * exclude bcspca
+ * exclude bcspca types
  *
  * @todo: rewrite this to use meta
  * @since 1.0
