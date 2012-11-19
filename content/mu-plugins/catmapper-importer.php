@@ -256,7 +256,7 @@ class Cat_Mapper_Importer {
 			while ( $row_data = fgetcsv( $open_file ) ) {
         $row_num++;
 
-        if ( empty( $row_data[0] ) || empty( $row_data[7] ) )
+        if ( empty( $row_data[0] ) || empty( $row_data[23] ) )
         	continue;
 
         $animal_id = $row_data[0];
