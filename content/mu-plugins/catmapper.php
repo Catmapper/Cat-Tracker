@@ -128,6 +128,13 @@ function catmapper_new_community_created( $blog_id, $user_id ) {
 	global $wp_rewrite, $wpdb, $current_site;
 	switch_to_blog( $blog_id );
 
+	// assign super admins to it
+	$super_admins = get_super_admins();
+	foreach ( $super_admins as $super_admin ) {
+		$userdata = get_user_by( 'login', $super_admin );
+		add_existing_user_to_blog( array( 'user_id' => $userdata->ID, 'role' => 'administrator' ) );
+	}
+
 	// delete default links
 	foreach( range( 1, 7 ) as $link_id )
 		wp_delete_link( $link_id );
