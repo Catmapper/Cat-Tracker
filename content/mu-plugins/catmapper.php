@@ -255,11 +255,13 @@ add_action( 'cat_tracker_did_custom_fields', 'cat_mapper_custom_fields' );
 function cat_mapper_custom_fields() {
 	x_add_metadata_group( 'bcspca_extra_information', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'label' => 'BC SCPA Import Info', 'priority' => 'high' ) );
 	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'animal_id', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Animal ID', 'readonly' => true ) );
-	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'animal_name', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Animal name', 'readonly' => true ) );
 	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'source', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Animal source', 'readonly' => true ) );
 	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'breed', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Animal breed', 'readonly' => true ) );
 	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'color', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Animal color', 'readonly' => true ) );
 	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'gender', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Animal gender', 'readonly' => true ) );
+	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'age_group', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Animal age group', 'readonly' => true ) );
+	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'incoming_spay_neuter_status', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Incoming spay/neuteur status', 'readonly' => true ) );
+	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'current_spay_neuter_status', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Current spay/neuter status', 'readonly' => true ) );
 }
 
 /**

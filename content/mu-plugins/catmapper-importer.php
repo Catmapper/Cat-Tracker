@@ -190,15 +190,6 @@ class Cat_Mapper_Importer {
 		$maps = get_posts( array( 'post_type' => Cat_Tracker::MAP_POST_TYPE, 'posts_per_page' => -1, 'fields' => 'ids' ) );
 		if ( ! empty( $maps ) ) :
 		?>
-			<div class="savebutton hidden">
-				<p><label for="cat-mapper-import-map-id"><?php _e( 'Map to import into:', 'cat-tracker' ); ?> <select name="cat-mapper-import-map-id" id="cat-mapper-import-map-id">
-					<?php
-					foreach ( $maps as $map_id )
-						printf( '<option value="%d">%s</option>', esc_attr( $map_id ), esc_html( get_the_title( $map_id ) ) );
-					?>
-					</select>
-				</label></p>
-			</div>
 			<?php submit_button( __( 'Import', 'cat-tracker' ), 'button savebutton hidden', 'save' ); ?>
 		<?php else : ?>
 			<p><?php _e( 'You need to create at least one map before you can import sightings.', 'cat-tracker' ); ?></p>
@@ -225,12 +216,11 @@ class Cat_Mapper_Importer {
 	 */
 	public function handle_import() {
 		echo '<p>' . __( 'importing...', 'cat-tracker' ) . '</p>';
-		if ( empty( $_REQUEST['cat-mapper-import-map-id'] ) || Cat_Tracker::MAP_POST_TYPE != get_post_type( get_post( absint( $_REQUEST['cat-mapper-import-map-id'] ) ) ) ) {
-			echo '<p>' . __( 'Please specify a valid map ID before proceeding with import.', 'cat-tracker' ) . '</p>';
+		$map_id = get_option( 'catmapper_community_main_map_id' );
+		if ( empty( $map_id ) ) {
+			echo '<p>' . __( 'There is no valid map ID set for this site. Aborting...', 'cat-tracker' ) . '</p>';
 			return;
 		}
-
-		$map_id = $_REQUEST['cat-mapper-import-map-id'];
 
 		foreach ( $_REQUEST['attachments'] as $attachment_id => $attachment_data ) {
 			$attachment = get_post( $attachment_id );
@@ -260,7 +250,7 @@ class Cat_Mapper_Importer {
 
 			$row_num = 1;
 			$start_importing = false;
-			$excluded_sources = apply_filters( 'cat_mapper_importer_excluded_sources', array( 'return', 'owner surrender', 'returns', 'owner surrenders' ) );
+			$excluded_sources = apply_filters( 'cat_mapper_importer_excluded_sources', array( 'return', 'owner surrender', 'returns', 'owner surrenders', 'humane officer surrendered', 'humane officer  surrendered', 'humane officer surrender', 'humane officer  surrender', 'humane officer seized', 'humane officer  seized' ) );
 			$type = 'cat';
 			$count_imported = $dupe = $count_excluded = $count_no_address = $count_bad_address = 0;
 			while ( $row_data = fgetcsv( $open_file ) ) {
@@ -270,18 +260,20 @@ class Cat_Mapper_Importer {
         	continue;
 
         $animal_id = $row_data[0];
-        $animal_name = $row_data[1];
         $date = $row_data[2];
-        $source = $row_data[3];
-        $breed = $row_data[4];
-        $color = $row_data[5];
-        $gender = $row_data[6];
-        $address = $row_data[7];
+        $source = $row_data[4];
+        $breed = $row_data[12];
+        $color = $row_data[13];
+        $age_group = $row_data[16];
+        $gender = $row_data[17];
+        $incoming_spay_neuter_status = $row_data[17];
+        $current_spay_neuter_status = $row_data[18];
+        $address = $row_data[23];
 
         if ( 'Type' == $row_data[0] && 'Kitten' == $row_data[1] )
 					$type = 'kitten';
 
-				$_type = ( 'kitten' == $type ) ? 'bcspca-unowned-intake-kitten' : 'bcspca-unowned-intake-cat';
+				$_type = ( 'kitten' == $type ) ? 'bc-spca-unowned-intake-kitten' : 'bc-spca-unowned-intake-cat';
 				$type_object = get_term_by( 'slug', $_type, Cat_Tracker::MARKER_TAXONOMY );
 				if ( ! is_wp_error( $type_object ) && is_object( $type_object ) )
 					$type_id = absint( $type_object->term_id );
@@ -319,7 +311,7 @@ class Cat_Mapper_Importer {
         	continue;
         }
 
-        if ( 0 == $breed )
+        if ( empty( $breed ) )
         	$breed = 'unknown';
 
 				$location = Cat_Tracker_Geocode::get_location_by_address( $address );
@@ -331,9 +323,9 @@ class Cat_Mapper_Importer {
 				}
 
 				if ( 'stray' == strtolower( $source ) ) {
-					$description = sprintf( __( "%s %s.\nColor: %s.\nGender: %s.\nBreed: %d", 'cat-tracker' ), $source, $type, $color, $gender, $breed );
+					$description = sprintf( __( "%s %s.\nColor: %s.\nGender: %s.\nBreed: %s", 'cat-tracker' ), ucfirst( $source ), $type, $color, $gender, $breed );
 				} else {
-					$description = sprintf( __( "%s.\nColor: %s.\nGender: %s.\nBreed: %d", 'cat-tracker' ), $type, $color, $gender, $breed );
+					$description = sprintf( __( "%s.\nColor: %s.\nGender: %s.\nBreed: %s", 'cat-tracker' ), ucfirst( $type ), $color, $gender, $breed );
 				}
 
 				$sighting_id = wp_insert_post( array(
@@ -350,12 +342,23 @@ class Cat_Mapper_Importer {
 
 				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'description', $description, true );
 				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'animal_id', $animal_id, true );
-				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'animal_name', $animal_name, true );
 				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'source', $source, true );
 				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'breed', $breed, true );
 				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'color', $color, true );
 				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'gender', $gender, true );
-				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'sighting_date', $date, true );
+				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'age_group', $age_group, true );
+
+				if ( ! empty( $date ) ) {
+					$date = strtotime( $date );
+					if ( ! empty( $date ) ) {
+						add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'sighting_date', $date, true );
+						if ( $date > strtotime( 'July 2011' ) ) {
+							add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'incoming_spay_neuter_status', $incoming_spay_neuter_status, true );
+							add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'current_spay_neuter_status', $current_spay_neuter_status, true );
+						}
+					}
+				}
+
 				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'name_of_reporter', 'BC SPCA', true );
 				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'latitude', $location['latitude'], true );
 				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'longitude', $location['longitude'], true );
@@ -363,6 +366,7 @@ class Cat_Mapper_Importer {
 				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'confidence_level', $location['confidence'], true );
 				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'ip_address_of_reporter', $_SERVER['REMOTE_ADDR'], true );
 				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'browser_info_of_reporter', $_SERVER['HTTP_USER_AGENT'] , true );
+				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'imported_on', time(), true );
 				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'map', $map_id, true );
 
 				// insert sighting type
