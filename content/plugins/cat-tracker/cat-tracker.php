@@ -433,7 +433,7 @@ class Cat_Tracker {
 					'map_west_bounds' => $this->get_map_west_bounds( $map_id ),
 					'map_east_bounds' => $this->get_map_east_bounds( $map_id ),
 					'map_zoom_level' => $this->get_map_zoom_level( $map_id ),
-					'markers' => ( ! Cat_Tracker::is_submission_mode() ) ? json_encode( array( $this->get_marker( $post->ID ) ) ) : array(),
+					'markers' => ( ! Cat_Tracker::is_submission_mode() ) ? json_encode( $this->get_marker_for_preview( $post->ID ) ) : array(),
 				),
 			),
 		) );
@@ -615,6 +615,32 @@ class Cat_Tracker {
 				'text' => $this->get_marker_text( $marker_id ),
 			);
 		}
+
+		return $markers;
+
+	}
+
+	public function get_marker_for_preview( $marker_id ) {
+
+		$markers = array();
+		$latitude = $this->get_marker_latitude( $marker_id );
+		$longitude = $this->get_marker_longitude( $marker_id );
+		if ( ! Cat_Tracker_Utils::validate_latitude( $latitude ) || ! Cat_Tracker_Utils::validate_longitude( $longitude ) )
+			return;
+
+		$markers['preview'] = array(
+			'title' => $this->get_marker_type( $marker_id ),
+			'slug' => 'preview',
+			'sightings' => array(),
+		);
+
+		$markers['preview']['sightings'][] = array(
+			'id' => $marker_id,
+			'title' => $this->get_marker_text( $marker_id ),
+			'latitude' => $this->get_marker_latitude( $marker_id ),
+			'longitude' => $this->get_marker_longitude( $marker_id ),
+			'text' => $this->get_marker_text( $marker_id ),
+		);
 
 		return $markers;
 

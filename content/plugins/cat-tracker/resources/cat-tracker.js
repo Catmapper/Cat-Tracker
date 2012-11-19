@@ -50,12 +50,14 @@
 		}
 
 		function build_markers( marker_types ) {
-
 			// loop the marker types/marker array and create a marker object for each marker
 			$.each( marker_types, function( marker_type, marker_data ){
 				var icon = L.divIcon( { className: 'cat-tracker-map-icon icon-' + marker_type } );
 				var markers = new Array();
 				$.each( marker_data.sightings, function( i, sighting ){
+					if ( 'preview' == marker_type ) {
+						L.marker( [sighting.latitude, sighting.longitude] ).bindPopup( sighting.text ).addTo( map );
+					}
 					markers.push( L.marker( [sighting.latitude, sighting.longitude], {icon: icon} ).bindPopup( sighting.text ) );
 				});
 
@@ -63,6 +65,9 @@
 				active_marker_layers[marker_type] = L.layerGroup( markers );
 				all_marker_layers[marker_type] = L.layerGroup( markers );
 			});
+
+			if ( _.has( active_marker_layers, 'preview' ) )
+				return;
 
 			// create a cluster or all the markers combined
 			marker_cluster = new L.MarkerClusterGroup();
@@ -73,6 +78,7 @@
 			// add the cluster as a layer to the map
 			map.addLayer( marker_cluster );
 			init_legend();
+
 		}
 
 		function init_legend() {
