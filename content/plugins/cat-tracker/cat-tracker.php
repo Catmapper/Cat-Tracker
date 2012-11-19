@@ -92,10 +92,6 @@ class Cat_Tracker {
 	 */
 	public $path;
 
-	/**
-	 * @var theme path for theme files
-	 */
-	public $theme_path;
 
 	/**
 	 * @var current sighting submission, if there is one
