@@ -496,6 +496,9 @@ function cat_mapper_admin_bar_css() {
  */
 add_filter( 'cat_tracker_is_showing_map', 'cat_mapper_is_showing_map' );
 function cat_mapper_is_showing_map( $is_showing_map ) {
+	if ( is_main_site() )
+		return $is_showing_map;
+
 	if ( is_front_page() )
 		return true;
 
@@ -504,6 +507,9 @@ function cat_mapper_is_showing_map( $is_showing_map ) {
 
 add_filter( 'cat_tracker_map_content_map_id', 'cat_mapper_map_content_map_id' );
 function cat_mapper_map_content_map_id( $map_id ) {
+	if ( is_main_site() )
+		return $map_id;
+
 	if ( is_front_page() )
 		return get_option( 'catmapper_community_main_map_id' );
 
