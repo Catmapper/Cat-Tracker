@@ -118,11 +118,11 @@
 	display: block;
 }
 
-#cat-tracker-submisison-description {
+#cat-tracker-submission-description {
 	margin-left: 60px;
 }
 
-#cat-tracker-new-submission .cat-tracker-submissison-extra-description {
+#cat-tracker-new-submission .cat-tracker-submission-extra-description {
 	font-size: 13px;
 	color: #888;
 }
@@ -163,6 +163,6 @@
 	list-style-type: none;
 }
 
-#cat-tracker-submisison-submit {
+#cat-tracker-submission-submit {
 	margin-top: 20px;
 }

@@ -119,14 +119,14 @@
 	     	} else {
 	     		submission_marker.setLatLng( e.latlng )
 	     	}
-	      $( '#cat-tracker-submisison-latitude' ).val( e.latlng.lat );
-  	    $( '#cat-tracker-submisison-longitude' ).val( e.latlng.lng );
+	      $( '#cat-tracker-submission-latitude' ).val( e.latlng.lat );
+  	    $( '#cat-tracker-submission-longitude' ).val( e.latlng.lng );
 			}, 200 );
 		}
 
 		function capture_submission_marker_drag_end( e ) {
-      $( '#cat-tracker-submisison-latitude' ).val( e.target._latlng.lat );
-	    $( '#cat-tracker-submisison-longitude' ).val( e.target._latlng.lng );
+      $( '#cat-tracker-submission-latitude' ).val( e.target._latlng.lat );
+	    $( '#cat-tracker-submission-longitude' ).val( e.target._latlng.lng );
 		}
 
 

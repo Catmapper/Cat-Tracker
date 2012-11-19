@@ -541,17 +541,17 @@ class Cat_Tracker {
 		$submission_form .= '<fieldset><label for="cat-tracker-submitter-phone">' . __( 'Your phone (optional):', 'cat-tracker' ) . '<input type="phone" id="cat-tracker-submitter-phone" name="cat-tracker-submitter-phone"></label></fieldset>';
 		$submission_form .= '<fieldset><label for="cat-tracker-submitter-email">' . __( 'Your email address (optional):', 'cat-tracker' ) . '<input type="email" id="cat-tracker-submitter-email" name="cat-tracker-submitter-email"></label></fieldset>';
 		$submission_form .= '<fieldset><label for="cat-tracker-submission-date">' . __( 'Date of sighting (optional):', 'cat-tracker' ) . '<input type="date" id="cat-tracker-submission-date" name="cat-tracker-submission-date"></label></fieldset>';
-		$submission_form .= '<fieldset><label for="cat-tracker-submissison-description">' . __( 'Please describe the situation*:', 'cat-tracker' ) . '<textarea id="cat-tracker-submisison-description" name="cat-tracker-submisison-description"></textarea> <br> <span class="cat-tracker-submissison-extra-description">' . __( 'How many cats are there? Are they being fed? Are they fixed? What do they look like?', 'cat-tracker' ) . '</label></fieldset>'; // todo: adjust the description
-		$submission_form .= '<fieldset><label for="cat-tracker-submissison-type">' . __( 'Type of sighting:', 'cat-tracker' );
-		$submission_form .= wp_dropdown_categories( apply_filters( 'cat_tracker_submission_form_dropdown_categories_args', array( 'name' => 'cat-tracker-submissison-type', 'hide_empty' => false, 'id' => 'cat-tracker-submissison-type', 'taxonomy' => Cat_Tracker::MARKER_TAXONOMY, 'echo' => false ) ) );
+		$submission_form .= '<fieldset><label for="cat-tracker-submission-description">' . __( 'Please describe the situation*:', 'cat-tracker' ) . '<textarea id="cat-tracker-submission-description" name="cat-tracker-submission-description"></textarea> <br> <span class="cat-tracker-submission-extra-description">' . __( 'How many cats are there? Are they being fed? Are they fixed? What do they look like?', 'cat-tracker' ) . '</label></fieldset>'; // todo: adjust the description
+		$submission_form .= '<fieldset><label for="cat-tracker-submission-type">' . __( 'Type of sighting:', 'cat-tracker' );
+		$submission_form .= wp_dropdown_categories( apply_filters( 'cat_tracker_submission_form_dropdown_categories_args', array( 'name' => 'cat-tracker-submission-type', 'hide_empty' => false, 'id' => 'cat-tracker-submission-type', 'taxonomy' => Cat_Tracker::MARKER_TAXONOMY, 'echo' => false ) ) );
 		$submission_form .= '</label></fieldset>';
 		$submission_form .= '<p class="cat-tracker-mandatory-fields">' . __( "Fields marked with '*' are mandatory." ) . '</p>';
 		$submission_form .= '<p>' . __( 'Please provide the location of the sighting using the map below. You can zoom in using the controls on the left-hand side, or by double clicking on the map. Click on the map once to define the location of the sighting. You can then re-click the map or click and drag the marker to re-set the location of the sighting.', 'cat-tracker' ) . '</p>';
-		$submission_form .= '<div class="cat-tracker-submission-map" id="' . esc_attr( 'map-' . get_the_ID() ) . '"></div>';
+		$submission_form .= '<div class="cat-tracker-submission-map" id="' . esc_attr( 'map-' . $map_id ) . '"></div>';
 		$submission_form .= wp_nonce_field( 'cat_tracker_confirm_submission', 'cat_tracker_confirm_submission', true, false );
-		$submission_form .= '<input type="hidden" name="cat-tracker-submisison-latitude" id="cat-tracker-submisison-latitude">';
-		$submission_form .= '<input type="hidden" name="cat-tracker-submisison-longitude" id="cat-tracker-submisison-longitude">';
-		$submission_form .= '<input type="submit" name="cat-tracker-submisison-submit" id="cat-tracker-submisison-submit" value="Submit">';
+		$submission_form .= '<input type="hidden" name="cat-tracker-submission-latitude" id="cat-tracker-submission-latitude">';
+		$submission_form .= '<input type="hidden" name="cat-tracker-submission-longitude" id="cat-tracker-submission-longitude">';
+		$submission_form .= '<input type="submit" name="cat-tracker-submission-submit" id="cat-tracker-submission-submit" value="Submit">';
 		$submission_form .= '</form>';
 		return $submission_form;
 	}

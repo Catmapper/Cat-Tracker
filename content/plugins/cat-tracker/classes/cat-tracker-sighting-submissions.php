@@ -43,7 +43,7 @@ class Cat_Tracker_Sighting_Submission {
 
 		do_action( 'cat_tracker_process_submission', $_POST );
 
-		if ( ! isset( $_POST['cat-tracker-submisison-submit'] ) )
+		if ( ! isset( $_POST['cat-tracker-submission-submit'] ) )
 			return;
 
 		if ( headers_sent() || empty( $_POST['cat_tracker_confirm_submission'] ) || ! wp_verify_nonce( $_POST['cat_tracker_confirm_submission'], 'cat_tracker_confirm_submission' ) )
@@ -73,31 +73,31 @@ class Cat_Tracker_Sighting_Submission {
 			// TODO: verify the correct return values here
 			$this->submission_fields['date'] = strtotime( $_POST['cat-tracker-submission-date'] );
 			if ( false == $this->submission_fields['date'] ) // TODO: || DEFAULT_DATE == $date & check range also
-				$this->errors[] = new WP_Error( 'no-name', __( 'Please provide a valid date.', 'cat-tracker' ) );
+				$this->errors[] = new WP_Error( 'invalid-date', __( 'Please provide a valid date.', 'cat-tracker' ) );
 		}
 
-		if ( empty( $_POST['cat-tracker-submisison-type'] ) ) {
+		if ( empty( $_POST['cat-tracker-submission-type'] ) ) {
 			$this->errors[] = new WP_Error( 'no-type', __( 'Please provide the type of sighting.', 'cat-tracker' ) );
 		} else {
 			$valid_types = get_terms( Cat_Tracker::MARKER_TAXONOMY, array( 'hide_empty' => false, 'fields' => 'ids' ) );
-			if ( ! in_array( $_POST['cat-tracker-submisison-type'], $valid_types ) ) {
+			if ( ! in_array( $_POST['cat-tracker-submission-type'], $valid_types ) ) {
 				$this->errors[] = new WP_Error( 'invalid-type', __( 'Please provide a valid type of sighting.', 'cat-tracker' ) );
 			} else {
-				$this->submission_fields['type_id'] = absint( $_POST['cat-tracker-submisison-type'] );
+				$this->submission_fields['type_id'] = absint( $_POST['cat-tracker-submission-type'] );
 			}
 		}
 
-		if ( empty( $_POST['cat-tracker-submisison-description'] ) ) {
+		if ( empty( $_POST['cat-tracker-submission-description'] ) ) {
 			$this->errors[] = new WP_Error( 'no-description', __( 'Please provide a description of the situation.', 'cat-tracker' ) );
 		} else {
-			$this->submission_fields['description'] = wp_kses( $_POST['cat-tracker-submisison-description'], array() );
+			$this->submission_fields['description'] = wp_kses( $_POST['cat-tracker-submission-description'], array() );
 		}
 
-		if ( empty( $_POST['cat-tracker-submisison-latitude'] ) || empty( $_POST['cat-tracker-submisison-longitude'] ) ) {
+		if ( empty( $_POST['cat-tracker-submission-latitude'] ) || empty( $_POST['cat-tracker-submission-longitude'] ) ) {
 			$this->errors[] = new WP_Error( 'invalid-marker', __( 'Please provide the location of the sighting using the map below', 'cat-tracker' ) );
 		} else {
-			$this->submission_fields['latitude'] = (float) $_POST['cat-tracker-submisison-latitude'];
-			$this->submission_fields['longitude'] = (float) $_POST['cat-tracker-submisison-longitude'];
+			$this->submission_fields['latitude'] = (float) $_POST['cat-tracker-submission-latitude'];
+			$this->submission_fields['longitude'] = (float) $_POST['cat-tracker-submission-longitude'];
 		}
 
 		$this->errors = apply_filters( 'cat_tracker_submission_errors', $this->errors, $_POST, $this->submission_fields );
