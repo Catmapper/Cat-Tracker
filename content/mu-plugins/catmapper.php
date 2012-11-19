@@ -48,6 +48,7 @@ function cat_mapper_remove_admin_menus() {
 	remove_menu_page( 'edit-comments.php' ); // Comments
 	remove_menu_page( 'tools.php' ); // Tools
 	remove_menu_page( 'plugins.php' ); // Plugins
+	remove_menu_page( 'edit.php?post_type=' . Cat_Tracker::MAP_POST_TYPE ); // maps post type
 	remove_submenu_page( 'options-general.php', 'options-writing.php' ); // Writing options
 	remove_submenu_page( 'options-general.php', 'options-discussion.php' ); // Discussion options
 	remove_submenu_page( 'options-general.php', 'options-reading.php' ); // Reading options
