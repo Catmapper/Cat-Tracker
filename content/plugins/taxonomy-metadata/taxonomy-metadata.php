@@ -12,7 +12,7 @@ class Taxonomy_Metadata {
 		add_action( 'init', array($this, 'wpdbfix') );
 		add_action( 'switch_blog', array($this, 'wpdbfix') );
 		
-		add_action('wpmu_new_blog', 'new_blog', 10, 6);
+		add_action('wpmu_new_blog', array( $this, 'new_blog' ), 10, 6);
 	}
 
 	/*
