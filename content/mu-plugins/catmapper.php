@@ -149,8 +149,8 @@ function catmapper_new_community_created( $blog_id, $user_id ) {
 	// create default sighting types
 	$community_cat = wp_create_term( 'Community cat', Cat_Tracker::MARKER_TAXONOMY );
 	$community_cat_with_kittens = wp_create_term( 'Community cat with kittens', Cat_Tracker::MARKER_TAXONOMY );
-	$group_of_comm_cats = wp_create_term( 'Group of community cats', Cat_Tracker::MARKER_TAXONOMY );
 	$orphaned_kittens = wp_create_term( 'Orphaned Kittens (under 8 weeks)', Cat_Tracker::MARKER_TAXONOMY );
+	$group_of_comm_cats = wp_create_term( 'Group of community cats', Cat_Tracker::MARKER_TAXONOMY );
 	$tnr_colony = wp_create_term( 'TNR Colony', Cat_Tracker::MARKER_TAXONOMY );
 	$bcspca_cat = wp_create_term( 'BC SPCA unowned intake - Cat', Cat_Tracker::MARKER_TAXONOMY );
 	$bcspca_kitten = wp_create_term( 'BC SPCA unowned intake - Kitten', Cat_Tracker::MARKER_TAXONOMY );
