@@ -146,7 +146,9 @@ class Cat_Tracker_Sighting_Submission {
 		// insert programmatic meta
 		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'ip_address_of_reporter', $_SERVER['REMOTE_ADDR'], true );
 		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'browser_info_of_reporter', $_SERVER['HTTP_USER_AGENT'] , true );
-		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'map', get_the_ID(), true );
+
+		$map_id = apply_filters( 'cat_tracker_map_content_map_id', get_the_ID() );
+		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'map', $map_id, true );
 
 		// insert sighting type
 		add_post_meta( $sighting_id, Cat_Tracker::MARKER_TAXONOMY, $this->submission_fields['type_id'], true );
