@@ -180,6 +180,24 @@ function catmapper_new_community_created( $blog_id, $user_id ) {
 	$menu_id = wp_create_nav_menu( 'blank' );
 	set_theme_mod( 'nav_menu_locations', array( 'primary' => $menu_id ) );
 
+	// unhook action which otherwise causes a notice
+	remove_action( 'transition_post_status', '_update_blog_date_on_post_publish' );
+
+	// create front page
+	$front_page_id = wp_insert_post( array( 'post_type' => 'page', 'post_title' => get_bloginfo( 'name' ), 'post_status' => 'publish' ) );
+	if ( $front_page_id && ! is_wp_error( $front_page_id ) ) {
+		update_option( 'show_on_front', 'page' );
+		update_option( 'page_on_front', $front_page_id );
+	}
+
+	// create the map
+	$map_id = wp_insert_post( array( 'post_type' => Cat_Tracker::MAP_POST_TYPE , 'post_title' => get_bloginfo( 'name' ) ) );
+
+	if ( $map_id && ! is_wp_error( $map_id ) ) {
+		update_option( 'catmapper_community_main_map_id', $map_id );
+		wp_redirect( add_query_arg( array( 'post' => $map_id, 'action' => 'edit', 'message' => 11 ), admin_url( 'post.php' ) ) );
+		exit;
+	}
 
 	wp_redirect( add_query_arg( array( 'post_type' => Cat_Tracker::MAP_POST_TYPE, 'message' => 11 ), admin_url( 'post-new.php' ) ) );
 	exit;
