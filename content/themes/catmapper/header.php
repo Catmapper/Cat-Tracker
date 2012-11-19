@@ -31,7 +31,7 @@
 <body <?php body_class(); ?>>
 <div id="page" class="hfeed site">
 	<header id="masthead" class="site-header" role="banner">
-		<a title="<?php bloginfo( 'description' ); ?> | <?php bloginfo( 'name' ) ?>" href="<?php echo esc_url( home_url( '/' ) ); ?>"><img src="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/catmapper-logo.png' ); ?>" height="100" width="500" alt="" /></a>
+		<a title="<?php bloginfo( 'description' ); ?> | <?php bloginfo( 'name' ) ?>" href="<?php echo esc_url( home_url( '/' ) ); ?>"><img src="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/catmapper-logo.png' ); ?>" height="100" width="700" alt="" /></a>
 	</header><!-- #masthead -->
 
 	<div id="main" class="wrapper">
