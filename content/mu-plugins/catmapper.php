@@ -286,8 +286,8 @@ function cat_mapper_excluded_types_from_submission( $args ) {
 		return $args;
 
 	$excluded_slugs = array(
-		'bcspca-unowned-intake-cat',
-		'bcspca-unowned-intake-kitten',
+		'bc-spca-unowned-intake-cat',
+		'bc-spca-unowned-intake-kitten',
 		'katies-place-unowned-intake-cat',
 		'katies-place-unowned-intake-kitten',
 	);
