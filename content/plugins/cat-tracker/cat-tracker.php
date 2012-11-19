@@ -442,7 +442,7 @@ class Cat_Tracker {
 
 	public function frontend_enqueue() {
 
-		if ( ! is_singular( Cat_Tracker::MAP_POST_TYPE ) )
+		if ( ! Cat_Tracker::is_showing_map() )
 			return;
 
 		wp_enqueue_style( 'leaflet-css', plugins_url( 'resources/leaflet.css', __FILE__ ), array(), self::LEAFLET_VERSION );
@@ -454,6 +454,7 @@ class Cat_Tracker {
 		wp_enqueue_script( 'cat-tracker-js', plugins_url( 'resources/cat-tracker.js', __FILE__ ), array( 'jquery', 'underscore' ), self::VERSION, true );
 
 		$this->setup_vars(); // setup map source + attribution
+		$map_id = apply_filters( 'cat_tracker_map_content_map_id', get_the_ID() );
 
 		wp_localize_script( 'cat-tracker-js', 'cat_tracker_vars', array(
 			'ajax_url' => esc_url( admin_url( 'admin-ajax.php' ) ),
@@ -462,17 +463,17 @@ class Cat_Tracker {
 			'is_submission_mode' => Cat_Tracker::is_submission_mode(),
 			'new_submission_popup_text' => __( 'Your sighting', 'cat-tracker' ),
 			'maps' => array(
-				'map-' . get_the_id() => array(
-					'map_id' => 'map-' . get_the_id(),
-					'map_latitude' => $this->get_map_latitude(),
-					'map_longitude' => $this->get_map_longitude(),
-					'map_north_bounds' => $this->get_map_north_bounds(),
-					'map_south_bounds' => $this->get_map_south_bounds(),
-					'map_west_bounds' => $this->get_map_west_bounds(),
-					'map_east_bounds' => $this->get_map_east_bounds(),
-					'map_zoom_level' => $this->get_map_zoom_level(),
-					'map_max_zoom_level' => $this->get_map_max_zoom_level(),
-					'markers' => json_encode( $this->get_markers() ),
+				'map-' . $map_id => array(
+					'map_id' => 'map-' . $map_id,
+					'map_latitude' => $this->get_map_latitude( $map_id ),
+					'map_longitude' => $this->get_map_longitude( $map_id ),
+					'map_north_bounds' => $this->get_map_north_bounds( $map_id ),
+					'map_south_bounds' => $this->get_map_south_bounds( $map_id ),
+					'map_west_bounds' => $this->get_map_west_bounds( $map_id ),
+					'map_east_bounds' => $this->get_map_east_bounds( $map_id ),
+					'map_zoom_level' => $this->get_map_zoom_level( $map_id ),
+					'map_max_zoom_level' => $this->get_map_max_zoom_level( $map_id ),
+					'markers' => json_encode( $this->get_markers( $map_id ) ),
 				),
 			),
 		) );
@@ -494,11 +495,13 @@ class Cat_Tracker {
 				$content .= $this->sighting_submission->get_errors();
 			}
 			$content .= $this->submission_form();
-		} elseif ( is_singular( Cat_Tracker::MAP_POST_TYPE ) ) {
-			$content = '<a class="cat-tracker-report-new-sighting-button" href="' . esc_url( add_query_arg( array( 'submission' => 'new' ), get_permalink( get_the_ID() ) ) ) . '">' . __( 'Report a new community cat sighting', 'cat-tracker' ) . '</a>';
-			$content .= '<div class="cat-tracker-map" id="' . esc_attr( 'map-' . get_the_ID() ) . '"></div>';
+		} elseif ( Cat_Tracker::is_showing_map() ) {
+			$map_id = apply_filters( 'cat_tracker_map_content_map_id', get_the_ID() );
+			$submission_link = apply_filters( 'cat_tracker_map_submission_link', add_query_arg( array( 'submission' => 'new' ), get_permalink( get_the_ID() ) ) );
+			$content = '<a class="cat-tracker-report-new-sighting-button" href="' . esc_url( $submission_link ) . '">' . __( 'Report a new community cat sighting', 'cat-tracker' ) . '</a>';
+			$content .= '<div class="cat-tracker-map" id="' . esc_attr( 'map-' . $map_id ) . '"></div>';
 
-			$marker_types = $this->get_markers();
+			$marker_types = $this->get_markers( $map_id );
 			if ( empty( $marker_types ) )
 				return $content;
 
@@ -514,12 +517,16 @@ class Cat_Tracker {
 		return $content;
 	}
 
+	public static function is_showing_map() {
+		return apply_filters( 'cat_tracker_is_showing_map', is_singular( Cat_Tracker::MAP_POST_TYPE ) );
+	}
+
 	public static function is_submission_mode() {
-		return ( ! is_admin() && isset( $_GET['submission'] ) && 'new' == $_GET['submission'] && is_singular( Cat_Tracker::MAP_POST_TYPE ) );
+		return ( ! is_admin() && isset( $_GET['submission'] ) && 'new' == $_GET['submission'] && Cat_Tracker::is_showing_map() );
 	}
 
 	public function maybe_process_submission() {
-		if ( ! Cat_Tracker::is_submission_mode() || ! isset( $_POST['cat-tracker-submisison-submit'] ) )
+		if ( ! Cat_Tracker::is_submission_mode() || ! isset( $_POST['cat-tracker-submission-submit'] ) )
 			return;
 
 		$this->sighting_submission = new Cat_Tracker_Sighting_Submission();
@@ -535,6 +542,7 @@ class Cat_Tracker {
 	}
 
 	public function submission_form() {
+		$map_id = apply_filters( 'cat_tracker_map_content_map_id', get_the_ID() );
 		$submission_form = '<form id="cat-tracker-new-submission" method="post">';
 		$submission_form .= '<fieldset><label for="cat-tracker-submitter-name">' . __( 'First name*:', 'cat-tracker' ) . '<input type="text" id="cat-tracker-submitter-name" name="cat-tracker-submitter-name"></label></fieldset>';
 		$submission_form .= '<fieldset><label for="cat-tracker-submitter-phone">' . __( 'Your phone (optional):', 'cat-tracker' ) . '<input type="phone" id="cat-tracker-submitter-phone" name="cat-tracker-submitter-phone"></label></fieldset>';
@@ -561,7 +569,7 @@ class Cat_Tracker {
 	public function get_markers( $map_id = null ) {
 		$map_id = ( empty( $map_id ) ) ? get_the_ID() : $map_id;
 
-		if ( ! is_singular( $map_id ) && Cat_Tracker::MAP_POST_TYPE != get_post_type( $map_id ) )
+		if ( Cat_Tracker::MAP_POST_TYPE != get_post_type( $map_id ) )
 			return false;
 
 		$markers = array();
@@ -744,7 +752,7 @@ class Cat_Tracker {
 	}
 
 	public function sighting_map( $field_slug, $field, $object_type, $object_id, $value ) {
-		if ( self::MARKER_POST_TYPE != $object_type )
+		if ( Cat_Tracker::MARKER_POST_TYPE != $object_type )
 			return;
 
 		echo '<div class="custom-metadata-field text">';
@@ -777,10 +785,10 @@ class Cat_Tracker {
 
 }
 
-Cat_Tracker::instance();
+global $cat_tracker;
+$cat_tracker = Cat_Tracker::instance();
 
 function cat_tracker_sighting_map( $field_slug, $field, $object_type, $object_id, $value ) {
-	$cat_tracker = Cat_Tracker::instance();
-	if ( is_object( $cat_tracker ) && is_a( $cat_tracker, 'Cat_Tracker' ) )
-		$cat_tracker->sighting_map( $field_slug, $field, $object_type, $object_id, $value );
+	global $cat_tracker;
+	$cat_tracker->sighting_map( $field_slug, $field, $object_type, $object_id, $value );
 }
