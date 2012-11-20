@@ -21,6 +21,14 @@
 	position: absolute;
 }
 
+.welcome-panel .welcome-panel-column:first-child {
+	width: 35%;
+}
+
+.welcome-panel .welcome-button {
+	padding: 0 16px;
+}
+ 
 #wp-fullscreen-title {
 	width: 97%;
 }

@@ -356,7 +356,7 @@ var tb_position;
 				if ( ! selection || ! details )
 					return;
 
-				this.insert( selection.map( function( attachment ) {
+				selection.each( function( attachment ) {
 					var detail = details[ attachment.cid ];
 
 					if ( detail )
@@ -366,10 +366,10 @@ var tb_position;
 					delete details[ attachment.cid ];
 
 					if ( 'image' === attachment.get('type') )
-						return wp.media.string.image( attachment, detail ) + ' ';
+						this.insert( wp.media.string.image( attachment, detail ) + ' ' );
 					else
-						return wp.media.string.link( attachment, detail ) + ' ';
-				}).join('') );
+						this.insert( wp.media.string.link( attachment, detail ) + ' ' );
+				}, this );
 			}, this );
 
 			workflow.get('gallery-edit').on( 'update', function( selection ) {
@@ -434,13 +434,21 @@ var tb_position;
 		},
 
 		init: function() {
-			$('#wpbody').on('click', '.insert-media', function( event ) {
-				var editor = $(this).data('editor'),
+			$(document.body).on('click', '.insert-media', function( event ) {
+				var $this = $(this),
+					editor = $this.data('editor'),
 					workflow;
 
 				event.preventDefault();
 
-				if ( ! editor )
+				// Remove focus from the `.insert-media` button.
+				// Prevents Opera from showing the outline of the button
+				// above the modal.
+				//
+				// See: http://core.trac.wordpress.org/ticket/22445
+				$this.blur();
+
+				if ( ! _.isString( editor ) )
 					return;
 
 				workflow = wp.media.editor.get( editor );

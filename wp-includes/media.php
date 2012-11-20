@@ -1328,13 +1328,13 @@ function wp_enqueue_media( $args = array() ) {
 		), admin_url('media-upload.php') ),
 	);
 
-	if ( isset( $args['post'] ) )
-		$settings['postId'] = get_post( $args['post'] )->ID;
+	$post = null;
+	if ( isset( $args['post'] ) ) {
+		$post = get_post( $args['post'] );
+		$settings['postId'] = $post->ID;
+	}
 
-	wp_localize_script( 'media-views', '_wpMediaViewsL10n', array(
-		// Settings
-		'settings' => $settings,
-
+	$strings = array(
 		// Generic
 		'url'         => __( 'URL' ),
 		'insertMedia' => __( 'Insert Media' ),
@@ -1369,7 +1369,14 @@ function wp_enqueue_media( $args = array() ) {
 		'updateGallery'      => __( 'Update gallery' ),
 		'continueEditing'    => __( 'Continue editing' ),
 		'addToGallery'       => __( 'Add to gallery' ),
-	) );
+	);
+
+	$settings = apply_filters( 'media_view_settings', $settings, $post );
+	$strings  = apply_filters( 'media_view_strings',  $strings,  $post );
+
+	$strings['settings'] = $settings;
+
+	wp_localize_script( 'media-views', '_wpMediaViewsL10n', $strings );
 
 	wp_enqueue_script( 'media-upload' );
 	wp_enqueue_style( 'media-views' );
@@ -1548,28 +1555,30 @@ function wp_print_media_templates( $attachment ) {
 	<script type="text/html" id="tmpl-attachment-display-settings">
 		<h3><?php _e('Attachment Display Settings'); ?></h3>
 
-		<label class="setting">
-			<span><?php _e('Alignment'); ?></span>
-			<select class="alignment"
-				data-setting="align"
-				<# if ( data.userSettings ) { #>
-					data-user-setting="align"
-				<# } #>>
+		<# if ( 'image' === data.type ) { #>
+			<label class="setting">
+				<span><?php _e('Alignment'); ?></span>
+				<select class="alignment"
+					data-setting="align"
+					<# if ( data.userSettings ) { #>
+						data-user-setting="align"
+					<# } #>>
 
-				<option value="left">
-					<?php esc_attr_e('Left'); ?>
-				</option>
-				<option value="center">
-					<?php esc_attr_e('Center'); ?>
-				</option>
-				<option value="right">
-					<?php esc_attr_e('Right'); ?>
-				</option>
-				<option value="none" selected>
-					<?php esc_attr_e('None'); ?>
-				</option>
-			</select>
-		</label>
+					<option value="left">
+						<?php esc_attr_e('Left'); ?>
+					</option>
+					<option value="center">
+						<?php esc_attr_e('Center'); ?>
+					</option>
+					<option value="right">
+						<?php esc_attr_e('Right'); ?>
+					</option>
+					<option value="none" selected>
+						<?php esc_attr_e('None'); ?>
+					</option>
+				</select>
+			</label>
+		<# } #>
 
 		<div class="setting">
 			<label>

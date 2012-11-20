@@ -2308,6 +2308,10 @@ html.wp-toolbar {
 	float: left;
 }
 
+.ie8 .welcome-panel .welcome-panel-column { 
+	min-width: 230px;
+}
+
 .welcome-panel .welcome-panel-column:first-child {
 	width: 36%;
 }
