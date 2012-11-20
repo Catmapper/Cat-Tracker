@@ -40,7 +40,7 @@ define( 'PATH_CURRENT_SITE', '/' );
 // ===================
 define( 'EMPTY_TRASH_DAYS', 5 );
 define( 'WP_POST_REVISIONS', 10 );
-define( 'WP_MEMORY_LIMIT', '128M' );
+define( 'WP_MEMORY_LIMIT', '256M' );
 define( 'DISALLOW_FILE_EDIT', true );
 
 // ===================
