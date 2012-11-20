@@ -158,6 +158,8 @@ class Cat_Tracker {
 		add_filter( 'the_title', array( $this, 'submission_title' ), 10, 2 );
 		add_action( Cat_Tracker::MARKER_TAXONOMY . '_edit_form_fields', array( $this, 'sighting_type_form_fields' ) );
 		add_action( 'edited_' . Cat_Tracker::MARKER_TAXONOMY, array( $this, 'edited_sighting_type' ) );
+		add_filter( 'cat_tracker_submission_form_dropdown_categories_args', array( $this, 'excluded_types' ) );
+		add_filter( 'updated_taxonomy_meta', array( $this, 'updated_taxonomy_meta' ), 10, 4 );
 	}
 
 	/**
@@ -868,6 +870,10 @@ class Cat_Tracker {
 	 * @return void
 	 */
 	public function edited_sighting_type( $term_id ) {
+
+		if ( ! function_exists( 'update_term_meta' ) )
+			return;
+
 		if ( isset( $_POST['term_color'] ) ) {
 			$color = (string) $_POST['term_color'];
 			if ( preg_match( '/^#[a-f0-9]{6}$/i', $color ) )
@@ -878,6 +884,69 @@ class Cat_Tracker {
 			update_term_meta( $term_id, 'internal_type', $internal_type );
 		}
 	}
+
+	/**
+	 * exclude internal types
+	 *
+	 * @since 1.0
+	 * @param (array) $args, the args passed to the dropdown field function
+	 * @return (array) $args, the filtered args passed to the dropdown field function
+	 */
+	public function excluded_types( $args ) {
+		if ( ! function_exists( 'get_term_meta' ) )
+			return $args;
+
+		$excluded_ids = wp_cache_get( 'excluded_sighting_types', 'cat_tracker' );
+		if ( false === $excluded_ids )
+			$excluded_ids = $this->determine_internal_type_ids();
+
+		if ( ! empty( $excluded_ids ) )
+			$args['exclude'] = $excluded_ids;
+
+		return $args;
+	}
+
+	/**
+	 * determine which sighting types are internal
+	 *
+	 * @since 1.0
+	 * @return (array) $excluded_ids, the excluded sighting type ids
+	 */
+	public function determine_internal_type_ids() {
+		$excluded_ids = array();
+
+		$type_of_sightings = get_terms( self::MARKER_TAXONOMY, array( 'hide_empty' => false, 'fields' => 'ids' ) );
+
+		if ( is_wp_error( $type_of_sightings ) )
+			return false;
+
+		if ( empty( $type_of_sightings ) )
+			return $excluded_ids;
+
+		foreach ( $type_of_sightings as $type_of_sighting_id ) {
+			if ( get_term_meta( $type_of_sighting_id, 'internal_type', true ) )
+				$excluded_ids[] = $type_of_sighting_id;
+		}
+
+		wp_cache_set( 'excluded_sighting_types', $excluded_ids, 'cat_tracker' );
+		return $excluded_ids;
+	}
+
+	/**
+	 * maybe refresh excluded type ids when taxonomy metadata is updated
+	 * do so if the updated term is a valid sighting type object
+	 *
+	 * @since 1.0
+	 * @return void
+	 */
+	public function updated_taxonomy_meta( $meta_id, $object_id, $meta_key, $_meta_value ) {
+		$term = get_term( $object_id, self::MARKER_TAXONOMY );
+		if ( empty( $term ) || is_wp_error( $term ) )
+			return;
+
+		$this->determine_internal_type_ids();
+	}
+
 
 }
 
