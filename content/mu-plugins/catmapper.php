@@ -164,12 +164,15 @@ function catmapper_new_community_created( $blog_id, $user_id ) {
 	add_term_meta( $bcspca_cat['term_id'], 'color', '#636363' ); // grey
 	add_term_meta( $bcspca_kitten['term_id'], 'color', '#636363' ); // grey
 
+	// assign as internal types
+	add_term_meta( $bcspca_cat['term_id'], 'internal_type', true );
+	add_term_meta( $bcspca_kitten['term_id'], 'internal_type', true );
+
 	// switch to the correct theme
 	switch_theme( 'catmapper' );
 
 	// set default options
 	$default_options = array(
-		'home' => trailingslashit( str_ireplace( '/wp', '', home_url() ) ),
 		'blogdescription' => 'Cat Mapper',
 		'timezone_string' => 'America/Vancouver',
 		'permalink_structure' => '/%postname%/',
@@ -277,40 +280,6 @@ add_filter( 'cat_tracker_map_post_type_labels', 'cat_mapper_map_post_type_labels
 function cat_mapper_map_post_type_labels( $labels ) {
 	$labels['edit_item'] = sprintf( __( 'Edit %s map', 'cat-mapper' ), get_bloginfo( 'name' ) );
 	return $labels;
-}
-
-/**
- * exclude bcspca types
- *
- * @todo: rewrite this to use meta
- * @since 1.0
- * @return void
- */
-add_filter( 'cat_tracker_submission_form_dropdown_categories_args', 'cat_mapper_excluded_types_from_submission' );
-function cat_mapper_excluded_types_from_submission( $args ) {
-	$type_of_sightings = get_terms( Cat_Tracker::MARKER_TAXONOMY, array( 'hide_empty' => false ) );
-	if ( empty( $type_of_sightings ) )
-		return $args;
-
-	$sighting_ids_and_slugs = array_combine( wp_list_pluck( $type_of_sightings, 'term_id' ), wp_list_pluck( $type_of_sightings, 'slug' ) );
-	if ( empty( $sighting_ids_and_slugs ) )
-		return $args;
-
-	$excluded_slugs = array(
-		'bc-spca-unowned-intake-cat',
-		'bc-spca-unowned-intake-kitten',
-		'katies-place-unowned-intake-cat',
-		'katies-place-unowned-intake-kitten',
-	);
-
-	$excluded_ids = array();
-	foreach ( $excluded_slugs as $excluded_slug )
-		$excluded_ids[] = array_search( $excluded_slug, $sighting_ids_and_slugs );
-
-	if ( ! empty( $excluded_ids ) )
-		$args['exclude'] = $excluded_ids;
-
-	return $args;
 }
 
 /**
