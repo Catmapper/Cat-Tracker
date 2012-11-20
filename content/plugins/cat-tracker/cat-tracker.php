@@ -14,9 +14,14 @@ License: GPLv2
  * @author Joachim Kudish
  * @version 1.0
  *
- * Note: this plugin requires Custom Metadata Manager plugin in
- * order to properly function, without it custom fields will not work
- * @link http://wordpress.org/extend/plugins/custom-metadata/
+ * Note: this plugin requires 2 other plugins in
+ * order to properly function:
+ *
+ *	-- 	Custom Metadata Manager, without it custom fields will not work
+ * 			@link http://wordpress.org/extend/plugins/custom-metadata/
+ *
+ * -- 	Taxonomy Metadata, without it term meta / sighting type colors will not work
+ * 			@link http://wordpress.org/extend/plugins/taxonomy-metadata/
 */
 
 /*
@@ -151,6 +156,8 @@ class Cat_Tracker {
 		add_filter( 'post_updated_messages', array( $this, 'post_updated_messages' ) );
 		add_filter( 'the_content', array( $this, 'map_content' ) );
 		add_filter( 'the_title', array( $this, 'submission_title' ), 10, 2 );
+		add_action( Cat_Tracker::MARKER_TAXONOMY . '_edit_form_fields', array( $this, 'sighting_type_form_fields' ) );
+		add_action( 'edited_' . Cat_Tracker::MARKER_TAXONOMY, array( $this, 'edited_sighting_type' ) );
 	}
 
 	/**
@@ -408,6 +415,13 @@ class Cat_Tracker {
 		wp_enqueue_script( 'cat-tracker-admin-js', plugins_url( 'resources/cat-tracker-admin.js', __FILE__ ), array( 'select2-js' ), self::VERSION, true );
 
 		global $post, $current_screen;
+
+		// color picker on sighting type editing screen
+		if ( 'edit-' . self::MARKER_TAXONOMY == $current_screen->id ) {
+			wp_enqueue_script( 'wp-color-picker' );
+			wp_enqueue_style( 'wp-color-picker' );
+		}
+
 		if ( 'post' != $current_screen->base || self::MARKER_POST_TYPE != $current_screen->id || empty( $post ) || self::MARKER_POST_TYPE != get_post_type( $post->ID ) )
 			return;
 
@@ -808,6 +822,62 @@ class Cat_Tracker {
 		include_once( 'includes/marker-meta-box.php' );
 	}
 
+	/**
+	 * display additional fields for sighting types
+	 *
+	 * @since 1.0
+	 * @param (object) $term, the current term we are modifying
+	 * @return void
+	 */
+	public function sighting_type_form_fields( $term ) {
+
+		if ( ! function_exists( 'get_term_meta' ) )
+			return;
+
+    $color = get_term_meta( $term->term_id, 'color', true );
+    $internal_type = get_term_meta( $term->term_id, 'internal_type', true );
+?>
+    <tr class="form-field cat-tracker-term-fields">
+        <th scope="row" valign="top"><label for="term_color"><?php _e( 'Assigned Color', 'cat-tracker' ) ?></label></th>
+        <td>
+            <input type="text" name="term_color" id="term_color" value="<?php echo esc_attr( $color ); ?>"><br />
+        </td>
+    </tr>
+
+    <tr class="form-field cat-tracker-term-fields">
+      <th scope="row" valign="top"><label for="internal_type"><?php _e( 'Internal Type?', 'cat-tracker' ) ?></label></th>
+      <td>
+          <input type="checkbox" name="internal_type" id="internal_type" <?php checked( $internal_type ); ?>><br />
+					<span class="description"><?php _e( 'If checked, this type will not be available for users when they submit a new sighting', 'cat-tracker' ); ?></span>
+      </td>
+    </tr>
+
+    <script type="text/javascript">
+    jQuery(document).ready(function($) {
+			$( '#term_color' ).wpColorPicker();
+		});
+    </script>
+	<?php
+	}
+
+	/**
+	 * save additional fields for sighting types
+	 *
+	 * @since 1.0
+	 * @param (int) $term_id, the ID for the current term we are modifying
+	 * @return void
+	 */
+	public function edited_sighting_type( $term_id ) {
+		if ( isset( $_POST['term_color'] ) ) {
+			$color = (string) $_POST['term_color'];
+			if ( preg_match( '/^#[a-f0-9]{6}$/i', $color ) )
+				update_term_meta( $term_id, 'color', $color );
+		}
+		if ( isset( $_POST['internal_type'] ) ) {
+			$internal_type = (bool) $_POST['internal_type'];
+			update_term_meta( $term_id, 'internal_type', $internal_type );
+		}
+	}
 
 }
 
