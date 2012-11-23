@@ -490,3 +490,20 @@ function cat_mapper_map_content_map_id( $map_id ) {
 }
 
 add_filter( 'cat_tracker_show_map_to_display_sighting_on_admin_field', '__return_false' );
+
+/**
+ * filter the title out on the home page
+ *
+ * @since 1.0
+ * @param (object) the query object
+ * @return (object) the filtered query object
+ * @return void
+ */
+add_filter( 'the_title', 'catmapper_home_filter_title' );
+function catmapper_home_filter_title( $title ) {
+
+	if ( is_main_site() && is_front_page() && in_the_loop() )
+		$title = '';
+
+	return $title;
+}
