@@ -34,4 +34,10 @@
 		<a title="<?php bloginfo( 'description' ); ?> | <?php bloginfo( 'name' ) ?>" href="<?php echo esc_url( home_url( '/' ) ); ?>"><img src="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/catmapper-logo.png' ); ?>" height="100" width="700" alt="" /></a>
 	</header><!-- #masthead -->
 
+	<nav id="site-navigation" class="main-navigation" role="navigation">
+		<h3 class="menu-toggle"><?php _e( 'Menu', 'twentytwelve' ); ?></h3>
+		<a class="assistive-text" href="#content" title="<?php esc_attr_e( 'Skip to content', 'twentytwelve' ); ?>"><?php _e( 'Skip to content', 'twentytwelve' ); ?></a>
+		<?php wp_nav_menu( array( 'theme_location' => 'primary', 'menu_class' => 'nav-menu' ) ); ?>
+	</nav><!-- #site-navigation -->
+
 	<div id="main" class="wrapper">
