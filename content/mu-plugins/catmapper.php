@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  * @since 1.0
  * @return void
  */
-add_action( 'admin_menu', 'cat_mapper_remove_admin_menus' );
+add_action( 'admin_menu', 'cat_mapper_remove_admin_menus', 100 );
 function cat_mapper_remove_admin_menus() {
 	if ( is_network_admin() )
 		return;
@@ -62,9 +62,9 @@ function cat_mapper_remove_admin_menus() {
 
 	// dev only
 	if ( 1 !== get_current_user_id() ) {
-		remove_menu_page( 'admin.php?page=pb_backupbuddy_multisite_export' ); // BackupBuddy
-		remove_menu_page( 'admin.php?page=johnny-cache' ); // Johny Cache
-		remove_menu_page( 'admin.php?page=jetpack' ); // Jetpack
+		remove_menu_page( 'pb_backupbuddy_multisite_export' ); // BackupBuddy
+		remove_menu_page( 'johnny-cache' ); // Johny Cache
+		remove_menu_page( 'jetpack' ); // Jetpack
 	}
 
 }
