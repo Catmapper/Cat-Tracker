@@ -32,8 +32,10 @@
 	}());
 
 	// Makes it easier to bind events using transitions.
-	media.transition = function( selector ) {
+	media.transition = function( selector, sensitivity ) {
 		var deferred = $.Deferred();
+
+		sensitivity = sensitivity || 2000;
 
 		if ( $.support.transition ) {
 			if ( ! (selector instanceof $) )
@@ -41,6 +43,9 @@
 
 			// Resolve the deferred when the first element finishes animating.
 			selector.first().one( $.support.transition.end, deferred.resolve );
+
+			// Just in case the event doesn't trigger, fire a callback.
+			_.delay( deferred.resolve, sensitivity );
 
 		// Otherwise, execute on the spot.
 		} else {
@@ -210,7 +215,6 @@
 
 			this.menu();
 			this.toolbar();
-			this.sidebar();
 			this.content();
 		},
 
@@ -238,7 +242,7 @@
 		}
 	});
 
-	_.each(['toolbar','sidebar','content'], function( region ) {
+	_.each(['toolbar','content'], function( region ) {
 		media.controller.State.prototype[ region ] = function() {
 			var mode = this.get( region );
 			if ( mode )
@@ -255,7 +259,9 @@
 			describe:   false,
 			toolbar:    'main-attachments',
 			sidebar:    'settings',
-			searchable: true
+			searchable: true,
+			filterable: false,
+			uploads:    true
 		},
 
 		initialize: function() {
@@ -274,14 +280,14 @@
 			if ( ! this.get('gutter') )
 				this.set( 'gutter', 8 );
 
-			if ( ! this.get('details') )
-				this.set( 'details', [] );
+			this.resetDisplays();
 
 			media.controller.State.prototype.initialize.apply( this, arguments );
 		},
 
 		activate: function() {
-			var selection = this.get('selection');
+			var library = this.get('library'),
+				selection = this.get('selection');
 
 			this._excludeStateLibrary();
 			this.buildComposite();
@@ -293,13 +299,15 @@
 			if ( this.get('multiple') )
 				wp.Uploader.queue.on( 'add', this.selectUpload, this );
 
-			selection.on( 'selection:single selection:unsingle', this.sidebar, this );
 			selection.on( 'add remove reset', this.refreshSelection, this );
 
 			this._updateEmpty();
-			this.get('library').on( 'add remove reset', this._updateEmpty, this );
+			library.on( 'add remove reset', this._updateEmpty, this );
 			this.on( 'change:empty', this.refresh, this );
 			this.refresh();
+
+
+			this.on( 'insert', this._insertDisplaySettings, this );
 		},
 
 		deactivate: function() {
@@ -310,7 +318,7 @@
 			// from the selection.
 			this.get('selection').off( null, null, this );
 
-			wp.Uploader.queue.off( 'add', this.selectUpload, this );
+			wp.Uploader.queue.off( null, null, this );
 
 			this.off( 'change:excludeState', this._excludeState, this );
 			this.off( 'change:library change:exclude', this.buildComposite, this );
@@ -320,21 +328,12 @@
 
 		reset: function() {
 			this.get('selection').clear();
-		},
-
-		sidebar: function() {
-			var sidebar = this.frame.sidebar;
-
-			if ( this.get('selection').single() )
-				sidebar.mode( this.get('sidebar') );
-			else
-				sidebar.mode('clear');
+			this.resetDisplays();
 		},
 
 		content: function() {
 			var frame = this.frame;
 
-			// Content.
 			if ( this.get('empty') ) {
 				// Attempt to fetch any Attachments we don't already have.
 				this.get('library').more();
@@ -348,13 +347,53 @@
 		},
 
 		refresh: function() {
-			this.frame.$el.toggleClass( 'hide-sidebar hide-toolbar', this.get('empty') );
+			this.frame.$el.toggleClass( 'hide-toolbar', this.get('empty') );
 			this.content();
 			this.refreshSelection();
 		},
 
+		resetDisplays: function() {
+			this._displays = [];
+			this._defaultDisplaySettings = {
+				align: getUserSetting( 'align', 'none' ),
+				size:  getUserSetting( 'imgsize', 'medium' ),
+				link:  getUserSetting( 'urlbutton', 'post' )
+			};
+		},
+
+		display: function( attachment ) {
+			var displays = this._displays;
+
+			if ( ! displays[ attachment.cid ] )
+				displays[ attachment.cid ] = new Backbone.Model( this._defaultDisplaySettings );
+
+			return displays[ attachment.cid ];
+		},
+
+		_insertDisplaySettings: function() {
+			var selection = this.get('selection'),
+				display;
+
+			// If inserting one image, set those display properties as the
+			// default user setting.
+			if ( selection.length !== 1 )
+				return;
+
+			display = this.display( selection.first() ).toJSON();
+
+			setUserSetting( 'align', display.align );
+			setUserSetting( 'imgsize', display.size );
+			setUserSetting( 'urlbutton', display.link );
+		},
+
 		_updateEmpty: function() {
-			var library = this.get('library');
+			var library = this.get('library'),
+				props = library.props;
+
+			// If we're filtering the library, bail.
+			if ( this.get('filterable') && ( props.get('type') || props.get('parent') ) )
+				return;
+
 			this.set( 'empty', ! library.length && ! library.props.get('search') );
 		},
 
@@ -397,12 +436,7 @@
 				return !! original.getByCid( attachment.cid ) && ! exclude.getByCid( attachment.cid );
 			};
 
-			composite.observe( original ).observe( exclude );
-
-			// When `more()` is triggered on the composite collection,
-			// pass the command over to the `original`, which will
-			// populate the query.
-			composite.more = _.bind( original.more, original );
+			composite.mirror( original ).observe( exclude );
 
 			this.set( 'library', composite );
 		},
@@ -443,29 +477,37 @@
 
 	// wp.media.controller.Upload
 	// ---------------------------
-	media.controller.Upload = media.controller.Library.extend({
+	media.controller.Upload = media.controller.State.extend({
 		defaults: _.defaults({
-			id:         'upload',
-			upload:     { text: l10n.uploadMoreFiles },
-			searchable: false,
-			sortable:   true
-		}, media.controller.Library.prototype.defaults ),
+			id:      'upload',
+			content: 'upload',
+			toolbar: 'empty',
+			uploads: true,
+
+			// The state to navigate to when files are uploading.
+			libraryState: 'library'
+		}, media.controller.State.prototype.defaults ),
 
 		initialize: function() {
-			var library = this.get('library');
+			media.controller.State.prototype.initialize.apply( this, arguments );
+		},
 
-			// If a `library` attribute isn't provided, create a new
-			// `Attachments` collection that observes (and thereby receives
-			// all uploading) attachments.
-			if ( ! library ) {
-				library = new Attachments();
-				library.observe( wp.Uploader.queue );
-				this.set( 'library', library );
-			}
+		activate: function() {
+			wp.Uploader.queue.on( 'add', this.uploading, this );
+			media.controller.State.prototype.activate.apply( this, arguments );
+		},
 
-			media.controller.Library.prototype.initialize.apply( this, arguments );
+		deactivate: function() {
+			wp.Uploader.queue.off( null, null, this );
+			media.controller.State.prototype.deactivate.apply( this, arguments );
+		},
+
+		uploading: function( attachment ) {
+			var library = this.get('libraryState');
+
+			this.frame.get( library ).get('selection').add( attachment );
+			this.frame.state( library );
 		}
-
 	});
 
 	// wp.media.controller.Gallery
@@ -479,8 +521,7 @@
 			editing:    false,
 			sortable:   true,
 			searchable: false,
-			toolbar:    'gallery-edit',
-			sidebar:    'settings'
+			toolbar:    'gallery-edit'
 		},
 
 		initialize: function() {
@@ -494,10 +535,43 @@
 			media.controller.Library.prototype.initialize.apply( this, arguments );
 		},
 
-		sidebar: function() {
-			media.controller.Library.prototype.sidebar.apply( this, arguments );
-			this.frame.sidebar.trigger('gallery-settings');
-			return this;
+		activate: function() {
+			var library = this.get('library');
+
+			// Limit the library to images only.
+			library.props.set( 'type', 'image' );
+
+			// Watch for uploaded attachments.
+			this.get('library').observe( wp.Uploader.queue );
+
+			this.frame.content.on( 'activate:browse', this.gallerySettings, this );
+
+			media.controller.Library.prototype.activate.apply( this, arguments );
+		},
+
+		deactivate: function() {
+			// Stop watching for uploaded attachments.
+			this.get('library').unobserve( wp.Uploader.queue );
+
+			this.frame.content.off( null, null, this );
+			media.controller.Library.prototype.deactivate.apply( this, arguments );
+		},
+
+		gallerySettings: function() {
+			var library = this.get('library');
+
+			if ( ! library )
+				return;
+
+			library.gallery = library.gallery || new Backbone.Model();
+
+			this.frame.content.view().sidebar.set({
+				gallery: new media.view.Settings.Gallery({
+					controller: this,
+					model:      library.gallery,
+					priority:   40
+				})
+			});
 		}
 	});
 
@@ -538,8 +612,14 @@
 				image = new Image();
 
 			image.onload = function() {
-				if ( state === frame.state() && url === state.get('url') )
-					state.set( 'type', 'image' );
+				if ( state !== frame.state() || url !== state.get('url') )
+					return;
+
+				state.set({
+					type:   'image',
+					width:  image.width,
+					height: image.height
+				});
 			};
 
 			image.src = url;
@@ -647,10 +727,12 @@
 
 			if ( existing ) {
 				if ( options.add ) {
-					if ( _.isUndefined( options.at ) )
+					if ( _.isUndefined( options.at ) ) {
 						next = existing.concat( views );
-					else
-						next = existing.splice.apply( existing, [ options.at, 0 ].concat( views ) );
+					} else {
+						next = existing;
+						next.splice.apply( next, [ options.at, 0 ].concat( views ) );
+					}
 				} else {
 					_.each( next, function( view ) {
 						view.__detach = true;
@@ -703,6 +785,12 @@
 		//
 		// For more information on the `options` object, see `Views.set()`.
 		add: function( selector, views, options ) {
+			if ( ! _.isString( selector ) ) {
+				options  = views;
+				views    = selector;
+				selector = '';
+			}
+
 			return this.set( selector, views, _.extend({ add: true }, options ) );
 		},
 
@@ -904,6 +992,10 @@
 			if ( this.collection && this.collection.off )
 				this.collection.off( null, null, this );
 
+			// Unbind controller events.
+			if ( this.controller && this.controller.off )
+				this.controller.off( null, null, this );
+
 			// Recursively dispose child views.
 			if ( this.views )
 				this.views.dispose();
@@ -988,7 +1080,7 @@
 	media.view.MediaFrame = media.view.Frame.extend({
 		className: 'media-frame',
 		template:  media.template('media-frame'),
-		regions:   ['menu','content','sidebar','toolbar'],
+		regions:   ['menu','content','toolbar'],
 
 		initialize: function() {
 			media.view.Frame.prototype.initialize.apply( this, arguments );
@@ -1008,14 +1100,21 @@
 				});
 			}
 
+			// Force the uploader off if the upload limit has been exceeded or
+			// if the browser isn't supported.
+			if ( wp.Uploader.limitExceeded || ! wp.Uploader.browser.supported )
+				this.options.uploader = false;
+
 			// Initialize window-wide uploader.
 			if ( this.options.uploader ) {
 				this.uploader = new media.view.UploaderWindow({
+					controller: this,
 					uploader: {
 						dropzone:  this.modal ? this.modal.$el : this.$el,
 						container: this.$el
 					}
 				});
+				this.views.set( '.media-frame-uploader', this.uploader );
 			}
 
 			this.on( 'attach', _.bind( this.views.ready, this.views ), this );
@@ -1026,11 +1125,6 @@
 				this.modal.render();
 
 			media.view.Frame.prototype.render.apply( this, arguments );
-
-			// Render the window uploader if it exists.
-			if ( this.uploader )
-				this.uploader.render().$el.appendTo( this.$el );
-
 			return this;
 		},
 
@@ -1066,7 +1160,7 @@
 		},
 
 		iframeContent: function() {
-			this.$el.addClass('hide-toolbar hide-sidebar');
+			this.$el.addClass('hide-toolbar');
 			this.content.view( new media.view.Iframe({
 				controller: this
 			}).render() );
@@ -1082,7 +1176,7 @@
 				};
 			}, this );
 
-			this.menu.view().add( views );
+			this.menu.view().set( views );
 		},
 
 		hijackThickbox: function() {
@@ -1150,24 +1244,22 @@
 		},
 
 		createStates: function() {
-			var options = this.options,
-				attributes;
-
-			attributes = {
-				multiple: this.options.multiple,
-				menu:     'main',
-				toolbar:  'select'
-			};
+			var options = this.options;
 
 			// Add the default states.
 			this.states.add([
 				// Main states.
-				new media.controller.Library( _.defaults({
+				new media.controller.Library({
 					selection: options.selection,
-					library:   media.query( options.library )
-				}, attributes ) ),
+					library:   media.query( options.library ),
+					multiple:  this.options.multiple,
+					menu:      'main',
+					toolbar:   'select'
+				}),
 
-				new media.controller.Upload( attributes )
+				new media.controller.Upload({
+					menu: 'main'
+				})
 			]);
 		},
 
@@ -1175,8 +1267,6 @@
 			this.menu.on( 'activate:main', this.mainMenu, this );
 			this.content.on( 'activate:browse', this.browseContent, this );
 			this.content.on( 'activate:upload', this.uploadContent, this );
-			this.sidebar.on( 'activate:clear', this.clearSidebar, this );
-			this.sidebar.on( 'activate:settings', this.settingsSidebar, this );
 			this.toolbar.on( 'activate:select', this.selectToolbar, this );
 
 			this.on( 'refresh:selection', this.refreshSelectToolbar, this );
@@ -1212,49 +1302,19 @@
 				model:      state,
 				sortable:   state.get('sortable'),
 				search:     state.get('searchable'),
-				upload:     state.get('upload'),
+				uploads:    state.get('uploads'),
+				filters:    state.get('filterable'),
+				display:    state.get('displaySettings'),
 
 				AttachmentView: state.get('AttachmentView')
 			}) );
 		},
 
 		uploadContent: function() {
-			// In the meantime, render an inline uploader.
+			this.$el.addClass('hide-toolbar');
+
 			this.content.view( new media.view.UploaderInline({
 				controller: this
-			}) );
-		},
-
-		// Sidebars
-		clearSidebar: function() {
-			this.sidebar.view( new media.view.Sidebar({
-				controller: this
-			}) );
-		},
-
-		settingsSidebar: function( options ) {
-			var single = this.state().get('selection').single(),
-				views = {};
-
-			views.details = new media.view.Attachment.Details({
-				controller: this,
-				model:      single,
-				priority:   80
-			}).render();
-
-
-			if ( single.get('compat') ) {
-				views.compat = new media.view.AttachmentCompat({
-					controller: this,
-					model:      single,
-					priority:   120
-				}).render();
-			}
-
-			this.sidebar.view( new media.view.Sidebar({
-				controller: this,
-				silent:     options && options.silent,
-				views:      views
 			}) );
 		},
 
@@ -1316,36 +1376,29 @@
 		},
 
 		createStates: function() {
-			var options = this.options,
-				main, gallery;
-
-			main = {
-				multiple: this.options.multiple,
-				menu:      'main',
-				sidebar:   'attachment-settings',
-
-				// Update user settings when users adjust the
-				// attachment display settings.
-				displayUserSettings: true
-			};
-
-			gallery = {
-				multiple:     true,
-				menu:         'gallery',
-				toolbar:      'gallery-add',
-				excludeState: 'gallery-edit'
-			};
+			var options = this.options;
 
 			// Add the default states.
 			this.states.add([
 				// Main states.
-				new media.controller.Library( _.defaults({
-					selection: options.selection,
-					library:   media.query( options.library ),
-					editable:  true
-				}, main ) ),
+				new media.controller.Library({
+					selection:  options.selection,
+					library:    media.query( options.library ),
+					editable:   true,
+					filterable: 'all',
+					multiple:   this.options.multiple,
+					menu:       'main',
 
-				new media.controller.Upload( main ),
+					// Show the attachment display settings.
+					displaySettings: true,
+					// Update user settings when users adjust the
+					// attachment display settings.
+					displayUserSettings: true
+				}),
+
+				new media.controller.Upload({
+					menu: 'main'
+				}),
 
 				// Embed states.
 				new media.controller.Embed(),
@@ -1357,14 +1410,21 @@
 					menu:    'gallery'
 				}),
 
-				new media.controller.Library( _.defaults({
-					id:      'gallery-library',
-					library: media.query({ type: 'image' })
-				}, gallery ) ),
+				new media.controller.Library({
+					id:           'gallery-library',
+					library:      media.query({ type: 'image' }),
+					filterable:   'uploaded',
+					multiple:     true,
+					menu:         'gallery',
+					toolbar:      'gallery-add',
+					excludeState: 'gallery-edit'
+				}),
 
-				new media.controller.Upload( _.defaults({
-					id: 'gallery-upload'
-				}, gallery ) )
+				new media.controller.Upload({
+					id:           'gallery-upload',
+					menu:         'gallery',
+					libraryState: 'gallery-edit'
+				})
 			]);
 		},
 
@@ -1381,10 +1441,6 @@
 						'edit-selection': 'editSelectionContent'
 					},
 
-					sidebar: {
-						'attachment-settings': 'attachmentSettingsSidebar'
-					},
-
 					toolbar: {
 						'main-attachments': 'mainAttachmentsToolbar',
 						'main-embed':       'mainEmbedToolbar',
@@ -1398,15 +1454,13 @@
 					this[ region ].on( 'activate:' + handler, this[ callback ], this );
 				}, this );
 			}, this );
-
-			this.sidebar.on( 'gallery-settings', this.onSidebarGallerySettings, this );
 		},
 
 		// Menus
 		mainMenu: function() {
 			media.view.MediaFrame.Select.prototype.mainMenu.call( this, { silent: true });
 
-			this.menu.view().add({
+			this.menu.view().set({
 				separateLibrary: new media.View({
 					className: 'separator',
 					priority: 60
@@ -1462,7 +1516,6 @@
 				model:      this.state()
 			}).render();
 
-			this.$el.addClass('hide-sidebar');
 			this.content.view( view );
 			view.url.focus();
 		},
@@ -1505,36 +1558,11 @@
 
 			library.gallery = library.gallery || new Backbone.Model();
 
-			this.sidebar.view().add({
+			this.sidebar.view().set({
 				gallery: new media.view.Settings.Gallery({
 					controller: this,
 					model:      library.gallery,
 					priority:   40
-				}).render()
-			}, options );
-		},
-
-		attachmentSettingsSidebar: function( options ) {
-			var state = this.state(),
-				display = state.get('details'),
-				single = state.get('selection').single();
-
-			this.settingsSidebar({ silent: true });
-
-			display[ single.cid ] = display[ single.cid ] || new Backbone.Model({
-				align: getUserSetting( 'align', 'none' ),
-				size:  getUserSetting( 'imgsize', 'medium' ),
-				link:  getUserSetting( 'urlbutton', 'post' )
-			});
-
-			this.sidebar.view().add({
-				display: new media.view.Settings.AttachmentDisplay({
-					controller:   this,
-					model:        display[ single.cid ],
-					sizes:        single.get('sizes'),
-					priority:     160,
-					type:         single.get('type'),
-					userSettings: state.get('displayUserSettings')
 				}).render()
 			}, options );
 		},
@@ -1702,20 +1730,11 @@
 				params:    {}
 			});
 
-			if ( uploader.dropzone ) {
-				// Ensure the dropzone is a jQuery collection.
-				if ( ! (uploader.dropzone instanceof $) )
-					uploader.dropzone = $( uploader.dropzone );
+			// Ensure the dropzone is a jQuery collection.
+			if ( uploader.dropzone && ! (uploader.dropzone instanceof $) )
+				uploader.dropzone = $( uploader.dropzone );
 
-				// Attempt to initialize the uploader whenever the dropzone is hovered.
-				uploader.dropzone.one( 'mouseenter dragenter', _.bind( this.maybeInitUploader, this ) );
-			}
-		},
-
-		render: function() {
-			this.maybeInitUploader();
-			this.$el.html( this.template( this.options ) );
-			return this;
+			this.controller.on( 'activate', this.refresh, this );
 		},
 
 		refresh: function() {
@@ -1723,16 +1742,16 @@
 				this.uploader.refresh();
 		},
 
-		maybeInitUploader: function() {
-			var $id, dropzone;
+		ready: function() {
+			var postId = media.view.settings.postId,
+				dropzone;
 
-			// If the uploader already exists or the body isn't in the DOM, bail.
-			if ( this.uploader || ! this.$el.closest('body').length )
+			// If the uploader already exists, bail.
+			if ( this.uploader )
 				return;
 
-			$id = $('#post_ID');
-			if ( $id.length )
-				this.options.uploader.params.post_id = $id.val();
+			if ( postId )
+				this.options.uploader.params.post_id = postId;
 
 			this.uploader = new wp.Uploader( this.options.uploader );
 
@@ -1771,49 +1790,140 @@
 		initialize: function() {
 			this.controller = this.options.controller;
 
-			if ( ! this.options.$browser )
+			if ( ! this.options.$browser && this.controller.uploader )
 				this.options.$browser = this.controller.uploader.$browser;
 
-			// Track uploading attachments.
-			wp.Uploader.queue.on( 'add remove reset change:percent', this.renderUploadProgress, this );
+			this.views.set( '.upload-inline-status', new media.view.UploaderStatus({
+				controller: this.controller
+			}) );
 		},
 
-		destroy: function() {
-			wp.Uploader.queue.off( 'add remove reset change:percent', this.renderUploadProgress, this );
-			this.remove();
-		},
-
-		render: function() {
+		ready: function() {
 			var $browser = this.options.$browser,
 				$placeholder;
 
-			this.renderUploadProgress();
-			this.$el.html( this.template( this.options ) );
+			if ( this.controller.uploader ) {
+				$placeholder = this.$('.browser');
+				$browser.detach().text( $placeholder.text() );
+				$browser[0].className = $placeholder[0].className;
+				$placeholder.replaceWith( $browser.show() );
+			}
 
-			$placeholder = this.$('.browser');
-			$browser.detach().text( $placeholder.text() );
-			$browser[0].className = $placeholder[0].className;
-			$placeholder.replaceWith( $browser.show() );
+			return this;
+		}
+	});
 
-			this.$bar = this.$('.media-progress-bar div');
+	/**
+	 * wp.media.view.UploaderStatus
+	 */
+	media.view.UploaderStatus = media.View.extend({
+		className: 'media-uploader-status',
+		template:  media.template('uploader-status'),
+
+		events: {
+			'click .upload-dismiss-errors': 'dismiss'
+		},
+
+		initialize: function() {
+			this.controller = this.options.controller;
+
+			this.queue = wp.Uploader.queue;
+			this.queue.on( 'add remove reset', this.visibility, this );
+			this.queue.on( 'add remove reset change:percent', this.progress, this );
+			this.queue.on( 'add remove reset change:uploading', this.info, this );
+
+			this.errors = wp.Uploader.errors;
+			this.errors.reset();
+			this.errors.on( 'add remove reset', this.visibility, this );
+			this.errors.on( 'add', this.error, this );
+		},
+
+		dispose: function() {
+			wp.Uploader.queue.off( null, null, this );
+			media.View.prototype.dispose.apply( this, arguments );
 			return this;
 		},
 
-		renderUploadProgress: function() {
-			var queue = wp.Uploader.queue;
+		visibility: function() {
+			this.$el.toggleClass( 'uploading', !! this.queue.length );
+			this.$el.toggleClass( 'errors', !! this.errors.length );
+			this.$el.toggle( !! this.queue.length || !! this.errors.length );
+		},
 
-			this.$el.toggleClass( 'uploading', !! queue.length );
+		ready: function() {
+			_.each({
+				'$bar':      '.media-progress-bar div',
+				'$index':    '.upload-index',
+				'$total':    '.upload-total',
+				'$filename': '.upload-filename'
+			}, function( selector, key ) {
+				this[ key ] = this.$( selector );
+			}, this );
 
-			if ( ! this.$bar || ! queue.length )
+			this.visibility();
+			this.progress();
+			this.info();
+		},
+
+		progress: function() {
+			var queue = this.queue,
+				$bar = this.$bar,
+				memo = 0;
+
+			if ( ! $bar || ! queue.length )
 				return;
 
-			this.$bar.width( ( queue.reduce( function( memo, attachment ) {
-				if ( attachment.get('uploading') )
-					return memo + ( attachment.get('percent') || 0 );
-				else
+			$bar.width( ( queue.reduce( function( memo, attachment ) {
+				if ( ! attachment.get('uploading') )
 					return memo + 100;
+
+				var percent = attachment.get('percent');
+				return memo + ( _.isNumber( percent ) ? percent : 100 );
 			}, 0 ) / queue.length ) + '%' );
+		},
+
+		info: function() {
+			var queue = this.queue,
+				index = 0, active;
+
+			if ( ! queue.length )
+				return;
+
+			active = this.queue.find( function( attachment, i ) {
+				index = i;
+				return attachment.get('uploading');
+			});
+
+			this.$index.text( index + 1 );
+			this.$total.text( queue.length );
+			this.$filename.html( active ? this.filename( active.get('filename') ) : '' );
+		},
+
+		filename: function( filename ) {
+			return media.truncate( _.escape( filename ), 24 );
+		},
+
+		error: function( error ) {
+			this.views.add( '.upload-errors', new media.view.UploaderStatusError({
+				filename: this.filename( error.get('file').name ),
+				message:  error.get('message')
+			}), { at: 0 });
+		},
+
+		dismiss: function( event ) {
+			var errors = this.views.get('.upload-errors');
+
+			event.preventDefault();
+
+			if ( errors )
+				_.invoke( errors, 'remove' );
+			wp.Uploader.errors.reset();
 		}
+	});
+
+	media.view.UploaderStatusError = media.View.extend({
+		className: 'upload-error',
+		template:  media.template('uploader-status-error')
 	});
 
 	/**
@@ -1883,7 +1993,7 @@
 
 			} else {
 				if ( ! ( view instanceof Backbone.View ) ) {
-					view.classes = [ id ].concat( view.classes || [] );
+					view.classes = [ 'media-button-' + id ].concat( view.classes || [] );
 					view = new media.view.Button( view ).render();
 				}
 
@@ -2086,9 +2196,6 @@
 				delete this.options[ key ];
 			}, this );
 
-			if ( this.options.dropdown )
-				this.options.dropdown.addClass('dropdown');
-
 			this.model.on( 'change', this.render, this );
 		},
 
@@ -2106,15 +2213,7 @@
 			this.el.className = classes.join(' ');
 
 			this.$el.attr( 'disabled', model.disabled );
-
-			// Detach the dropdown.
-			if ( this.options.dropdown )
-				this.options.dropdown.detach();
-
 			this.$el.text( this.model.get('text') );
-
-			if ( this.options.dropdown )
-				this.$el.append( this.options.dropdown );
 
 			return this;
 		},
@@ -2166,45 +2265,25 @@
 			this.controller = this.options.controller;
 			this._views     = {};
 
-			this.add( _.extend( {}, this._views, this.options.views ), { silent: true });
+			this.set( _.extend( {}, this._views, this.options.views ), { silent: true });
 			delete this.options.views;
 
 			if ( ! this.options.silent )
 				this.render();
 		},
 
-		destroy: function() {
-			this.remove();
-			_.each( this._views, function( view ) {
-				if ( view.destroy )
-					view.destroy();
-			});
-		},
+		destroy: this.dispose,
 
-		render: function() {
-			var els = _( this._views ).chain().sortBy( function( view ) {
-					return view.options.priority || 10;
-				}).pluck('el').value();
+		set: function( id, view, options ) {
+			var priority, views, index;
 
-			// Make sure to detach the elements we want to reuse.
-			// Otherwise, `jQuery.html()` will unbind their events.
-			$( els ).detach();
-
-			this.$el.html( els );
-			return this;
-		},
-
-		add: function( id, view, options ) {
 			options = options || {};
 
 			// Accept an object with an `id` : `view` mapping.
 			if ( _.isObject( id ) ) {
 				_.each( id, function( view, id ) {
-					this.add( id, view, { silent: true });
+					this.set( id, view );
 				}, this );
-
-				if ( ! options.silent )
-					this.render();
 				return this;
 			}
 
@@ -2213,9 +2292,23 @@
 
 			view.controller = view.controller || this.controller;
 
+			this.unset( id );
+
+			priority = view.options.priority || 10;
+			views = this.views.get() || [];
+
+			_.find( views, function( existing, i ) {
+				if ( existing.options.priority > priority ) {
+					index = i;
+					return true;
+				}
+			});
+
 			this._views[ id ] = view;
-			if ( ! options.silent )
-				this.render();
+			this.views.add( view, {
+				at: _.isNumber( index ) ? index : views.length || 0
+			});
+
 			return this;
 		},
 
@@ -2223,10 +2316,13 @@
 			return this._views[ id ];
 		},
 
-		remove: function( id, options ) {
+		unset: function( id ) {
+			var view = this.get( id );
+
+			if ( view )
+				view.remove();
+
 			delete this._views[ id ];
-			if ( ! options || ! options.silent )
-				this.render();
 			return this;
 		},
 
@@ -2309,12 +2405,13 @@
 		template:  media.template('attachment'),
 
 		events: {
-			'mousedown .attachment-preview':  'toggleSelection',
+			'click .attachment-preview':      'toggleSelection',
 			'change [data-setting]':          'updateSetting',
 			'change [data-setting] input':    'updateSetting',
 			'change [data-setting] select':   'updateSetting',
 			'change [data-setting] textarea': 'updateSetting',
 			'click .close':                   'removeFromLibrary',
+			'click .check':                   'removeFromSelection',
 			'click a':                        'preventDefault'
 		},
 
@@ -2395,7 +2492,7 @@
 				// it now becomes the single model.
 				selection[ selection.single() === model ? 'remove' : 'single' ]( model );
 			} else {
-				selection.add( model ).single();
+				selection.add( model ).single( model );
 			}
 		},
 
@@ -2476,6 +2573,17 @@
 			event.stopPropagation();
 
 			this.collection.remove( this.model );
+		},
+
+		removeFromSelection: function( event ) {
+			var selection = this.options.selection;
+			if ( ! selection )
+				return;
+
+			// Stop propagation so the model isn't selected.
+			event.stopPropagation();
+
+			selection.remove( this.model );
 		}
 	});
 
@@ -2483,7 +2591,9 @@
 	 * wp.media.view.Attachment.Library
 	 */
 	media.view.Attachment.Library = media.view.Attachment.extend({
-		className: 'attachment library'
+		buttons: {
+			check: true
+		}
 	});
 
 	/**
@@ -2530,6 +2640,7 @@
 			this.scroll = _.chain( this.scroll ).bind( this ).throttle( this.options.refreshSensitivity ).value();
 
 			this.initSortable();
+			this.collection.props.on( 'change:orderby', this.refreshSortable, this );
 
 			_.bindAll( this, 'css' );
 			this.model.on( 'change:edge change:gutter', this.css, this );
@@ -2538,11 +2649,10 @@
 			this.css();
 		},
 
-		destroy: function() {
-			this.collection.off( 'add remove reset', null, this );
-			this.model.off( 'change:edge change:gutter', this.css, this );
+		dispose: function() {
+			this.collection.props.off( null, null, this );
 			$(window).off( 'resize.attachments', this._resizeCss );
-			this.remove();
+			media.View.prototype.dispose.apply( this, arguments );
 		},
 
 		css: function() {
@@ -2618,6 +2728,14 @@
 			}, this );
 		},
 
+		refreshSortable: function() {
+			if ( ! this.options.sortable || ! $.fn.sortable )
+				return;
+
+			// If the `collection` has a `comparator`, disable sorting.
+			this.$el.sortable( 'option', 'disabled', !! this.collection.comparator );
+		},
+
 		render: function() {
 			// If there are no elements, load some.
 			if ( ! this.collection.length ) {
@@ -2637,11 +2755,13 @@
 				}).render().$el;
 			}, this ) );
 
-			// Then, trigger the scroll event to check if we're within the
+			return this;
+		},
+
+		ready: function() {
+			// Trigger the scroll event to check if we're within the
 			// threshold to query for additional attachments.
 			this.scroll();
-
-			return this;
 		},
 
 		add: function( attachment, index ) {
@@ -2699,6 +2819,7 @@
 		},
 
 		events: {
+			'input':  'search',
 			'keyup':  'search',
 			'change': 'search',
 			'search': 'search'
@@ -2717,6 +2838,114 @@
 		}
 	});
 
+	/**
+	 * wp.media.view.AttachmentFilters
+	 */
+	media.view.AttachmentFilters = media.View.extend({
+		tagName:   'select',
+		className: 'attachment-filters',
+
+		events: {
+			change: 'change'
+		},
+
+		filters: {},
+		keys: [],
+
+		initialize: function() {
+			// Build `<option>` elements.
+			this.$el.html( _.chain( this.filters ).map( function( filter, value ) {
+				return {
+					el: this.make( 'option', { value: value }, filter.text ),
+					priority: filter.priority || 50
+				};
+			}, this ).sortBy('priority').pluck('el').value() );
+
+			this.model.on( 'change', this.select, this );
+			this.select();
+		},
+
+		change: function( event ) {
+			var filter = this.filters[ this.el.value ];
+
+			if ( filter )
+				this.model.set( filter.props );
+		},
+
+		select: function() {
+			var model = this.model,
+				value = 'all',
+				props = model.toJSON();
+
+			_.find( this.filters, function( filter, id ) {
+				var equal = _.all( filter.props, function( prop, key ) {
+					return prop === ( _.isUndefined( props[ key ] ) ? null : props[ key ] );
+				});
+
+				if ( equal )
+					return value = id;
+			});
+
+			this.$el.val( value );
+		}
+	});
+
+	media.view.AttachmentFilters.Uploaded = media.view.AttachmentFilters.extend({
+		filters: {
+			all: {
+				text:  l10n.allMediaItems,
+				props: {
+					parent: null
+				},
+				priority: 10
+			},
+
+			uploaded: {
+				text:  l10n.uploadedToThisPost,
+				props: {
+					parent: media.view.settings.postId
+				},
+				priority: 20
+			}
+		}
+	});
+
+	media.view.AttachmentFilters.All = media.view.AttachmentFilters.extend({
+		filters: (function() {
+			var filters = {};
+
+			_.each( media.view.settings.mimeTypes || {}, function( text, key ) {
+				filters[ key ] = {
+					text: text,
+					props: {
+						type:   key,
+						parent: null
+					}
+				};
+			});
+
+			filters.all = {
+				text:  l10n.allMediaItems,
+				props: {
+					type:   null,
+					parent: null
+				},
+				priority: 10
+			};
+
+			filters.uploaded = {
+				text:  l10n.uploadedToThisPost,
+				props: {
+					type:   null,
+					parent: media.view.settings.postId
+				},
+				priority: 20
+			};
+
+			return filters;
+		}())
+	});
+
 
 
 	/**
@@ -2730,22 +2959,53 @@
 			this.controller = this.options.controller;
 
 			_.defaults( this.options, {
-				search: true,
-				upload: false,
-				total:  true,
+				filters: false,
+				search:  true,
+				uploads: false,
+				display: false,
 
 				AttachmentView: media.view.Attachment.Library
 			});
+
+			this.createToolbar();
+			this.createAttachments();
+			this.createSidebar();
+		},
+
+		dispose: function() {
+			this.options.selection.off( null, null, this );
+			media.View.prototype.dispose.apply( this, arguments );
+			return this;
+		},
+
+		createToolbar: function() {
+			var filters, FiltersConstructor;
 
 			this.toolbar = new media.view.Toolbar({
 				controller: this.controller
 			});
 
+			this.views.add( this.toolbar );
+
+			filters = this.options.filters;
+			if ( 'uploaded' === filters )
+				FiltersConstructor = media.view.AttachmentFilters.Uploaded;
+			else if ( 'all' === filters )
+				FiltersConstructor = media.view.AttachmentFilters.All;
+
+			if ( FiltersConstructor ) {
+				this.toolbar.set( 'filters', new FiltersConstructor({
+					controller: this.controller,
+					model:      this.collection.props,
+					priority:   -80
+				}).render() );
+			}
+
 			if ( this.options.search ) {
 				this.toolbar.set( 'search', new media.view.Search({
 					controller: this.controller,
 					model:      this.collection.props,
-					priority:   -60
+					priority:   60
 				}).render() );
 			}
 
@@ -2755,16 +3015,9 @@
 					priority: -40
 				}) );
 			}
+		},
 
-			if ( this.options.upload && this.controller.uploader ) {
-				this.toolbar.set( 'upload', new media.view.Button( _.extend({
-					el:       this.controller.uploader.$browser.detach()[0],
-					priority: -60,
-					size:     'large',
-					text:     l10n.selectFiles
-				}, this.options.upload ) ).render() );
-			}
-
+		createAttachments: function() {
 			this.attachments = new media.view.Attachments({
 				controller: this.controller,
 				collection: this.collection,
@@ -2775,19 +3028,68 @@
 				// The single `Attachment` view to be used in the `Attachments` view.
 				AttachmentView: this.options.AttachmentView
 			});
+
+			this.views.add( this.attachments );
 		},
 
-		dispose: function() {
-			this.toolbar.destroy();
-			this.attachments.destroy();
-			media.View.prototype.dispose.apply( this, arguments );
+		createSidebar: function() {
+			var options = this.options,
+				selection = options.selection,
+				sidebar = this.sidebar = new media.view.Sidebar({
+					controller: this.controller
+				});
+
+			this.views.add( sidebar );
+
+			if ( options.uploads && this.controller.uploader ) {
+				sidebar.set( 'uploads', new media.view.UploaderStatus({
+					controller: this.controller,
+					priority:   40
+				}) );
+			}
+
+			selection.on( 'selection:single', this.createSingle, this );
+			selection.on( 'selection:unsingle', this.disposeSingle, this );
+
+			if ( selection.single() )
+				this.createSingle();
 		},
 
-		render: function() {
-			this.toolbar.$el.detach();
-			this.attachments.$el.detach();
-			this.$el.html([ this.toolbar.render().el, this.attachments.render().el ]);
-			return this;
+		createSingle: function() {
+			var sidebar = this.sidebar,
+				single = this.options.selection.single(),
+				views = {};
+
+			sidebar.set( 'details', new media.view.Attachment.Details({
+				controller: this.controller,
+				model:      single,
+				priority:   80
+			}) );
+
+			if ( single.get('compat') ) {
+				sidebar.set( 'compat', new media.view.AttachmentCompat({
+					controller: this.controller,
+					model:      single,
+					priority:   120
+				}) );
+			}
+
+			if ( this.options.display ) {
+				sidebar.set( 'display', new media.view.Settings.AttachmentDisplay({
+					controller:   this.controller,
+					model:        this.model.display( single ),
+					attachment:   single,
+					priority:     160,
+					userSettings: this.model.get('displayUserSettings')
+				}) );
+			}
+		},
+
+		disposeSingle: function() {
+			var sidebar = this.sidebar;
+			sidebar.unset('details');
+			sidebar.unset('compat');
+			sidebar.unset('display');
 		}
 	});
 
@@ -3029,14 +3331,36 @@
 		template:  media.template('attachment-display-settings'),
 
 		initialize: function() {
+			var attachment = this.options.attachment;
+
 			_.defaults( this.options, {
 				userSettings: false
 			});
+
 			media.view.Settings.prototype.initialize.apply( this, arguments );
 			this.model.on( 'change:link', this.updateCustomLink, this );
+
+			if ( attachment )
+				attachment.on( 'change:uploading', this.render, this );
+		},
+
+		dispose: function() {
+			var attachment = this.options.attachment;
+			if ( attachment )
+				attachment.off( null, null, this );
+
+			media.view.Settings.prototype.dispose.apply( this, arguments );
 		},
 
 		render: function() {
+			var attachment = this.options.attachment;
+			if ( attachment ) {
+				_.extend( this.options, {
+					sizes: attachment.get('sizes'),
+					type:  attachment.get('type')
+				});
+			}
+
 			media.view.Settings.prototype.render.call( this );
 			this.updateCustomLink();
 			return this;
@@ -3171,6 +3495,7 @@
 		render: function() {
 			this.$el.html([ this.url.el, this._settings.el ]);
 			this.url.focus();
+			this.views.render();
 			return this;
 		},
 
@@ -3210,7 +3535,9 @@
 		className: 'embed-url',
 
 		events: {
-			'keyup': 'url'
+			'input':  'url',
+			'keyup':  'url',
+			'change': 'url'
 		},
 
 		initialize: function() {

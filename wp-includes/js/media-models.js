@@ -41,6 +41,10 @@ window.wp = window.wp || {};
 	// Link any localized strings.
 	l10n = media.model.l10n = typeof _wpMediaModelsL10n === 'undefined' ? {} : _wpMediaModelsL10n;
 
+	// Link any settings.
+	media.model.settings = l10n.settings || {};
+	delete l10n.settings;
+
 	/**
 	 * ========================================================================
 	 * UTILITIES
@@ -124,7 +128,7 @@ window.wp = window.wp || {};
 
 			options = _.defaults( options || {}, {
 				type:    'POST',
-				url:     ajaxurl,
+				url:     media.model.settings.ajaxurl,
 				context: this
 			});
 
@@ -187,6 +191,18 @@ window.wp = window.wp || {};
 					height: height
 				};
 			}
+		},
+
+		// Truncates a string by injecting an ellipsis into the middle.
+		// Useful for filenames.
+		truncate: function( string, length, replacement ) {
+			length = length || 30;
+			replacement = replacement || '&hellip;';
+
+			if ( string.length <= length )
+				return string;
+
+			return string.substr( 0, length / 2 ) + replacement + string.substr( -1 * length / 2 );
 		}
 	});
 
@@ -221,7 +237,7 @@ window.wp = window.wp || {};
 				options.data = _.extend( options.data || {}, {
 					action: 'save-attachment',
 					id:     this.id,
-					nonce:  l10n.saveAttachmentNonce
+					nonce:  media.model.settings.saveAttachmentNonce
 				});
 
 				// Record the values of the changed attributes.
@@ -325,8 +341,9 @@ window.wp = window.wp || {};
 		},
 
 		_changeFilteredProp: function( prop, model, term ) {
-			// Bail if we're currently searching for the same term.
-			if ( this.props.get( prop ) === term )
+			// If this is a query, updating the collection will be handled by
+			// `this._requery()`.
+			if ( this.props.get('query') )
 				return;
 
 			if ( term && ! this.filters[ prop ] )
@@ -337,10 +354,10 @@ window.wp = window.wp || {};
 			// If no `Attachments` model is provided to source the searches
 			// from, then automatically generate a source from the existing
 			// models.
-			if ( ! this.props.get('source') )
-				this.props.set( 'source', new Attachments( this.models ) );
+			if ( ! this._source )
+				this._source = new Attachments( this.models );
 
-			this.reset( this.props.get('source').filter( this.validator ) );
+			this.reset( this._source.filter( this.validator, this ) );
 		},
 
 		_changeSearch: function( model, term ) {
@@ -361,11 +378,6 @@ window.wp = window.wp || {};
 			var valid = this.validator( attachment ),
 				hasAttachment = !! this.getByCid( attachment.cid );
 
-			// Only retain the `silent` option.
-			options = {
-				silent: options && options.silent
-			};
-
 			if ( ! valid && hasAttachment )
 				this.remove( attachment, options );
 			else if ( valid && ! hasAttachment )
@@ -374,10 +386,15 @@ window.wp = window.wp || {};
 			return this;
 		},
 
-		validateAll: function( attachments ) {
+		validateAll: function( attachments, options ) {
+			options = options || {};
+
 			_.each( attachments.models, function( attachment ) {
 				this.validate( attachment, { silent: true });
 			}, this );
+
+			if ( ! options.silent )
+				this.trigger( 'reset', this, options );
 
 			return this;
 		},
@@ -409,6 +426,12 @@ window.wp = window.wp || {};
 		},
 
 		_validateHandler: function( attachment, attachments, options ) {
+			// If we're not mirroring this `attachments` collection,
+			// only retain the `silent` option.
+			options = attachments === this.mirroring ? options : {
+				silent: options && options.silent
+			};
+
 			return this.validate( attachment, options );
 		},
 
@@ -418,36 +441,25 @@ window.wp = window.wp || {};
 
 		mirror: function( attachments ) {
 			if ( this.mirroring && this.mirroring === attachments )
-				return;
+				return this;
 
 			this.unmirror();
 			this.mirroring = attachments;
-			this.reset( attachments.models );
-			attachments.on( 'add',    this._mirrorAdd,    this );
-			attachments.on( 'remove', this._mirrorRemove, this );
-			attachments.on( 'reset',  this._mirrorReset,  this );
+
+			// Clear the collection silently. A `reset` event will be fired
+			// when `observe()` calls `validateAll()`.
+			this.reset( [], { silent: true } );
+			this.observe( attachments );
+
+			return this;
 		},
 
 		unmirror: function() {
 			if ( ! this.mirroring )
 				return;
 
-			this.mirroring.off( 'add',    this._mirrorAdd,    this );
-			this.mirroring.off( 'remove', this._mirrorRemove, this );
-			this.mirroring.off( 'reset',  this._mirrorReset,  this );
+			this.unobserve( this.mirroring );
 			delete this.mirroring;
-		},
-
-		_mirrorAdd: function( attachment, attachments, options ) {
-			this.add( attachment, { at: options.index });
-		},
-
-		_mirrorRemove: function( attachment ) {
-			this.remove( attachment );
-		},
-
-		_mirrorReset: function( attachments ) {
-			this.reset( attachments.models );
 		},
 
 		more: function( options ) {
@@ -670,6 +682,9 @@ window.wp = window.wp || {};
 				// Generate the query `args` object.
 				// Correct any differing property names.
 				_.each( props, function( value, prop ) {
+					if ( _.isNull( value ) )
+						return;
+
 					args[ Query.propmap[ prop ] || prop ] = value;
 				});
 
@@ -712,7 +727,7 @@ window.wp = window.wp || {};
 			// Refresh the `single` model whenever the selection changes.
 			// Binds `single` instead of using the context argument to ensure
 			// it receives no parameters.
-			this.on( 'add remove reset', _.bind( this.single, this ) );
+			this.on( 'add remove reset', _.bind( this.single, this, false ) );
 		},
 
 		// Override the selection's add method.
@@ -763,10 +778,10 @@ window.wp = window.wp || {};
 
 			// If single has changed, fire an event.
 			if ( this._single !== previous ) {
-				if ( this._single )
-					this._single.trigger( 'selection:single', this._single, this );
 				if ( previous )
 					previous.trigger( 'selection:unsingle', previous, this );
+				if ( this._single )
+					this._single.trigger( 'selection:single', this._single, this );
 			}
 
 			// Return the single model, or the last model as a fallback.
