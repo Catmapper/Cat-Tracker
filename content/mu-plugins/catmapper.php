@@ -44,7 +44,6 @@ function cat_mapper_remove_admin_menus() {
 		return;
 
 	remove_menu_page( 'edit.php' ); // Posts
-	remove_menu_page( 'upload.php' ); // Media
 	remove_menu_page( 'edit-comments.php' ); // Comments
 	remove_menu_page( 'tools.php' ); // Tools
 	remove_menu_page( 'plugins.php' ); // Plugins
@@ -55,8 +54,18 @@ function cat_mapper_remove_admin_menus() {
 	remove_submenu_page( 'options-general.php', 'options-media.php' ); // Media options
 	remove_submenu_page( 'options-general.php', 'options-permalink.php' ); // Permalink options
 
-	if ( ! is_main_site() )
-		remove_menu_page( 'edit.php?post_type=page' ); // pages
+	// move JetPack stats menu
+	if ( function_exists( 'stats_reports_page' ) ) {
+		remove_submenu_page( 'admin.php?page=stats', 'admin.php?page=jetpack' );
+		add_dashboard_page( __( 'Site Stats', 'jetpack' ), __( 'Site Stats', 'jetpack' ), 'view_stats', 'stats', 'stats_reports_page' );
+	}
+
+	// dev only
+	if ( 1 !== get_current_user_id() ) {
+		remove_menu_page( 'admin.php?page=pb_backupbuddy_multisite_export' ); // BackupBuddy
+		remove_menu_page( 'admin.php?page=johnny-cache' ); // Johny Cache
+		remove_menu_page( 'admin.php?page=jetpack' ); // Jetpack
+	}
 
 }
 
