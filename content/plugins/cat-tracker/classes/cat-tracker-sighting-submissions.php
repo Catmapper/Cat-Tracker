@@ -57,8 +57,9 @@ class Cat_Tracker_Sighting_Submission {
 			$this->submission_fields['name'] = wp_kses( $_POST['cat-tracker-submitter-name'], array() );
 		}
 
-		// TODO: regex for phone?
-		if ( ! empty( $_POST['cat-tracker-submitter-phone'] ) ) {
+		if ( empty( $_POST['cat-tracker-submitter-phone'] ) ) {
+			$this->errors[] = new WP_Error( 'no-phone', __( 'Please provide your phone number.', 'cat-tracker' ) );
+		} else {
 			$this->submission_fields['phone'] = wp_kses( $_POST['cat-tracker-submitter-phone'], array() );
 		}
 
