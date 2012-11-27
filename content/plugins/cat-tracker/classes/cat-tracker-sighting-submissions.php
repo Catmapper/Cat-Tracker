@@ -68,9 +68,8 @@ class Cat_Tracker_Sighting_Submission {
 			$this->submission_fields['email'] = wp_kses( $_POST['cat-tracker-submitter-email'], array() );
 		}
 
-		if ( empty( $_POST['cat-tracker-submission-date'] ) ) {
-			$this->errors[] = new WP_Error( 'no-date', __( 'Please provide a date for the sighting.', 'cat-tracker' ) );
-		} else {
+
+		if ( ! empty( $_POST['cat-tracker-submission-date'] ) ) {
 			// TODO: verify the correct return values here
 			$this->submission_fields['date'] = strtotime( $_POST['cat-tracker-submission-date'] );
 			if ( false == $this->submission_fields['date'] ) // TODO: || DEFAULT_DATE == $date & check range also
@@ -137,7 +136,6 @@ class Cat_Tracker_Sighting_Submission {
 
 		// insert mandatory meta
 		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'description', $this->submission_fields['description'], true );
-		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'sighting_date', $this->submission_fields['date'], true );
 		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'name_of_reporter', $this->submission_fields['name'], true );
 
 		// Map data
@@ -161,6 +159,10 @@ class Cat_Tracker_Sighting_Submission {
 
 		if ( ! empty( $this->submission_fields['phone'] ) )
 			add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'telephone_of_reporter', $this->submission_fields['phone'], true );
+
+		if ( isset( $this->submission_fields['date'] ) )
+			add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'sighting_date', $this->submission_fields['date'], true );
+
 
 		$this->did_insert = true;
 
