@@ -100,6 +100,9 @@ class Cat_Tracker_Sighting_Submission {
 			$this->submission_fields['longitude'] = (float) $_POST['cat-tracker-submission-longitude'];
 		}
 
+		if ( isset( $_POST['cat-tracker-contact-reporter'] ) )
+			$this->submission_fields['contact_reporter'] = (bool) $_POST['cat-tracker-contact-reporter'];
+
 		$this->errors = apply_filters( 'cat_tracker_submission_errors', $this->errors, $_POST, $this->submission_fields );
 		if ( empty( $this->errors ) ) {
 			$this->insert_submission( $redirect_on_success );
@@ -162,6 +165,9 @@ class Cat_Tracker_Sighting_Submission {
 
 		if ( isset( $this->submission_fields['date'] ) )
 			add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'sighting_date', $this->submission_fields['date'], true );
+
+		if ( isset( $this->submission_fields['contact_reporter'] ) )
+			add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'contact_reporter', $this->submission_fields['contact_reporter'], true );
 
 
 		$this->did_insert = true;

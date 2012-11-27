@@ -379,6 +379,7 @@ class Cat_Tracker {
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'name_of_reporter', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_information', 'label' => 'Name of Reporter' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'email_of_reporter', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_information', 'label' => 'Email address of Reporter' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'telephone_of_reporter', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_information', 'label' => 'Phone number of Reporter' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'contact_reporter', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'checkbox', 'group' => 'marker_information', 'label' => 'Reporter would like to be contacted regarding spay/neuter programs', 'readonly' => true ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'ip_address_of_reporter', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_information', 'label' => 'IP Address of Reporter', 'readonly' => true ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'browser_info_of_reporter', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_information', 'label' => 'Browser Info for Reporter', 'readonly' => true ) );
 
@@ -584,6 +585,7 @@ class Cat_Tracker {
 		$submission_form .= wp_nonce_field( 'cat_tracker_confirm_submission', 'cat_tracker_confirm_submission', true, false );
 		$submission_form .= '<input type="hidden" name="cat-tracker-submission-latitude" id="cat-tracker-submission-latitude">';
 		$submission_form .= '<input type="hidden" name="cat-tracker-submission-longitude" id="cat-tracker-submission-longitude">';
+		$submission_form .= '<fieldset><label for="cat-tracker-contact-reporter"><input type="checkbox" id="cat-tracker-contact-reporter" name="cat-tracker-contact-reporter"> ' . __( 'I would like to be contacted about getting this cat or these cats spayed/neutered', 'cat-tracker' ) . '</label></fieldset>';
 		$submission_form .= '<input type="submit" name="cat-tracker-submission-submit" id="cat-tracker-submission-submit" value="Submit">';
 		$submission_form .= '</form>';
 		return $submission_form;
