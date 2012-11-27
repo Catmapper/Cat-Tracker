@@ -370,6 +370,7 @@ class Cat_Tracker {
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'east_bounds', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'East bounds' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'zoom_level', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'Default Zoom Level' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'max_zoom_level', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'Max Zoom Level' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'disallow_submissions', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'checkbox', 'group' => 'map_geo_information', 'label' => 'Disallow community submissions for this map' ) );
 
 		x_add_metadata_group( 'marker_information', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'label' => 'Sighting Information', 'priority' => 'high' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'description', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'textarea', 'group' => 'marker_information', 'label' => 'Description of the situation' ) );
@@ -514,7 +515,11 @@ class Cat_Tracker {
 		} elseif ( Cat_Tracker::is_showing_map() ) {
 			$map_id = apply_filters( 'cat_tracker_map_content_map_id', get_the_ID() );
 			$submission_link = apply_filters( 'cat_tracker_map_submission_link', add_query_arg( array( 'submission' => 'new' ), get_permalink( get_the_ID() ) ) );
-			$content = '<a class="cat-tracker-report-new-sighting-button" href="' . esc_url( $submission_link ) . '">' . __( 'Report a new community cat sighting', 'cat-tracker' ) . '</a>';
+
+			if ( ! Cat_Tracker::is_community_submissions_disabled_for_map_id( $map_id ) ) {
+				$content = '<a class="cat-tracker-report-new-sighting-button" href="' . esc_url( $submission_link ) . '">' . __( 'Report a new community cat sighting', 'cat-tracker' ) . '</a>';
+			}
+
 			$content .= '<div class="cat-tracker-map" id="' . esc_attr( 'map-' . $map_id ) . '"></div>';
 
 			$marker_types = $this->get_markers( $map_id );
@@ -538,7 +543,12 @@ class Cat_Tracker {
 	}
 
 	public static function is_submission_mode() {
-		return ( ! is_admin() && isset( $_GET['submission'] ) && 'new' == $_GET['submission'] && Cat_Tracker::is_showing_map() );
+		$map_id = apply_filters( 'cat_tracker_map_content_map_id', get_the_ID() );
+		return ( ! is_admin() && isset( $_GET['submission'] ) && 'new' == $_GET['submission'] && Cat_Tracker::is_showing_map() && ! Cat_Tracker::is_community_submissions_disabled_for_map_id( $map_id ) );
+	}
+
+	public static function is_community_submissions_disabled_for_map_id( $map_id ) {
+		return (bool) get_post_meta( $map_id, Cat_Tracker::META_PREFIX . 'disallow_submissions', true );
 	}
 
 	public function maybe_process_submission() {
