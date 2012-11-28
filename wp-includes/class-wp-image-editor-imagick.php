@@ -38,8 +38,38 @@ class WP_Image_Editor_Imagick extends WP_Image_Editor {
 	 * @return boolean
 	 */
 	public static function test( $args = array() ) {
-		if ( ! extension_loaded( 'imagick' ) || ! is_callable( 'Imagick', 'queryFormats' ) )
+
+		// First, test Imagick's extension and classes.
+		if ( ! extension_loaded( 'imagick' ) || ! class_exists( 'Imagick' ) || ! class_exists( 'ImagickPixel' ) )
 			return false;
+
+		$required_methods = array(
+			'clear',
+			'destroy',
+			'valid',
+			'getimage',
+			'writeimage',
+			'getimageblob',
+			'getimagegeometry',
+			'getimageformat',
+			'setimageformat',
+			'setimagecompression',
+			'setimagecompressionquality',
+			'setimagepage',
+			'scaleimage',
+			'cropimage',
+			'rotateimage',
+			'flipimage',
+			'flopimage',
+		);
+
+		// Now, test for deep requirements within Imagick.
+		if ( ! is_callable( 'Imagick', 'queryFormats' ) ||
+			 ! defined( 'imagick::COMPRESSION_JPEG' ) ||
+			 array_diff( $required_methods, get_class_methods( 'Imagick' ) ) ) {
+
+			return false;
+		}
 
 		return true;
 	}
@@ -58,6 +88,11 @@ class WP_Image_Editor_Imagick extends WP_Image_Editor {
 
 		if ( ! $imagick_extension )
 			return false;
+
+		// setIteratorIndex is optional unless mime is an animated format.
+		// Here, we just say no if you are missing it and aren't loading a jpeg.
+		if ( ! method_exists( 'Imagick', 'setIteratorIndex' ) && $mime_type != 'image/jpeg' )
+				return false;
 
 		try {
 			return ( (bool) Imagick::queryFormats( $imagick_extension ) );
@@ -88,8 +123,10 @@ class WP_Image_Editor_Imagick extends WP_Image_Editor {
 			if( ! $this->image->valid() )
 				return new WP_Error( 'invalid_image', __('File is not an image.'), $this->file);
 
-			// Select the first frame to handle animated GIFs properly
-			$this->image->setIteratorIndex(0);
+			// Select the first frame to handle animated images properly
+			if ( is_callable( array( $this->image, 'setIteratorIndex' ) ) )
+				$this->image->setIteratorIndex(0);
+
 			$this->mime_type = $this->get_mime_type( $this->image->getImageFormat() );
 		}
 		catch ( Exception $e ) {

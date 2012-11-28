@@ -59,7 +59,7 @@ $messages['page'] = array(
 	 9 => sprintf( __('Page scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview page</a>'), date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), esc_url( get_permalink($post_ID) ) ),
 	10 => sprintf( __('Page draft updated. <a target="_blank" href="%s">Preview page</a>'), esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ) ),
 );
-$messages['attachment'] = array_fill( 1, 10, __( 'Media attachment updated' ) ); // Hack, for now.
+$messages['attachment'] = array_fill( 1, 10, __( 'Media attachment updated.' ) ); // Hack, for now.
 
 $messages = apply_filters( 'post_updated_messages', $messages );
 
@@ -434,29 +434,3 @@ if ( post_type_supports( $post_type, 'comments' ) )
 try{document.post.title.focus();}catch(e){}
 </script>
 <?php endif; ?>
-
-<?php if ( 'attachment' == $post_type ) { ?>
-<script type="text/javascript">
-(function($){
-	function getFieldsContent() {
-		return [ $('#title').val() || '',
-			$('#attachment_caption').val() || '',
-			$('#attachment_alt').val() || '',
-			$('#attachment_content').val() || '',
-			$('#post_name').val() || '' ];
-	}
-
-	var initial = getFieldsContent();
-
-	window.onbeforeunload = function() {
-		var i, changed, current = getFieldsContent();
-		for ( var i = 0; i < initial.length; i++ ) {
- 			if ( changed = ( initial[i] !== current[i]) )
- 				break;
- 		}
- 		if ( changed )
-			return '<?php _e('The changes you made will be lost if you navigate away from this page.'); ?>';
-	};
-})(jQuery);
-</script>
-<?php } ?>
