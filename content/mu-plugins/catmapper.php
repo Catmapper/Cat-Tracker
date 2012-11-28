@@ -180,6 +180,11 @@ function catmapper_new_community_created( $blog_id, $user_id ) {
 	// switch to the correct theme
 	switch_theme( 'catmapper' );
 
+	// get theme mods from main site
+	switch_to_blog( $current_site->blog_id );
+	$main_site_theme_mods = get_theme_mods();
+	restore_current_blog();
+
 	// set default options
 	$default_options = array(
 		'blogdescription' => 'Cat Mapper',
@@ -190,6 +195,8 @@ function catmapper_new_community_created( $blog_id, $user_id ) {
 		'default_comment_status' => false,
 		'comment_moderation' => true,
 		'sidebars_widgets' => array(),
+		'theme_mods_twentytwelve' => $main_site_theme_mods,
+		'theme_mods_catmapper' => $main_site_theme_mods,
 	);
 
 	foreach ( $default_options as $option_key => $option_value )
@@ -212,7 +219,11 @@ function catmapper_new_community_created( $blog_id, $user_id ) {
 	}
 
 	// create the map
-	$map_id = wp_insert_post( array( 'post_type' => Cat_Tracker::MAP_POST_TYPE , 'post_title' => get_bloginfo( 'name' ) ) );
+	$map_id = wp_insert_post( array( 'post_type' => Cat_Tracker::MAP_POST_TYPE, 'post_title' => get_bloginfo( 'name' ) ) );
+
+	// queue a "job" to refresh the blog list
+ 	// though not strictly requried, passing the blog id ensures the event is unique enough to run again if it's called shortly after this event has occurred already
+	wp_schedule_single_event( time(), 'catmapper_refresh_all_blog_ids_event', array( 'blog_id' => $blog_id ) );
 
 	if ( $map_id && ! is_wp_error( $map_id ) ) {
 		update_option( 'catmapper_community_main_map_id', $map_id );
@@ -469,12 +480,12 @@ function cat_mapper_admin_bar_css() {
 }
 
 /**
- * modify the content on the front page
+ * modify wether the map is being shown or not
+ * used to show the map on the front page of subsistes
  *
  * @since 1.0
- * @param (object) the query object
- * @return (object) the filtered query object
- * @return void
+ * @param (bool) $is_showing_map wether to show the map or not
+ * @return (bool) $is_showing_map filtered value of wether to show the map or not
  */
 add_filter( 'cat_tracker_is_showing_map', 'cat_mapper_is_showing_map' );
 function cat_mapper_is_showing_map( $is_showing_map ) {
@@ -487,6 +498,13 @@ function cat_mapper_is_showing_map( $is_showing_map ) {
 	return $is_showing_map;
 }
 
+/**
+ * filter the map ID to be used on front page of subsites
+ *
+ * @since 1.0
+ * @param (int) $map_id map ID to use
+ * @return (int) $map_id filtered value for map ID to use
+ */
 add_filter( 'cat_tracker_map_content_map_id', 'cat_mapper_map_content_map_id' );
 function cat_mapper_map_content_map_id( $map_id ) {
 	if ( is_main_site() )
@@ -504,9 +522,8 @@ add_filter( 'cat_tracker_show_map_to_display_sighting_on_admin_field', '__return
  * filter the title out on the home page
  *
  * @since 1.0
- * @param (object) the query object
- * @return (object) the filtered query object
- * @return void
+ * @param (string) $title the original title
+ * @return (string) $title the filtered title
  */
 add_filter( 'the_title', 'catmapper_home_filter_title' );
 function catmapper_home_filter_title( $title ) {
@@ -515,4 +532,143 @@ function catmapper_home_filter_title( $title ) {
 		$title = '';
 
 	return $title;
+}
+
+/**
+ * whenever we load a background related theme mod, load it from
+ * the main site unless a mod is already set for the current site
+ *
+ * @since 1.0
+ * @param (mixed) $theme_mod the original value for the theme mod
+ * @return (mixed) $theme_mod the filtered value for the theme mod
+ */
+add_filter( 'theme_mod_background_image', 'catmapper_get_theme_mod_from_main_site' );
+add_filter( 'theme_mod_background_image_thumb', 'catmapper_get_theme_mod_from_main_site' );
+add_filter( 'theme_mod_background_color', 'catmapper_get_theme_mod_from_main_site' );
+add_filter( 'theme_mod_background_position_x', 'catmapper_get_theme_mod_from_main_site' );
+function catmapper_get_theme_mod_from_main_site( $theme_mod ) {
+	if ( is_main_site() )
+		return $theme_mod;
+
+	if ( ! empty( $theme_mod ) )
+		return $theme_mod;
+
+	if ( catmapper_current_blog_has_own_theme_mods() )
+		return $theme_mod;
+
+	$theme_mod_name = end( explode( 'theme_mod_', current_filter() ) );
+	$blog_id = get_current_blog_id();
+	$cache_key = "theme_mod_{$theme_mod_name}_blog_id_{$blog_id}";
+	$theme_mod = wp_cache_get( $cache_key, 'cat_mapper' );
+
+	if ( ! empty( $theme_mod ) )
+		return $theme_mod;
+
+	global $current_site;
+	switch_to_blog( $current_site->blog_id );
+	$theme_mod = get_theme_mod( $theme_mod_name );
+	restore_current_blog();
+	wp_cache_set( $cache_key, $theme_mod, 'cat_mapper' );
+	return $theme_mod;
+}
+
+/**
+ * whenever we modify a theme mod on the main site
+ * also modify the theme mods on every subsite
+ * unless its marked as having it's own mods,
+ * in which case it's ignored
+ *
+ * @since 1.0
+ * @param (string) $option the name of the option being modified
+ * @param (mixed) $oldvalue the previous value of the option
+ * @param (mixed) $newvalue the newly assigned value of the option
+ * @return void
+ */
+add_action( 'updated_option', 'catmapper_update_theme_mod_option', 10, 3 );
+function catmapper_update_theme_mod_option( $option, $oldvalue, $newvalue ) {
+	if ( ! in_array( $option, array( 'theme_mods_twentytwelve', 'theme_mods_catmapper' ) ) || ! is_main_site() )
+		return;
+
+	$blog_ids = catmapper_get_all_blog_ids();
+	foreach ( $blog_ids as $blog_id ) {
+		switch_to_blog( absint( $blog_id ) );
+		if ( catmapper_current_blog_has_own_theme_mods() )
+			continue;
+
+		update_option( 'theme_mods_twentytwelve', $newvalue );
+		update_option( 'theme_mods_catmapper', $newvalue );
+		restore_current_blog();
+	}
+}
+
+/**
+ * determine if the current blog uses it's own mods
+ *
+ * @since 1.0
+ * @return (bool)
+ */
+function catmapper_current_blog_has_own_theme_mods() {
+	return get_option( 'cat_mapper_has_own_theme_mods' );
+}
+
+/**
+ * get all blog IDs in the network
+ * cached with a site transient that we update using a scheduled
+ * event whenever a new subsite is created
+ *
+ * will warn once large network status is achieved
+ *
+ * @since 1.0
+ * @return (array) $site_blog_ids, all blog IDs for the network
+ */
+function catmapper_get_all_blog_ids() {
+
+	$site_blog_ids = get_site_transient( 'catmapper_all_blog_ids', 'cat_mapper' );
+
+	if ( false === $site_blog_ids ) {
+
+		// just a safety net, in case this network explodes in size some day
+		if ( wp_is_large_network() ) {
+
+			// leave a note to my future self
+			_doing_it_wrong( __FUNCTION__, "Unfortunately this function cannot be used anymore for performance reasons now that there are so many sites, let's find a better solution", Cat_Tracker::VERSION );
+
+			// queue a "job" to refresh the blog list
+		 	// though not strictly requried, passing the blog id ensures the event is unique enough to run again if it's called shortly after this event has occurred already
+			wp_schedule_single_event( time(), 'catmapper_refresh_all_blog_ids_event', array( 'blog_id' => $blog_id ) );
+			return array();
+		}
+
+		$site_blog_ids = catmapper_refresh_all_blog_ids();
+	}
+	return $site_blog_ids;
+}
+
+/**
+ * refresh array of blog IDs on demand, and set the site transient
+ * usually called from a scheduled event
+ *
+ * will warn once large network status is achieved
+ *
+ * @since 1.0
+ * @return (array) $site_blog_ids, all blog IDs for the network
+ */
+add_action( 'catmapper_refresh_all_blog_ids_event', 'catmapper_refresh_all_blog_ids' );
+function catmapper_refresh_all_blog_ids() {
+	global $wpdb;
+
+	// leave a note to my future self in the event of a large network status
+	if ( wp_is_large_network() )
+		_doing_it_wrong( __FUNCTION__, "This function should be re-evaluated for performance reasons now that there are so many sites.", Cat_Tracker::VERSION );
+
+	$_site_blog_ids = $wpdb->get_results( "SELECT blog_id FROM $wpdb->blogs WHERE blog_id > 1", ARRAY_A );
+	if ( empty( $_site_blog_ids ) || is_wp_error( $_site_blog_ids ) )
+		return array();
+
+	$site_blog_ids = wp_list_pluck( $_site_blog_ids, 'blog_id' );
+	if ( empty( $site_blog_ids ) || is_wp_error( $site_blog_ids ) )
+		return array();
+
+	set_site_transient( 'catmapper_all_blog_ids', $site_blog_ids );
+	return $site_blog_ids;
 }
