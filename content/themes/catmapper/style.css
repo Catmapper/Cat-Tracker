@@ -28,3 +28,7 @@ img.header-image,
 img.wp-post-image {
 	box-shadow: none;
 }
+
+.site-content article {
+	border-bottom: 0;
+}
