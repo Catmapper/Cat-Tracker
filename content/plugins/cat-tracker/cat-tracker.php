@@ -518,7 +518,7 @@ class Cat_Tracker {
 			$submission_link = apply_filters( 'cat_tracker_map_submission_link', add_query_arg( array( 'submission' => 'new' ), get_permalink( get_the_ID() ) ) );
 
 			if ( ! Cat_Tracker::is_community_submissions_disabled_for_map_id( $map_id ) ) {
-				$content = '<a class="cat-tracker-report-new-sighting-button" href="' . esc_url( $submission_link ) . '">' . __( 'Report a new community cat sighting', 'cat-tracker' ) . '</a>';
+				$content .= '<a class="cat-tracker-report-new-sighting-button" href="' . esc_url( $submission_link ) . '">' . __( 'Report a new community cat sighting', 'cat-tracker' ) . '</a>';
 			}
 
 			$content .= '<div class="cat-tracker-map" id="' . esc_attr( 'map-' . $map_id ) . '"></div>';
