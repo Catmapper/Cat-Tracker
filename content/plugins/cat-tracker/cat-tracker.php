@@ -544,6 +544,9 @@ class Cat_Tracker {
 	}
 
 	public static function is_submission_mode() {
+		if ( ! is_front_page() && ! is_singular() )
+			return false;
+
 		$map_id = apply_filters( 'cat_tracker_map_content_map_id', get_the_ID() );
 		return ( ! is_admin() && isset( $_GET['submission'] ) && 'new' == $_GET['submission'] && Cat_Tracker::is_showing_map() && ! Cat_Tracker::is_community_submissions_disabled_for_map_id( $map_id ) );
 	}
