@@ -101,7 +101,10 @@ class Cat_Tracker_Sighting_Submission {
 		}
 
 		if ( isset( $_POST['cat-tracker-contact-reporter'] ) )
-			$this->submission_fields['contact_reporter'] = (bool) $_POST['cat-tracker-contact-reporter'];
+			$this->submission_fields['contact_reporter'] = (bool) $_POST['cat-tracker-contact-reporter'];		
+
+		if ( isset( $_POST['cat-tracker-is-neuteured'] ) )
+			$this->submission_fields['cat_is_neuteured'] = (bool) $_POST['cat-tracker-is-neuteured'];
 
 		$this->errors = apply_filters( 'cat_tracker_submission_errors', $this->errors, $_POST, $this->submission_fields );
 		if ( empty( $this->errors ) ) {
@@ -168,6 +171,9 @@ class Cat_Tracker_Sighting_Submission {
 
 		if ( isset( $this->submission_fields['contact_reporter'] ) )
 			add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'contact_reporter', $this->submission_fields['contact_reporter'], true );
+
+		if ( isset( $this->submission_fields['cat_is_neuteured'] ) )
+			add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'cat_is_neuteured', $this->submission_fields['cat_is_neuteured'], true );
 
 
 		$this->did_insert = true;
