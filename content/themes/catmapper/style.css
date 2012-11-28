@@ -32,3 +32,8 @@ img.wp-post-image {
 .site-content article {
 	border-bottom: 0;
 }
+
+.entry-content h2 {
+	font-weight: normal;
+	font-size: 1.571428571rem;
+}
