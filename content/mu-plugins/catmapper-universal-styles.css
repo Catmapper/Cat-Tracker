@@ -1,5 +1,20 @@
 @import	url( '../plugins/cat-tracker/resources/font-awesome.css' );
 
+/* hide slug box on map edit */
+.icon32-posts-cat_tracker_map ~ #post #edit-slug-box {
+	display: none;
+}
+
+/* login logo */
+body.login {
+	background: #fff;
+}
+
+.login #login h1 a {
+	background-image : url( 'images/catmapper-login-x2.jpg' );
+	background-size: 328px 76px;
+}
+
 /** admin bar **/
 #wp-admin-bar-sightings .ab-icon:before {
 	content: "\f041";

@@ -439,7 +439,7 @@ function cat_mapper_admin_bar_sites_menu( $wp_admin_bar ) {
 }
 
 /**
- * Sightings admin bar menu
+ * Sightings + Map edit admin bar menu
  *
  * @since 1.0
  * @return void
@@ -463,6 +463,16 @@ function cat_mapper_admin_bar_sightings_menu( $wp_admin_bar ) {
 		'title' => $icon . $title,
 		'href'  => add_query_arg( array( 'post_type' => Cat_Tracker::MARKER_POST_TYPE ), admin_url( 'edit.php' ) ),
 		'meta'  => array( 'title' => $awaiting_title ),
+	) );
+
+	$map_id = get_option( 'catmapper_community_main_map_id' );
+	if ( empty( $map_id ) )
+		return;
+
+	$wp_admin_bar->add_menu( array(
+		'id'    => 'edit_map',
+		'title' => __( 'Edit Map', 'cat_mapper' ),
+		'href'  => add_query_arg( array( 'post' => $map_id, 'action' => 'edit' ), admin_url( 'post.php' ) ),
 	) );
 }
 
