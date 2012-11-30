@@ -428,16 +428,23 @@ class Cat_Tracker {
 			wp_enqueue_style( 'wp-color-picker' );
 		}
 
-		if ( 'post' != $current_screen->base || self::MARKER_POST_TYPE != $current_screen->id || empty( $post ) || self::MARKER_POST_TYPE != get_post_type( $post->ID ) )
+		if ( apply_filters( 'cat_tracker_admin_should_enqueue_map_scripts', ( 'post' != $current_screen->base || self::MARKER_POST_TYPE != $current_screen->id || empty( $post ) || self::MARKER_POST_TYPE != get_post_type( $post->ID ) ) ) )
 			return;
+
+		$this->setup_vars(); // setup map source + attribution
+		$map_id = ( ! empty( $post ) ) ? $this->get_map_id_for_marker( $post->ID ) : null;
+		$map_id = apply_filters( 'cat_tracker_admin_map_id', $map_id );
+
+		if ( empty( $map_id ) )
+			return;
+
+		$markers = ( ! empty( $post ) ) ? $this->get_marker_for_preview( $post->ID ) : array();
+		$markers = apply_filters( 'cat_tracker_admin_map_markers', $markers, $map_id );
 
 		wp_enqueue_style( 'leaflet-css', plugins_url( 'resources/leaflet.css', __FILE__ ), array(), self::LEAFLET_VERSION );
 		wp_enqueue_script( 'leaflet-js', plugins_url( 'resources/leaflet.js', __FILE__ ), array(), self::LEAFLET_VERSION );
 		wp_enqueue_script( 'leaflet-zoomfs-js', plugins_url( 'resources/leaflet-zoomfs.js', __FILE__ ), array( 'leaflet-js' ), self::LEAFLET_VERSION, true );
 		wp_enqueue_script( 'cat-tracker-js', plugins_url( 'resources/cat-tracker.js', __FILE__ ), array( 'jquery', 'underscore' ), self::VERSION, true );
-
-		$this->setup_vars(); // setup map source + attribution
-		$map_id = $this->get_map_id_for_marker( $post->ID );
 
 		wp_localize_script( 'cat-tracker-js', 'cat_tracker_vars', array(
 			'ajax_url' => esc_url( admin_url( 'admin-ajax.php' ) ),
@@ -453,10 +460,12 @@ class Cat_Tracker {
 					'map_west_bounds' => $this->get_map_west_bounds( $map_id ),
 					'map_east_bounds' => $this->get_map_east_bounds( $map_id ),
 					'map_zoom_level' => $this->get_map_zoom_level( $map_id ),
-					'markers' => ( ! Cat_Tracker::is_submission_mode() ) ? json_encode( $this->get_marker_for_preview( $post->ID ) ) : array(),
+					'markers' => json_encode( $markers ),
 				),
 			),
 		) );
+
+		do_action( 'cat_tracker_admin_enqueue_scripts', $map_id );
 
 	}
 
