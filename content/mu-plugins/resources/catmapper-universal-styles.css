@@ -1,4 +1,4 @@
-@import	url( '../plugins/cat-tracker/resources/font-awesome.css' );
+@import	url( '../../plugins/cat-tracker/resources/font-awesome.css' );
 
 /* hide slug box on map edit */
 .icon32-posts-cat_tracker_map ~ #post #edit-slug-box {

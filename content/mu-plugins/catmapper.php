@@ -486,7 +486,7 @@ add_action( 'wp_enqueue_scripts', 'cat_mapper_admin_bar_css', 100 );
 add_action( 'admin_enqueue_scripts', 'cat_mapper_admin_bar_css', 100 );
 add_action( 'login_enqueue_scripts', 'cat_mapper_admin_bar_css', 100 );
 function cat_mapper_admin_bar_css() {
-	wp_enqueue_style( 'catmapper-universal-styles', plugins_url( 'catmapper-universal-styles.css', __FILE__ ), array(), Cat_Tracker::VERSION );
+	wp_enqueue_style( 'catmapper-universal-styles', plugins_url( 'resources/catmapper-universal-styles.css', __FILE__ ), array(), Cat_Tracker::VERSION );
 }
 
 /**
