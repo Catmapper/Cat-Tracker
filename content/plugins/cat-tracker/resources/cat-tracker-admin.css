@@ -61,7 +61,11 @@
 #menu-posts-cat_tracker_map .wp-menu-image:before,
 #menu-posts-cat_tracker_map:hover .wp-menu-image:before,
 #menu-posts-cat_tracker_map.wp-has-current-submenu .wp-menu-image:before,
-#icon-edit.icon32-posts-cat_tracker_map:before {
+#toplevel_page_internal-map .wp-menu-image:before,
+#toplevel_page_internal-map:hover .wp-menu-image:before,
+#toplevel_page_internal-map.wp-has-current-submenu .wp-menu-image:before,
+#icon-edit.icon32-posts-cat_tracker_map:before,
+#icon-internal-map:before {
 	content: '\f0ac';
 	font-family: 'FontAwesome';
 }
@@ -76,7 +80,10 @@
 
 #menu-posts-cat_tracker_map .wp-menu-image:before,
 #menu-posts-cat_tracker_map:hover .wp-menu-image:before,
-#menu-posts-cat_tracker_map.wp-has-current-submenu .wp-menu-image:before {
+#menu-posts-cat_tracker_map.wp-has-current-submenu .wp-menu-image:before,
+#toplevel_page_internal-map .wp-menu-image:before,
+#toplevel_page_internal-map:hover .wp-menu-image:before,
+#toplevel_page_internal-map.wp-has-current-submenu .wp-menu-image:before {
 	font-size: 20px;
 	top: 8px;
 	left: 8px;
@@ -94,27 +101,34 @@
 
 #menu-posts-cat_tracker_map .wp-menu-image:before,
 #menu-posts-cat_tracker_marker .wp-menu-image:before,
+#toplevel_page_internal-map .wp-menu-image:before,
 #icon-edit.icon32-posts-cat_tracker_map:before,
+#icon-internal-map:before,
 #icon-edit.icon32-posts-cat_tracker_marker:before {
 	color: #6c6c6c;
 }
 
 #menu-posts-cat_tracker_map:hover .wp-menu-image:before,
+#toplevel_page_internal-map:hover .wp-menu-image:before,
 #menu-posts-cat_tracker_marker:hover .wp-menu-image:before {
 	color: #21759B;
 }
 
 #menu-posts-cat_tracker_map.wp-has-current-submenu .wp-menu-image:before,
+#toplevel_page_internal-map.wp-has-current-submenu .wp-menu-image:before,
+#toplevel_page_internal-map.current .wp-menu-image:before,
 #menu-posts-cat_tracker_marker.wp-has-current-submenu .wp-menu-image:before {
 	color: #fff;
 }
 
 #icon-edit.icon32-posts-cat_tracker_map,
+#icon-internal-map,
 #icon-edit.icon32-posts-cat_tracker_marker {
 	background-image: none;
 }
 
-#icon-edit.icon32-posts-cat_tracker_map:before {
+#icon-edit.icon32-posts-cat_tracker_map:before,
+#icon-internal-map {
 	font-size: 32px;
 	top: 10px;
 	left: 5px;
