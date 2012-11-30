@@ -111,7 +111,8 @@ class Cat_Tracker {
 	 */
 	public static function instance() {
 		if ( isset( self::$instance ) )
-			return;
+			return self::$instance;
+
 		self::$instance = new Cat_Tracker;
 		self::$instance->includes();
 		self::$instance->run_hooks();
