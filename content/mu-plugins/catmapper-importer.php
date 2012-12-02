@@ -48,7 +48,7 @@ class Cat_Mapper_Importer {
 	 */
 	public static function instance() {
 		if ( isset( self::$instance ) )
-			return;
+			return $instance;
 
 		self::$instance = new Cat_Mapper_Importer;
 		self::$instance->run_hooks();
@@ -252,7 +252,7 @@ class Cat_Mapper_Importer {
 			$start_importing = false;
 			$excluded_sources = apply_filters( 'cat_mapper_importer_excluded_sources', array( 'return', 'owner surrender', 'returns', 'owner surrenders', 'humane officer surrendered', 'humane officer  surrendered', 'humane officer surrender', 'humane officer  surrender', 'humane officer seized', 'humane officer  seized' ) );
 			$type = 'cat';
-			$count_imported = $dupe = $count_excluded = $count_no_address = $count_bad_address = 0;
+			$count_imported = $cat_count = $kitten_count = $dupe = $count_excluded = $count_no_address = $count_bad_address = 0;
 			while ( $row_data = fgetcsv( $open_file ) ) {
         $row_num++;
 
@@ -261,6 +261,7 @@ class Cat_Mapper_Importer {
 
         $animal_id = $row_data[0];
         $date = $row_data[2];
+        $type = $row_data[3];
         $source = $row_data[4];
         $breed = $row_data[12];
         $color = $row_data[13];
@@ -269,14 +270,6 @@ class Cat_Mapper_Importer {
         $incoming_spay_neuter_status = $row_data[17];
         $current_spay_neuter_status = $row_data[18];
         $address = $row_data[23];
-
-        if ( 'Type' == $row_data[0] && 'Kitten' == $row_data[1] )
-					$type = 'kitten';
-
-				$_type = ( 'kitten' == $type ) ? 'bc-spca-unowned-intake-kitten' : 'bc-spca-unowned-intake-cat';
-				$type_object = get_term_by( 'slug', $_type, Cat_Tracker::MARKER_TAXONOMY );
-				if ( ! is_wp_error( $type_object ) && is_object( $type_object ) )
-					$type_id = absint( $type_object->term_id );
 
         if ( 'Animal ID' == $animal_id && 'L/F Address' == $address ) {
         	$start_importing = true;
@@ -306,10 +299,17 @@ class Cat_Mapper_Importer {
         	continue;
         }
 
+        // exclude if no address
         if ( empty( $address ) ) {
         	$count_no_address++;
         	continue;
         }
+
+        $type = strtolower( $type );
+				$_type = ( 'kitten' == $type ) ? 'bc-spca-unowned-intake-kitten' : 'bc-spca-unowned-intake-cat';
+				$type_object = get_term_by( 'slug', $_type, Cat_Tracker::MARKER_TAXONOMY );
+				if ( ! is_wp_error( $type_object ) && is_object( $type_object ) )
+					$type_id = absint( $type_object->term_id );
 
         if ( empty( $breed ) )
         	$breed = 'unknown';
@@ -373,12 +373,17 @@ class Cat_Mapper_Importer {
 				add_post_meta( $sighting_id, Cat_Tracker::MARKER_TAXONOMY, $type_id, true );
 				wp_set_object_terms( $sighting_id, $type_id, Cat_Tracker::MARKER_TAXONOMY );
 				printf( '<p>' . __( 'Animal ID #%d succesfully imported.' ) . '</p>', $animal_id );
+				if ( $_type == 'kitten' ) {
+					$kitten_count++;
+				} else {
+					$cat_count++;
+				}
 				$count_imported++;
 			}
 
 			fclose( $open_file );
 			wp_delete_attachment( $attachment_id );
-			printf( '<p class="cat-mapper-import-result">' . __( '%d sightings succesfully imported. %d were duplicate animal IDs. %d sightings excluded because of their source, %d sightings not imported because they did not have an address at all and %d sightings not imported because they did not have a valid address.' ) . '</p>', $count_imported, $dupe, $count_excluded, $count_no_address, $count_bad_address );
+			printf( '<p class="cat-mapper-import-result">' . __( '%d sightings succesfully imported. %d were cats and %d were kittens. %d were duplicate animal IDs. %d sightings excluded because of their source, %d sightings not imported because they did not have an address at all and %d sightings not imported because they did not have a valid address.' ) . '</p>', $count_imported, $cat_count, $kitten_count, $dupe, $count_excluded, $count_no_address, $count_bad_address );
 
 		}
 	}
