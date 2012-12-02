@@ -669,6 +669,12 @@ function gallery_shortcode($attr) {
 	static $instance = 0;
 	$instance++;
 
+	if ( ! empty( $attr['ids'] ) ) {
+		// 'ids' is explicitly ordered
+		$attr['orderby'] = 'post__in';
+		$attr['include'] = $attr['ids'];
+	}
+
 	// Allow plugins/themes to override the default gallery template.
 	$output = apply_filters('post_gallery', '', $attr);
 	if ( $output != '' )
@@ -690,7 +696,6 @@ function gallery_shortcode($attr) {
 		'captiontag' => 'dd',
 		'columns'    => 3,
 		'size'       => 'thumbnail',
-		'ids'        => '',
 		'include'    => '',
 		'exclude'    => ''
 	), $attr));
@@ -698,12 +703,6 @@ function gallery_shortcode($attr) {
 	$id = intval($id);
 	if ( 'RAND' == $order )
 		$orderby = 'none';
-
-	if ( !empty( $ids ) ) {
-		// 'ids' is explicitly ordered
-		$orderby = 'post__in';
-		$include = $ids;
-	}
 
 	if ( !empty($include) ) {
 		$_attachments = get_posts( array('include' => $include, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby) );
@@ -1247,7 +1246,7 @@ function wp_plupload_default_settings() {
 		'file_data_name'      => 'async-upload', // key passed to $_FILE.
 		'multiple_queues'     => true,
 		'max_file_size'       => $max_upload_size . 'b',
-		'url'                 => admin_url( 'admin-ajax.php', 'relative' ),
+		'url'                 => admin_url( 'async-upload.php', 'relative' ),
 		'flash_swf_url'       => includes_url( 'js/plupload/plupload.flash.swf' ),
 		'silverlight_xap_url' => includes_url( 'js/plupload/plupload.silverlight.xap' ),
 		'filters'             => array( array( 'title' => __( 'Allowed Files' ), 'extensions' => '*') ),
@@ -1389,7 +1388,7 @@ function wp_prepare_attachment_for_js( $attachment ) {
 	}
 
 	if ( function_exists('get_compat_media_markup') )
-		$response['compat'] = get_compat_media_markup( $attachment->ID, array( 'taxonomies' => true ) );
+		$response['compat'] = get_compat_media_markup( $attachment->ID, array( 'taxonomies' => true, 'description' => true ) );
 
 	return apply_filters( 'wp_prepare_attachment_for_js', $response, $attachment, $meta );
 }
@@ -1441,7 +1440,7 @@ function wp_enqueue_media( $args = array() ) {
 	$strings = array(
 		// Generic
 		'url'         => __( 'URL' ),
-		'insertMedia' => __( 'Insert Media' ),
+		'addMedia'    => __( 'Add Media' ),
 		'search'      => __( 'Search' ),
 		'select'      => __( 'Select' ),
 		'cancel'      => __( 'Cancel' ),
@@ -1506,9 +1505,9 @@ function wp_print_media_templates() {
 	</script>
 
 	<script type="text/html" id="tmpl-media-modal">
-		<div class="media-modal">
+		<div class="media-modal wp-core-ui">
 			<h3 class="media-modal-title">{{ data.title }}</h3>
-			<a class="media-modal-close" href="" title="<?php esc_attr_e('Close'); ?>">&times;</a>
+			<a class="media-modal-close media-modal-icon" href="#" title="<?php esc_attr_e('Close'); ?>"></a>
 		</div>
 		<div class="media-modal-backdrop">
 			<div></div>
@@ -1621,11 +1620,11 @@ function wp_print_media_templates() {
 			<# } #>
 
 			<# if ( data.buttons.close ) { #>
-				<a class="close button" href="#">&times;</a>
+				<a class="close media-modal-icon" href="#" title="<?php _e('Remove'); ?>"></a>
 			<# } #>
 
 			<# if ( data.buttons.check ) { #>
-				<a class="check" href="#"><span>&#10003;</span><span class="dash">&ndash;</span></a>
+				<a class="check" href="#" title="<?php _e('Deselect'); ?>"><div class="media-modal-icon"></div></a>
 			<# } #>
 		</div>
 		<# if ( data.describe ) { #>
