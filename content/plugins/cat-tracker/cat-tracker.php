@@ -80,12 +80,17 @@ class Cat_Tracker {
 	/**
 	 * cat tracker map drodpdown transient/cache key
 	 */
-	const MAP_DROPDOWN_TRANSIENT = 'cat_tracker_map_admin_dropdown_1';
+	const MAP_DROPDOWN_TRANSIENT = 'cat_tracker_map_admin_dropdown_v1';
 
 	/**
-	 * cat tracker limit the number of markers per map for performance reasons
+	 * cat tracker markers transient/cache key prefix
 	 */
-	const MARKERS_LIMIT_PER_MAP = 1000;
+	const MARKERS_CACHE_KEY_PREFIX = 'cat_tracker_marker_v1_';
+
+	/**
+	 * cat tracker limit the number of markers per query for performance & cache size reasons
+	 */
+	const MARKERS_LIMIT_PER_QUERY = 500;
 
 	/**
 	 * @var the one true Cat Tracker
@@ -153,6 +158,8 @@ class Cat_Tracker {
 		add_action( 'wp_enqueue_scripts', array( $this, 'frontend_enqueue' ) );
 		add_action( 'wp_head', array( $this, 'enqueue_ie_styles' ) );
 		add_action( 'template_redirect', array( $this, 'maybe_process_submission' ) );
+		add_action( 'save_post', array( $this, '_flush_markers_cache' ) );
+		add_action( 'cat_tracker_flush_markers_cache', array( $this, '_build_markers_array' ) );
 		add_action( 'save_post', array( $this, '_flush_map_dropdown_cache' ) );
 		add_filter( 'post_updated_messages', array( $this, 'post_updated_messages' ) );
 		add_filter( 'the_content', array( $this, 'map_content' ) );
@@ -460,6 +467,7 @@ class Cat_Tracker {
 					'map_west_bounds' => $this->get_map_west_bounds( $map_id ),
 					'map_east_bounds' => $this->get_map_east_bounds( $map_id ),
 					'map_zoom_level' => $this->get_map_zoom_level( $map_id ),
+					'ignore_boundaries' => apply_filters( 'cat_tracker_admin_map_ignore_boundaries', false ),
 					'markers' => json_encode( $markers ),
 				),
 			),
@@ -484,6 +492,7 @@ class Cat_Tracker {
 
 		$this->setup_vars(); // setup map source + attribution
 		$map_id = apply_filters( 'cat_tracker_map_content_map_id', get_the_ID() );
+		$markers = $this->get_markers( $map_id );
 
 		wp_localize_script( 'cat-tracker-js', 'cat_tracker_vars', array(
 			'ajax_url' => esc_url( admin_url( 'admin-ajax.php' ) ),
@@ -502,7 +511,7 @@ class Cat_Tracker {
 					'map_east_bounds' => $this->get_map_east_bounds( $map_id ),
 					'map_zoom_level' => $this->get_map_zoom_level( $map_id ),
 					'map_max_zoom_level' => $this->get_map_max_zoom_level( $map_id ),
-					'markers' => json_encode( $this->get_markers( $map_id ) ),
+					'markers' => json_encode( $markers ),
 				),
 			),
 		) );
@@ -534,7 +543,7 @@ class Cat_Tracker {
 
 			$content .= '<div class="cat-tracker-map" id="' . esc_attr( 'map-' . $map_id ) . '"></div>';
 
-			$marker_types = $this->get_markers( $map_id );
+			$marker_types = $this->get_marker_types( $map_id );
 			if ( empty( $marker_types ) )
 				return $content;
 
@@ -542,7 +551,7 @@ class Cat_Tracker {
 			$content .= '<span>' . __( 'Select types of sightings:', 'cat-tracker' ) . '</span>';
 			$content .= '<form>';
 			foreach ( $marker_types as $marker_type )
-				$content .= '<label><input data-marker-type="' . esc_attr( $marker_type['slug'] ) . '" class="cat-tracker-layer-control" type="checkbox" checked="checked">' . esc_html( $marker_type['title'] ) . '</label>';
+				$content .= '<label><input data-marker-type="' . esc_attr( $marker_type->slug ) . '" class="cat-tracker-layer-control" type="checkbox" checked="checked">' . esc_html( $marker_type->name ) . '</label>';
 			$content .= '</div></form></div>';
 			return $content;
 		}
@@ -607,21 +616,85 @@ class Cat_Tracker {
 	}
 
 	/**
-	 * @todo: add caching
+	 * get markers for map ID
+	 * gets the cached values if possible
+	 *
+	 * @since 1.0
+	 * @uses _build_markers_array
+	 * @param (int) $map_id the map ID
+	 * @return (array) $markers the markers for the map
 	 */
 	public function get_markers( $map_id = null ) {
 		$map_id = ( empty( $map_id ) ) ? get_the_ID() : $map_id;
 
 		if ( Cat_Tracker::MAP_POST_TYPE != get_post_type( $map_id ) )
-			return false;
+			return array();
+
+		$marker_cache_keys = get_transient( Cat_Tracker::MARKERS_CACHE_KEY_PREFIX . 'map_id_' . $map_id . '_cache_keys' );
+
+		if ( empty( $marker_cache_keys ) )
+			return $this->_build_markers_array( $map_id );
 
 		$markers = array();
+		foreach( $marker_cache_keys as $cache_key ) {
+			$_markers = get_transient( $cache_key );
+			if ( empty( $_markers ) )
+				return $this->_build_markers_array( $map_id );
 
+			$markers = array_merge_recursive( $markers, $_markers );
+		}
+
+		return $markers;
+	}
+
+	/**
+	 * generate the markers for map ID
+	 * and store the results in bucketed transients
+	 *
+	 * @since 1.0
+	 * @param (int) $map_id the map ID
+	 * @return (array) $markers the markers for the map
+	 */
+	public function _build_markers_array( $map_id ) {
+
+		$max_num_pages = $offset = 1;
+		$markers = $cache_keys = $marker_types = array();
+		while ( $offset <= $max_num_pages ) {
+			$_markers = $this->_get_markers_query_with_offset( $map_id, $offset );
+			$max_num_pages = $_markers['max_num_pages'];
+			$cache_key = Cat_Tracker::MARKERS_CACHE_KEY_PREFIX . 'map_id_' . $map_id . '_offset_' . $offset;
+			$cache_keys[] = $cache_key;
+			set_transient( $cache_key, $_markers['markers'] );
+			$markers = array_merge_recursive( $markers, $_markers['markers'] );
+			$offset++;
+		}
+
+		foreach ( $markers as $marker_type => $markers_of_type )
+			$marker_types[] = get_term_by( 'slug', $marker_type, Cat_Tracker::MARKER_TAXONOMY );
+
+		set_transient( Cat_Tracker::MARKERS_CACHE_KEY_PREFIX . 'map_id_' . $map_id . '_marker_types', $marker_types );
+
+		set_transient( Cat_Tracker::MARKERS_CACHE_KEY_PREFIX . 'map_id_' . $map_id . '_cache_keys', $cache_keys );
+
+		return $markers;
+	}
+
+	/**
+	 * run query to get markers for specified map ID with paging
+	 *
+	 * @since 1.0
+	 * @param (int) $map_id the map ID
+	 * @param (int) $paged the offset/page
+	 * @return (array) markers, found posts and max offset for this query
+	 */
+	public function _get_markers_query_with_offset( $map_id, $paged = 1 ) {
+		$markers = array();
 		$_markers = new WP_Query();
 		$_markers->query( array(
 			'post_type' => Cat_Tracker::MARKER_POST_TYPE,
-			'posts_per_page' => Cat_Tracker::MARKERS_LIMIT_PER_MAP,
+			'posts_per_page' => Cat_Tracker::MARKERS_LIMIT_PER_QUERY,
 			'fields' => 'ids',
+			'paged' => absint( $paged ),
 			'meta_query' => array(
 				array(
 					'key' => Cat_Tracker::META_PREFIX . 'map',
@@ -639,18 +712,18 @@ class Cat_Tracker {
 			if ( ! Cat_Tracker_Utils::validate_latitude( $latitude ) || ! Cat_Tracker_Utils::validate_longitude( $longitude ) )
 				continue;
 
-			$array_slug = $this->get_marker_type_slug($marker_id);
+			$marker_type = $this->get_marker_type_slug($marker_id);
 
-			if ( ! isset( $markers[$array_slug] ) ) {
-				$markers[$array_slug] = array(
+			if ( ! isset( $markers[$marker_type] ) ) {
+				$markers[$marker_type] = array(
 					'title' => $this->get_marker_type( $marker_id ),
-					'slug' => $array_slug,
+					'slug' => $marker_type,
 					'sightings' => array(),
 				);
 			}
 
 
-			$markers[$array_slug]['sightings'][] = array(
+			$markers[$marker_type]['sightings'][] = array(
 				'id' => $marker_id,
 				'title' => $this->get_marker_text( $marker_id ),
 				'latitude' => $this->get_marker_latitude( $marker_id ),
@@ -659,8 +732,47 @@ class Cat_Tracker {
 			);
 		}
 
-		return $markers;
+		return array( 'markers' => $markers, 'found_posts' => $_markers->found_posts, 'max_num_pages' => $_markers->max_num_pages );
+	}
 
+	/**
+	 * whenever a marker or a map is saved
+	 * queue a job to flush the marker cache for the affected map ID
+	 *
+	 * @since 1.0
+	 * @param (int) $post_id the post ID that was just saved
+	 * @return void
+	 */
+	public function _flush_markers_cache( $post_id ) {
+		$post_type = get_post_type( $post_id );
+		if ( wp_is_post_revision( $post_id ) || ( ! in_array( $post_type, array( Cat_Tracker::MAP_POST_TYPE, Cat_Tracker::MARKER_POST_TYPE ) ) ) )
+			return;
+
+		if ( Cat_Tracker::MARKER_POST_TYPE == $post_type )
+			$map_id = $this->get_map_id_for_marker( $post_id );
+		else
+			$map_id = $post_id;
+
+	 	// though not strictly required, passing the time paramater ensures the event is unique enough to run again if it's called shortly after this event has occurred already
+		wp_schedule_single_event( time(), 'cat_tracker_flush_markers_cache', array( 'map_id' => $map_id, 'time' => time() ) );
+	}
+
+	/**
+	 * get active marker types for map ID
+	 *
+	 * @since 1.0
+	 * @param (int) $map_id the Map ID to use
+	 * @return void
+	 */
+	public function get_marker_types( $map_id ) {
+		$marker_types = get_transient( Cat_Tracker::MARKERS_CACHE_KEY_PREFIX . 'map_id_' . $map_id . '_marker_types' );
+
+		if ( empty( $marker_types ) ) {
+			$this->_flush_markers_cache( $map_id );
+			return array();
+		}
+
+		return $marker_types;
 	}
 
 	public function get_marker_for_preview( $marker_id ) {
