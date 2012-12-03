@@ -33,11 +33,13 @@
 					layers : [default_layer],
 					zoom : map_args.map_zoom_level,
 					maxZoom : map_args.map_max_zoom_level,
-					maxBounds : get_max_bounds(),
 					zoomControl : false
 				});
 				build_markers( $.parseJSON( map_args.markers ) );
 			}
+
+			if ( ! map_args.ignore_boundaries )
+				map.setMaxBounds( get_max_bounds() );
 
 	    map.addControl( new L.Control.ZoomFS() );
 
