@@ -85,12 +85,12 @@ class Cat_Tracker {
 	/**
 	 * cat tracker markers transient/cache key prefix
 	 */
-	const MARKERS_CACHE_KEY_PREFIX = 'cat_tracker_marker_v1_';
+	const MARKERS_CACHE_KEY_PREFIX = 'cat_tracker_marker_v2_';
 
 	/**
 	 * cat tracker limit the number of markers per query for performance & cache size reasons
 	 */
-	const MARKERS_LIMIT_PER_QUERY = 500;
+	const MARKERS_LIMIT_PER_QUERY = 1300;
 
 	/**
 	 * @var the one true Cat Tracker
