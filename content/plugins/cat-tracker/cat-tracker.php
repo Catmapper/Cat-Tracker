@@ -744,6 +744,11 @@ class Cat_Tracker {
 	 * @return void
 	 */
 	public function _flush_markers_cache( $post_id ) {
+
+		// don't flush if importing
+		if ( defined( 'CAT_TRACKER_IS_IMPORTING' ) && CAT_TRACKER_IS_IMPORTING )
+			return;
+
 		$post_type = get_post_type( $post_id );
 		if ( wp_is_post_revision( $post_id ) || ( ! in_array( $post_type, array( Cat_Tracker::MAP_POST_TYPE, Cat_Tracker::MARKER_POST_TYPE ) ) ) )
 			return;
@@ -926,6 +931,12 @@ class Cat_Tracker {
 	}
 
 	public function _flush_map_dropdown_cache( $post_id ) {
+
+		// don't flush if importing
+		if ( defined( 'CAT_TRACKER_IS_IMPORTING' ) && CAT_TRACKER_IS_IMPORTING )
+			return;
+
+
 		if ( wp_is_post_revision( $post_id ) || Cat_Tracker::MAP_POST_TYPE != get_post_type( $post_id ) )
 			return;
 

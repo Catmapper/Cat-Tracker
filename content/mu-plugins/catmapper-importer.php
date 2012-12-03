@@ -248,6 +248,8 @@ class Cat_Mapper_Importer {
 				continue;
 			}
 
+			define( 'CAT_TRACKER_IS_IMPORTING', true );
+
 			$row_num = 1;
 			$start_importing = false;
 			$excluded_sources = apply_filters( 'cat_mapper_importer_excluded_sources', array( 'return', 'owner surrender', 'returns', 'owner surrenders', 'humane officer surrendered', 'humane officer  surrendered', 'humane officer surrender', 'humane officer  surrender', 'humane officer seized', 'humane officer  seized' ) );
@@ -383,6 +385,8 @@ class Cat_Mapper_Importer {
 
 			fclose( $open_file );
 			wp_delete_attachment( $attachment_id );
+			Cat_Tracker::instance()->_flush_markers_cache();
+			Cat_Tracker::instance()->_flush_map_dropdown_cache();
 			printf( '<p class="cat-mapper-import-result">' . __( '%d sightings succesfully imported. %d were cats and %d were kittens. %d were duplicate animal IDs. %d sightings excluded because of their source, %d sightings not imported because they did not have an address at all and %d sightings not imported because they did not have a valid address.' ) . '</p>', $count_imported, $cat_count, $kitten_count, $dupe, $count_excluded, $count_no_address, $count_bad_address );
 
 		}
