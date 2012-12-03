@@ -78,6 +78,7 @@ class Cat_Mapper_Internal_Map {
 		add_filter( 'cat_tracker_admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_filter( 'cat_tracker_admin_map_id', array( $this, 'map_id' ) );
 		add_filter( 'cat_tracker_admin_map_markers', array( $this, 'map_markers' ), 10, 2 );
+		add_filter( 'cat_tracker_admin_map_ignore_boundaries', array( $this, 'ignore_boundaries' ) );
 	}
 
 	/**
@@ -182,6 +183,20 @@ class Cat_Mapper_Internal_Map {
 			$markers = Cat_Tracker::instance()->get_markers( $map_id );
 
 		return $markers;
+	}
+
+	/**
+	 * ignore boundaries in internal map
+	 *
+	 * @since 1.0
+	 * @param (bool) $ignore_boundaries to ignore or not
+	 * @return (bool) $ignore_boundaries filtered value of to ignore or not
+	 */
+	public function ignore_boundaries( $ignore_boundaries ) {
+		if ( self::is_internal_map_page() )
+			$ignore_boundaries = true;
+
+		return $ignore_boundaries;
 	}
 
 	/**
