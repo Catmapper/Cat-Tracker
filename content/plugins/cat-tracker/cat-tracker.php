@@ -158,7 +158,7 @@ class Cat_Tracker {
 		add_action( 'wp_enqueue_scripts', array( $this, 'frontend_enqueue' ) );
 		add_action( 'wp_head', array( $this, 'enqueue_ie_styles' ) );
 		add_action( 'template_redirect', array( $this, 'maybe_process_submission' ) );
-		add_action( 'save_post', array( $this, '_flush_markers_cache' ) );
+		add_action( 'save_post', array( $this, '_flush_markers_cache' ), 1001 );
 		add_action( 'cat_tracker_flush_markers_cache', array( $this, '_build_markers_array' ) );
 		add_action( 'save_post', array( $this, '_flush_map_dropdown_cache' ) );
 		add_filter( 'post_updated_messages', array( $this, 'post_updated_messages' ) );

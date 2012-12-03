@@ -682,3 +682,23 @@ function catmapper_refresh_all_blog_ids() {
 	set_site_transient( 'catmapper_all_blog_ids', $site_blog_ids );
 	return $site_blog_ids;
 }
+
+/**
+ * assign the community map ID to markers when saved
+ *
+ * @since 1.0
+ * @param (int) $post_id the marker ID being saved
+ * @return void
+ */
+add_action( 'save_post', 'catmapper_assign_map_id', 1000 );
+function catmapper_assign_map_id( $post_id ) {
+	if ( wp_is_post_revision( $post_id ) || Cat_Tracker::MARKER_POST_TYPE != get_post_type( $post_id ) )
+			return;
+
+	$assigned_map_id = Cat_Tracker::instance()->get_map_id_for_marker( $post_id );
+
+	if ( ! empty( $assigned_map_id ) )
+		return;
+
+	update_post_meta( $post_id, Cat_Tracker::META_PREFIX . 'map', get_option( 'catmapper_community_main_map_id' ) );
+}
