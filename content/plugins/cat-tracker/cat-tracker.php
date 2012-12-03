@@ -758,6 +758,9 @@ class Cat_Tracker {
 		else
 			$map_id = $post_id;
 
+		if ( empty( $map_id ) )
+			return;
+
 	 	// though not strictly required, passing the time paramater ensures the event is unique enough to run again if it's called shortly after this event has occurred already
 		wp_schedule_single_event( time(), 'cat_tracker_flush_markers_cache', array( 'map_id' => $map_id, 'time' => time() ) );
 	}
