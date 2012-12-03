@@ -1,6 +1,7 @@
 .catmapper-internal-map {
   min-height: 550px;
   width: 100%;
+  z-index: 1000;
 }
 
 .catmapper-internal-map.leaflet-fullscreen {
