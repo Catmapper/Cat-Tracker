@@ -14,6 +14,7 @@
 
 	// Copy the `postId` setting over to the model settings.
 	media.model.settings.postId = media.view.settings.postId;
+	media.model.settings.updatePostNonce = media.view.settings.nonce.updatePost;
 
 	// Check if the browser supports CSS 3.0 transitions
 	$.support.transition = (function(){
@@ -169,7 +170,7 @@
 			// created the `states` collection, or are trying to select a state
 			// that does not exist.
 			if ( ( previous && id === previous.id ) || ! this.states || ! this.states.get( id ) )
-				return;
+				return this;
 
 			if ( previous ) {
 				previous.trigger('deactivate');
@@ -178,6 +179,8 @@
 
 			this._state = id;
 			this.state().trigger('activate');
+
+			return this;
 		},
 
 		// Returns the previous active state.
@@ -267,7 +270,8 @@
 			content:    'browse',
 			searchable: true,
 			filterable: false,
-			uploads:    true
+			uploads:    true,
+			sortable:   true
 		},
 
 		initialize: function() {
@@ -325,7 +329,7 @@
 		},
 
 		reset: function() {
-			this.get('selection').clear();
+			this.get('selection').reset();
 			this.resetDisplays();
 		},
 
@@ -530,20 +534,66 @@
 		},
 
 		gallerySettings: function() {
-			var library = this.get('library');
+			var library = this.get('library'),
+				browser;
 
 			if ( ! library )
 				return;
 
 			library.gallery = library.gallery || new Backbone.Model();
 
-			this.frame.content.view().sidebar.set({
+			browser = this.frame.content.view();
+
+			browser.sidebar.set({
 				gallery: new media.view.Settings.Gallery({
 					controller: this,
 					model:      library.gallery,
 					priority:   40
 				})
 			});
+
+			browser.toolbar.set( 'reverse', {
+				text:     l10n.reverseOrder,
+				priority: 80,
+
+				click: function() {
+					library.reset( library.toArray().reverse() );
+				}
+			});
+		}
+	});
+
+	// wp.media.controller.FeaturedImage
+	// ---------------------------------
+	media.controller.FeaturedImage = media.controller.Library.extend({
+		defaults: _.defaults({
+			id:         'featured-image',
+			filterable: 'uploaded',
+			multiple:   false,
+			menu:       'main',
+			toolbar:    'featured-image'
+		}, media.controller.Library.prototype.defaults ),
+
+		initialize: function() {
+			// If we haven't been provided a `library`, create a `Selection`.
+			if ( ! this.get('library') )
+				this.set( 'library', media.query({ type: 'image' }) );
+
+			media.controller.Library.prototype.initialize.apply( this, arguments );
+		},
+
+		activate: function() {
+			var selection = this.get('selection'),
+				id = media.view.settings.featuredImage.id,
+				attachment;
+
+			if ( '' !== id && -1 !== id ) {
+				attachment = Attachment.get( id );
+				attachment.fetch();
+			}
+
+			selection.reset( attachment ? [ attachment ] : [] );
+			media.controller.Library.prototype.activate.apply( this, arguments );
 		}
 	});
 
@@ -603,7 +653,9 @@
 			}, this );
 
 			this.set( 'url', '' );
-			this.frame.toolbar.view().refresh();
+
+			if ( this.id === this.frame.state().id )
+				this.frame.toolbar.view().refresh();
 		}
 	});
 
@@ -1075,9 +1127,10 @@
 			if ( this.options.modal ) {
 				this.modal = new media.view.Modal({
 					controller: this,
-					$content:   this.$el,
 					title:      this.options.title
 				});
+
+				this.modal.content( this );
 			}
 
 			// Force the uploader off if the upload limit has been exceeded or
@@ -1101,11 +1154,11 @@
 		},
 
 		render: function() {
-			if ( this.modal )
-				this.modal.render();
+			// Activate the default state if no active state exists.
+			if ( ! this.state() && this.options.state )
+				this.setState( this.options.state );
 
-			media.view.Frame.prototype.render.apply( this, arguments );
-			return this;
+			return media.view.Frame.prototype.render.apply( this, arguments );
 		},
 
 		createIframeStates: function( options ) {
@@ -1184,7 +1237,7 @@
 	});
 
 	// Map some of the modal's methods to the frame.
-	_.each(['open','close','attach','detach'], function( method ) {
+	_.each(['open','close','attach','detach','escape'], function( method ) {
 		media.view.MediaFrame.prototype[ method ] = function( view ) {
 			if ( this.modal )
 				this.modal[ method ].apply( this.modal, arguments );
@@ -1200,7 +1253,6 @@
 			media.view.MediaFrame.prototype.initialize.apply( this, arguments );
 
 			_.defaults( this.options, {
-				state:     'upload',
 				selection: [],
 				library:   {},
 				multiple:  false
@@ -1347,7 +1399,6 @@
 	media.view.MediaFrame.Post = media.view.MediaFrame.Select.extend({
 		initialize: function() {
 			_.defaults( this.options, {
-				state:     'upload',
 				multiple:  true,
 				editing:   false
 			});
@@ -1407,6 +1458,14 @@
 					libraryState: 'gallery-edit'
 				})
 			]);
+
+
+			if ( media.view.settings.featuredImage ) {
+				this.states.add( new media.controller.FeaturedImage({
+					controller: this,
+					menu:       'main'
+				}) );
+			}
 		},
 
 		bindHandlers: function() {
@@ -1425,6 +1484,7 @@
 					toolbar: {
 						'main-attachments': 'mainAttachmentsToolbar',
 						'main-embed':       'mainEmbedToolbar',
+						'featured-image':   'featuredImageToolbar',
 						'gallery-edit':     'galleryEditToolbar',
 						'gallery-add':      'galleryAddToolbar'
 					}
@@ -1442,15 +1502,22 @@
 			media.view.MediaFrame.Select.prototype.mainMenu.call( this, { silent: true });
 
 			this.menu.view().set({
-				separateLibrary: new media.View({
+				'library-separator': new media.View({
 					className: 'separator',
 					priority: 60
 				}),
-				embed: {
+				'embed': {
 					text: l10n.fromUrlTitle,
 					priority: 80
 				}
 			});
+
+			if ( media.view.settings.featuredImage ) {
+				this.menu.view().set( 'featured-image', {
+					text: l10n.featuredImageTitle,
+					priority: 100
+				});
+			}
 		},
 
 		galleryMenu: function() {
@@ -1557,6 +1624,14 @@
 			}) );
 		},
 
+		featuredImageToolbar: function() {
+			this.toolbar.view( new media.view.Toolbar.Select({
+				controller: this,
+				text:       l10n.setFeaturedImage,
+				state:      this.options.state || 'upload'
+			}) );
+		},
+
 		mainEmbedToolbar: function() {
 			this.toolbar.view( new media.view.Toolbar.Embed({
 				controller: this
@@ -1627,7 +1702,7 @@
 		},
 
 		events: {
-			'click .media-modal-backdrop, .media-modal-close': 'closeHandler',
+			'click .media-modal-backdrop, .media-modal-close': 'escapeHandler',
 			'keydown': 'keydown'
 		},
 
@@ -1641,56 +1716,73 @@
 			});
 		},
 
-		render: function() {
-			// Ensure content div exists.
-			this.options.$content = this.options.$content || $('<div />');
-
-			// Detach the content element from the DOM to prevent
-			// `this.$el.html()` from garbage collecting its events.
-			this.options.$content.detach();
-
-			this.$el.html( this.template({
+		prepare: function() {
+			return {
 				title: this.options.title
-			}) );
-
-			this.options.$content.addClass('media-modal-content');
-			this.$('.media-modal').append( this.options.$content );
-			return this;
+			};
 		},
 
 		attach: function() {
+			if ( this.views.attached )
+				return this;
+
+			if ( ! this.views.rendered )
+				this.render();
+
 			this.$el.appendTo( this.options.container );
+
+			// Manually mark the view as attached and trigger ready.
+			this.views.attached = true;
+			this.views.ready();
+
 			return this.propagate('attach');
 		},
 
 		detach: function() {
+			if ( this.$el.is(':visible') )
+				this.close();
+
 			this.$el.detach();
+			this.views.attached = false;
 			return this.propagate('detach');
 		},
 
 		open: function() {
+			if ( this.$el.is(':visible') )
+				return this;
+
+			if ( ! this.views.attached )
+				this.attach();
+
 			this.$el.show().focus();
 			return this.propagate('open');
 		},
 
-		close: function() {
+		close: function( options ) {
+			if ( ! this.views.attached || ! this.$el.is(':visible') )
+				return this;
+
 			this.$el.hide();
-			return this.propagate('close');
+			this.propagate('close');
+
+			if ( options && options.escape )
+				this.propagate('escape');
+
+			return this;
 		},
 
-		closeHandler: function( event ) {
+		escape: function() {
+			return this.close({ escape: true });
+		},
+
+		escapeHandler: function( event ) {
 			event.preventDefault();
-			this.close();
+			this.escape();
 		},
 
-		content: function( $content ) {
-			// Detach any existing content to prevent events from being lost.
-			if ( this.options.$content )
-				this.options.$content.detach();
-
-			// Set and render the content.
-			this.options.$content = ( $content instanceof Backbone.View ) ? $content.$el : $content;
-			return this.render();
+		content: function( content ) {
+			this.views.set( '.media-modal-content', content );
+			return this;
 		},
 
 		// Triggers a modal event and if the `propagate` option is set,
@@ -1708,7 +1800,7 @@
 			// Close the modal when escape is pressed.
 			if ( 27 === event.which ) {
 				event.preventDefault();
-				this.close();
+				this.escape();
 				return;
 			}
 		}
@@ -1811,6 +1903,11 @@
 
 			if ( this.controller.uploader ) {
 				$placeholder = this.$('.browser');
+
+				// Check if we've already replaced the placeholder.
+				if ( $placeholder[0] === $browser[0] )
+					return;
+
 				$browser.detach().text( $placeholder.text() );
 				$browser[0].className = $placeholder[0].className;
 				$placeholder.replaceWith( $browser.show() );
@@ -2425,12 +2522,18 @@
 		buttons: {},
 
 		initialize: function() {
+			var selection = this.options.selection;
+
 			this.controller = this.options.controller;
 
 			this.model.on( 'change:sizes change:uploading change:caption change:title', this.render, this );
 			this.model.on( 'change:percent', this.progress, this );
+
+			// Update the selection.
 			this.model.on( 'add', this.select, this );
 			this.model.on( 'remove', this.deselect, this );
+			if ( selection )
+				selection.on( 'reset', this.updateSelect, this );
 
 			// Update the model's details view.
 			this.model.on( 'selection:single selection:unsingle', this.details, this );
@@ -2438,7 +2541,14 @@
 		},
 
 		dispose: function() {
+			var selection = this.options.selection;
+
+			// Make sure all settings are saved before removing the view.
 			this.updateAll();
+
+			if ( selection )
+				selection.off( null, null, this );
+
 			media.View.prototype.dispose.apply( this, arguments );
 			return this;
 		},
@@ -2477,8 +2587,10 @@
 				delete this.$bar;
 
 			// Check if the model is selected.
-			if ( this.selected() )
-				this.select();
+			this.updateSelect();
+
+			// Update the save status.
+			this.updateSave();
 
 			this.views.render();
 			return this;
@@ -2496,7 +2608,7 @@
 			if ( ! selection )
 				return;
 
-			if ( selection.has( model ) ) {
+			if ( this.selected() ) {
 				// If the model is the single model, remove it.
 				// If it is not the same as the single model,
 				// it now becomes the single model.
@@ -2506,10 +2618,14 @@
 			}
 		},
 
+		updateSelect: function() {
+			this[ this.selected() ? 'select' : 'deselect' ]();
+		},
+
 		selected: function() {
 			var selection = this.options.selection;
 			if ( selection )
-				return selection.has( this.model );
+				return !! selection.getByCid( this.model.cid );
 		},
 
 		select: function( model, collection ) {
@@ -2580,7 +2696,49 @@
 			value   = event.target.value;
 
 			if ( this.model.get( setting ) !== value )
-				this.model.save( setting, value );
+				this.save( setting, value );
+		},
+
+		// Pass all the arguments to the model's save method.
+		//
+		// Records the aggregate status of all save requests and updates the
+		// view's classes accordingly.
+		save: function() {
+			var view = this,
+				save = this._save = this._save || { status: 'ready' },
+				request = this.model.save.apply( this.model, arguments ),
+				requests = save.requests ? $.when( request, save.requests ) : request;
+
+			// If we're waiting to remove 'Saved.', stop.
+			if ( save.savedTimer )
+				clearTimeout( save.savedTimer );
+
+			this.updateSave('waiting');
+			save.requests = requests;
+			requests.done( function() {
+				// If we've performed another request since this one, bail.
+				if ( save.requests !== requests )
+					return;
+
+				view.updateSave('complete');
+				save.savedTimer = setTimeout( function() {
+					view.updateSave('ready');
+					delete save.savedTimer;
+				}, 2000 );
+			});
+
+		},
+
+		updateSave: function( status ) {
+			var save = this._save = this._save || { status: 'ready' };
+
+			if ( status && status !== save.status ) {
+				this.$el.removeClass( 'save-' + save.status );
+				save.status = status;
+			}
+
+			this.$el.addClass( 'save-' + save.status );
+			return this;
 		},
 
 		updateAll: function() {
@@ -2690,7 +2848,6 @@
 			this.scroll = _.chain( this.scroll ).bind( this ).throttle( this.options.refreshSensitivity ).value();
 
 			this.initSortable();
-			this.collection.props.on( 'change:orderby', this.refreshSortable, this );
 
 			_.bindAll( this, 'css' );
 			this.model.on( 'change:edge change:gutter', this.css, this );
@@ -2760,14 +2917,27 @@
 				// Update the model's index in the collection.
 				// Do so silently, as the view is already accurate.
 				update: function( event, ui ) {
-					var model = collection.at( from );
+					var model = collection.at( from ),
+						comparator = collection.comparator;
 
+					// Temporarily disable the comparator to prevent `add`
+					// from re-sorting.
+					delete collection.comparator;
+
+					// Silently shift the model to its new index.
 					collection.remove( model, {
 						silent: true
 					}).add( model, {
 						at:     ui.item.index(),
 						silent: true
 					});
+
+					// Restore the comparator.
+					collection.comparator = comparator;
+
+					// If the collection is sorted by menu order,
+					// update the menu order.
+					collection.saveMenuOrder();
 				}
 			});
 
@@ -2776,6 +2946,9 @@
 			collection.props.on( 'change:orderby', function() {
 				this.$el.sortable( 'option', 'disabled', !! collection.comparator );
 			}, this );
+
+			this.collection.props.on( 'change:orderby', this.refreshSortable, this );
+			this.refreshSortable();
 		},
 
 		refreshSortable: function() {
@@ -2783,7 +2956,11 @@
 				return;
 
 			// If the `collection` has a `comparator`, disable sorting.
-			this.$el.sortable( 'option', 'disabled', !! this.collection.comparator );
+			var collection = this.collection,
+				orderby = collection.props.get('orderby'),
+				enabled = 'menuOrder' === orderby || ! collection.comparator;
+
+			this.$el.sortable( 'option', 'disabled', ! enabled );
 		},
 
 		createAttachmentView: function( attachment ) {
@@ -3049,7 +3226,7 @@
 				}).render() );
 			}
 
-			if ( this.options.sortable ) {
+			if ( this.options.sortable && ! this.options.filters ) {
 				this.toolbar.set( 'dragInfo', new media.View({
 					el: $( '<div class="instructions">' + l10n.dragInfo + '</div>' )[0],
 					priority: -40
@@ -3213,7 +3390,7 @@
 
 		clear: function( event ) {
 			event.preventDefault();
-			this.collection.clear();
+			this.collection.reset();
 		}
 	});
 
@@ -3289,7 +3466,7 @@
 
 		clear: function( event ) {
 			event.preventDefault();
-			this.collection.clear();
+			this.collection.reset();
 		}
 	});
 
@@ -3369,6 +3546,10 @@
 			} else if ( $setting.is('input[type="text"], textarea') ) {
 				if ( ! $setting.is(':focus') )
 					$setting.val( value );
+
+			// Handle checkboxes.
+			} else if ( $setting.is('input[type="checkbox"]') ) {
+				$setting.attr( 'checked', !! value );
 			}
 		},
 
@@ -3382,6 +3563,11 @@
 			if ( ! $setting.length )
 				return;
 
+			// Use the correct value for checkboxes.
+			if ( $setting.is('input[type="checkbox"]') )
+				value = $setting[0].checked;
+
+			// Update the corresponding setting.
 			this.model.set( $setting.data('setting'), value );
 
 			// If the setting has a corresponding user setting,
@@ -3451,15 +3637,15 @@
 
 			$input.show();
 
-			if ( 'post' == linkTo ) {
+			if ( 'post' === linkTo ) {
 				$input.val( attachment.get('link') );
-			} else if ( 'file' == linkTo ) {
+			} else if ( 'file' === linkTo ) {
 				$input.val( attachment.get('url') );
 			} else if ( ! this.model.get('linkUrl') ) {
 				$input.val('http://');
 			}
 
-			$input.prop('readonly', 'custom' !== linkTo);
+			$input.prop( 'readonly', 'custom' !== linkTo );
 
 			// If the input is visible, focus and select its contents.
 			if ( $input.is(':visible') )

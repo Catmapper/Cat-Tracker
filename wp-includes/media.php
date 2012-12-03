@@ -670,8 +670,9 @@ function gallery_shortcode($attr) {
 	$instance++;
 
 	if ( ! empty( $attr['ids'] ) ) {
-		// 'ids' is explicitly ordered
-		$attr['orderby'] = 'post__in';
+		// 'ids' is explicitly ordered, unless you specify otherwise.
+		if ( empty( $attr['orderby'] ) )
+			$attr['orderby'] = 'post__in';
 		$attr['include'] = $attr['ids'];
 	}
 
@@ -1433,6 +1434,17 @@ function wp_enqueue_media( $args = array() ) {
 	if ( isset( $args['post'] ) ) {
 		$post = get_post( $args['post'] );
 		$settings['postId'] = $post->ID;
+		$settings['nonce']['updatePost'] = wp_create_nonce( 'update-post_' . $post->ID );
+
+		if ( current_theme_supports( 'post-thumbnails', $post->post_type ) && post_type_supports( $post->post_type, 'thumbnail' ) ) {
+
+			$featuredImageId = get_post_meta( $post->ID, '_thumbnail_id', true );
+
+			$settings['featuredImage'] = array(
+				'id'    => $featuredImageId ? $featuredImageId : -1,
+				'nonce' => wp_create_nonce( 'set_post_thumbnail-' . $post->ID ),
+			);
+		}
 	}
 
 	$hier = $post && is_post_type_hierarchical( $post->post_type );
@@ -1466,6 +1478,10 @@ function wp_enqueue_media( $args = array() ) {
 		// From URL
 		'fromUrlTitle'       => __( 'From URL' ),
 
+		// Featured Images
+		'featuredImageTitle'  => __( 'Featured Image' ),
+		'setFeaturedImage'    => __( 'Set featured image' ),
+
 		// Gallery
 		'createGalleryTitle' => __( 'Create Gallery' ),
 		'editGalleryTitle'   => __( 'Edit Gallery' ),
@@ -1474,6 +1490,7 @@ function wp_enqueue_media( $args = array() ) {
 		'updateGallery'      => __( 'Update gallery' ),
 		'continueEditing'    => __( 'Continue editing' ),
 		'addToGallery'       => __( 'Add to gallery' ),
+		'reverseOrder'       => __( 'Reverse order' ),
 	);
 
 	$settings = apply_filters( 'media_view_settings', $settings, $post );
@@ -1488,6 +1505,8 @@ function wp_enqueue_media( $args = array() ) {
 	wp_plupload_default_settings();
 	add_action( 'admin_footer', 'wp_print_media_templates' );
 	add_action( 'wp_footer', 'wp_print_media_templates' );
+
+	do_action( 'wp_enqueue_media' );
 }
 
 /**
@@ -1508,6 +1527,7 @@ function wp_print_media_templates() {
 		<div class="media-modal wp-core-ui">
 			<h3 class="media-modal-title">{{ data.title }}</h3>
 			<a class="media-modal-close media-modal-icon" href="#" title="<?php esc_attr_e('Close'); ?>"></a>
+			<div class="media-modal-content"></div>
 		</div>
 		<div class="media-modal-backdrop">
 			<div></div>
@@ -1645,7 +1665,14 @@ function wp_print_media_templates() {
 	</script>
 
 	<script type="text/html" id="tmpl-attachment-details">
-		<h3><?php _e('Attachment Details'); ?></h3>
+		<h3>
+			<?php _e('Attachment Details'); ?>
+
+			<span class="settings-save-status">
+				<span class="spinner"></span>
+				<span class="saved"><?php esc_html_e('Saved.'); ?></span>
+			</span>
+		</h3>
 		<div class="attachment-info">
 			<div class="thumbnail">
 				<# if ( data.uploading ) { #>
@@ -1659,7 +1686,7 @@ function wp_print_media_templates() {
 			<div class="details">
 				<div class="filename">{{ data.filename }}</div>
 				<div class="uploaded">{{ data.dateFormatted }}</div>
-				<# if ( 'image' === data.type && ! data.uploading ) { #>
+				<# if ( 'image' === data.type && ! data.uploading && data.width && data.height ) { #>
 					<div class="dimensions">{{ data.width }} &times; {{ data.height }}</div>
 				<# } #>
 				<# if ( ! data.uploading ) { #>
@@ -1667,11 +1694,11 @@ function wp_print_media_templates() {
 						<a href="#"><?php _e( 'Delete Permanently' ); ?></a>
 					</div>
 				<# } #>
-			</div>
-			<div class="compat-meta">
-				<# if ( data.compat && data.compat.meta ) { #>
-					{{{ data.compat.meta }}}
-				<# } #>
+				<div class="compat-meta">
+					<# if ( data.compat && data.compat.meta ) { #>
+						{{{ data.compat.meta }}}
+					<# } #>
+				</div>
 			</div>
 		</div>
 
@@ -1847,6 +1874,11 @@ function wp_print_media_templates() {
 				<?php endfor; ?>
 			</select>
 		</label>
+
+		<label class="setting">
+			<span><?php _e('Random'); ?></span>
+			<input type="checkbox" data-setting="_orderbyRandom" />
+		</label>
 	</script>
 
 	<script type="text/html" id="tmpl-embed-link-settings">
@@ -1926,13 +1958,13 @@ function wp_print_media_templates() {
 			}
 
 			#{{ data.id }} .portrait .thumbnail img {
-				width: {{ data.edge }}px;
+				max-width: {{ data.edge }}px;
 				height: auto;
 			}
 
 			#{{ data.id }} .landscape .thumbnail img {
 				width: auto;
-				height: {{ data.edge }}px;
+				max-height: {{ data.edge }}px;
 			}
 		</style>
 	</script>

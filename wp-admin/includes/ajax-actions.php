@@ -1674,23 +1674,31 @@ function wp_ajax_image_editor() {
 }
 
 function wp_ajax_set_post_thumbnail() {
+	$json = ! empty( $_REQUEST['json'] );
+
 	$post_ID = intval( $_POST['post_id'] );
-	if ( !current_user_can( 'edit_post', $post_ID ) )
-		wp_die( -1 );
+	if ( !current_user_can( 'edit_post', $post_ID ) ) {
+		$json ? wp_send_json_error() : wp_die( -1 );
+	}
 	$thumbnail_id = intval( $_POST['thumbnail_id'] );
 
 	check_ajax_referer( "set_post_thumbnail-$post_ID" );
 
 	if ( $thumbnail_id == '-1' ) {
-		if ( delete_post_thumbnail( $post_ID ) )
-			wp_die( _wp_post_thumbnail_html( null, $post_ID ) );
-		else
-			wp_die( 0 );
+		if ( delete_post_thumbnail( $post_ID ) ) {
+			$return = _wp_post_thumbnail_html( null, $post_ID );
+			$json ? wp_send_json_success( $return ) : wp_die( $return );
+		} else {
+			$json ? wp_send_json_error() : wp_die( 0 );
+		}
 	}
 
-	if ( set_post_thumbnail( $post_ID, $thumbnail_id ) )
-		wp_die( _wp_post_thumbnail_html( $thumbnail_id, $post_ID ) );
-	wp_die( 0 );
+	if ( set_post_thumbnail( $post_ID, $thumbnail_id ) ) {
+		$return = _wp_post_thumbnail_html( $thumbnail_id, $post_ID );
+		$json ? wp_send_json_success( $return ) : wp_die( $return );
+	}
+
+	$json ? wp_send_json_error() : wp_die( 0 );
 }
 
 function wp_ajax_date_format() {
@@ -1925,6 +1933,39 @@ function wp_ajax_save_attachment_compat() {
 		wp_send_json_error();
 
 	wp_send_json_success( $attachment );
+}
+
+function wp_ajax_save_attachment_order() {
+	if ( ! isset( $_REQUEST['post_id'] ) )
+		wp_send_json_error();
+
+	if ( ! $post_id = absint( $_REQUEST['post_id'] ) )
+		wp_send_json_error();
+
+	if ( empty( $_REQUEST['attachments'] ) )
+		wp_send_json_error();
+
+	check_ajax_referer( 'update-post_' . $post_id, 'nonce' );
+
+	$attachments = $_REQUEST['attachments'];
+
+	if ( ! current_user_can( 'edit_post', $post_id ) )
+		wp_send_json_error();
+
+	$post = get_post( $post_id, ARRAY_A );
+
+	foreach ( $attachments as $attachment_id => $menu_order ) {
+		if ( ! current_user_can( 'edit_post', $attachment_id ) )
+			continue;
+		if ( ! $attachment = get_post( $attachment_id ) )
+			continue;
+		if ( 'attachment' != $attachment->post_type )
+			continue;
+
+		wp_update_post( array( 'ID' => $attachment_id, 'menu_order' => $menu_order ) );
+	}
+
+	wp_send_json_success();
 }
 
 /**

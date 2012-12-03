@@ -72,7 +72,21 @@
 				return;
 
 			// create a cluster or all the markers combined
-			marker_cluster = new L.MarkerClusterGroup();
+			marker_cluster = new L.MarkerClusterGroup({
+				iconCreateFunction: function (cluster) {
+					var childCount = cluster.getChildCount();
+					var c = ' marker-cluster-';
+					if ( childCount < 10 ) {
+						c += 'small';
+					} else if ( childCount < 30 ) {
+						c += 'medium';
+					} else {
+						c += 'large';
+					}
+
+					return new L.DivIcon({ html: '<div><span>' + childCount + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point( 40, 40 ) });
+				},
+			});
 			$.each( active_marker_layers, function( i, marker_group ){
 					marker_cluster.addLayer( marker_group );
 			});
@@ -101,7 +115,21 @@
 				map.removeLayer( marker_cluster );
 
 				// rebuild the cluster
-				marker_cluster = new L.MarkerClusterGroup();
+				marker_cluster = new L.MarkerClusterGroup({
+					iconCreateFunction: function (cluster) {
+						var childCount = cluster.getChildCount();
+						var c = ' marker-cluster-';
+						if ( childCount < 10 ) {
+							c += 'small';
+						} else if ( childCount < 30 ) {
+							c += 'medium';
+						} else {
+							c += 'large';
+						}
+
+						return new L.DivIcon({ html: '<div><span>' + childCount + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point( 40, 40 ) });
+					},
+				});
 				$.each( active_marker_layers, function( i, marker_group ){
 					marker_cluster.addLayer( marker_group );
 				});
