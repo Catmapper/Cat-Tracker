@@ -944,7 +944,9 @@ p.search-box {
 	margin: 0;
 }
 
-.search-box input[name="s"], #search-plugins input[name="s"], .tagsdiv .newtag {
+.search-box input[name="s"],
+#search-plugins input[name="s"],
+.tagsdiv .newtag {
 	float: left;
 	height: 2em;
 	margin: 0 4px 0 0;
@@ -3405,6 +3407,10 @@ td.plugin-title p {
 	display: none;
 }
 
+#post-body-content .compat-attachment-fields {
+	margin-bottom: 20px;
+}
+
 .compat-attachment-fields th {
 	padding-top: 5px;
 	padding-right: 10px;
@@ -4144,23 +4150,26 @@ borger color while dragging a file over the uploader drop area */
 	margin: 8px 0;
 }
 
+.post-php .imgedit-wrap table {
+	width: 100%;
+}
+
 .describe .imgedit-wrap table td,
 .wp_attachment_holder .imgedit-wrap table td {
 	vertical-align: top;
 	padding-top: 0;
 }
 
-.imgedit-wrap p,
-.describe .imgedit-wrap table td {
-	font-size: 11px;
-	line-height: 18px;
-}
-
 .describe .imgedit-wrap table td.imgedit-settings {
 	padding: 0 5px;
 }
 
+.wp_attachment_holder .imgedit-wrap table td.imgedit-settings {
+	width: 250px;
+}
+
 td.imgedit-settings input {
+	margin-top: 0;
 	vertical-align: middle;
 }
 
@@ -4343,17 +4352,8 @@ td.imgedit-settings input {
 	margin-bottom: 8px;
 }
 
-.imgedit-help ul li {
-	font-size: 11px;
-}
-
 a.imgedit-help-toggle {
 	text-decoration: none;
-}
-
-#wpbody-content .imgedit-response div {
-	width: 600px;
-	margin: 8px;
 }
 
 .form-table td.imgedit-response {
@@ -4383,10 +4383,14 @@ span.imgedit-scale-warn {
 .imgedit-group {
 	border-width: 1px;
 	border-style: solid;
-	-webkit-border-radius: 8px;
-	border-radius: 8px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 	margin-bottom: 8px;
 	padding: 2px 10px;
+}
+
+.wp_attachment_details {
+	margin-bottom: 20px;
 }
 
 /*------------------------------------------------------------------------------
@@ -5333,22 +5337,28 @@ h2 .nav-tab {
 	margin-left: 1em;
 }
 
-.about-wrap .feature-section.three-col {
+.about-wrap .feature-section.col {
 	margin-bottom: 0;
+}
+
+.about-wrap .feature-section.col h4 {
+	margin:  0 0 0.6em 0;
+}
+
+.about-wrap .feature-section.col .last-feature {
+	margin-right: 0;
+}
+
+.about-wrap .feature-section.two-col div {
+	width: 47%;
+	margin-right: 4.999999999%;
+	float: left;
 }
 
 .about-wrap .feature-section.three-col div {
 	width: 30%;
 	margin-right: 4.999999999%;
 	float: left;
-}
-
-.about-wrap .feature-section.three-col h4 {
-	margin:  0 0 0.6em 0;
-}
-
-.about-wrap .feature-section.three-col .last-feature {
-	margin-right: 0;
 }
 
 .about-wrap .three-col-images {

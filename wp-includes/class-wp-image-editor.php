@@ -101,7 +101,7 @@ abstract class WP_Image_Editor {
 	 * @access public
 	 * @abstract
 	 *
-	 * @param array $sizes
+	 * @param array $sizes { {'width'=>int, 'height'=>int, 'crop'=>bool}, ... }
 	 * @return array
 	 */
 	abstract public function multi_resize( $sizes );
@@ -185,8 +185,8 @@ abstract class WP_Image_Editor {
 	 */
 	protected function update_size( $width = null, $height = null ) {
 		$this->size = array(
-			'width' => $width,
-			'height' => $height
+			'width' => (int) $width,
+			'height' => (int) $height
 		);
 		return true;
 	}

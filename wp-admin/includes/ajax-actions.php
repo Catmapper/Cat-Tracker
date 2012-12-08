@@ -1674,22 +1674,25 @@ function wp_ajax_image_editor() {
 }
 
 function wp_ajax_set_post_thumbnail() {
-	$json = ! empty( $_REQUEST['json'] );
+	$json = ! empty( $_REQUEST['json'] ); // New-style request
 
 	$post_ID = intval( $_POST['post_id'] );
-	if ( !current_user_can( 'edit_post', $post_ID ) ) {
-		$json ? wp_send_json_error() : wp_die( -1 );
-	}
+	if ( ! current_user_can( 'edit_post', $post_ID ) )
+		wp_die( -1 );
+
 	$thumbnail_id = intval( $_POST['thumbnail_id'] );
 
-	check_ajax_referer( "set_post_thumbnail-$post_ID" );
+	if ( $json )
+		check_ajax_referer( "update-post_$post_ID" );
+	else
+		check_ajax_referer( "set_post_thumbnail-$post_ID" );
 
 	if ( $thumbnail_id == '-1' ) {
 		if ( delete_post_thumbnail( $post_ID ) ) {
 			$return = _wp_post_thumbnail_html( null, $post_ID );
 			$json ? wp_send_json_success( $return ) : wp_die( $return );
 		} else {
-			$json ? wp_send_json_error() : wp_die( 0 );
+			wp_die( 0 );
 		}
 	}
 
@@ -1698,7 +1701,7 @@ function wp_ajax_set_post_thumbnail() {
 		$json ? wp_send_json_success( $return ) : wp_die( $return );
 	}
 
-	$json ? wp_send_json_error() : wp_die( 0 );
+	wp_die( 0 );
 }
 
 function wp_ajax_date_format() {
@@ -1809,7 +1812,13 @@ function wp_ajax_get_attachment() {
 	if ( ! $id = absint( $_REQUEST['id'] ) )
 		wp_send_json_error();
 
-	if ( ! current_user_can( 'read_post', $id ) )
+	if ( ! $post = get_post( $id ) )
+		wp_send_json_error();
+
+	if ( 'attachment' != $post->post_type )
+		wp_send_json_error();
+
+	if ( ! current_user_can( 'upload_files' ) )
 		wp_send_json_error();
 
 	if ( ! $attachment = wp_prepare_attachment_for_js( $id ) )
@@ -1824,6 +1833,9 @@ function wp_ajax_get_attachment() {
  * @since 3.5.0
  */
 function wp_ajax_query_attachments() {
+	if ( ! current_user_can( 'upload_files' ) )
+		wp_send_json_error();
+
 	$query = isset( $_REQUEST['query'] ) ? (array) $_REQUEST['query'] : array();
 	$query = array_intersect_key( $query, array_flip( array(
 		's', 'order', 'orderby', 'posts_per_page', 'paged', 'post_mime_type',
@@ -1872,6 +1884,9 @@ function wp_ajax_save_attachment() {
 	if ( isset( $changes['caption'] ) )
 		$post['post_excerpt'] = $changes['caption'];
 
+	if ( isset( $changes['description'] ) )
+		$post['post_content'] = $changes['description'];
+
 	if ( isset( $changes['alt'] ) ) {
 		$alt = get_post_meta( $id, '_wp_attachment_image_alt', true );
 		$new_alt = stripslashes( $changes['alt'] );
@@ -1910,10 +1925,6 @@ function wp_ajax_save_attachment_compat() {
 
 	if ( 'attachment' != $post['post_type'] )
 		wp_send_json_error();
-
-	// Handle the description field automatically, if a plugin adds it back.
-	if ( isset( $attachment_data['post_content'] ) )
-		$post['post_content'] = $attachment_data['post_content'];
 
 	$post = apply_filters( 'attachment_fields_to_save', $post, $attachment_data );
 
@@ -1985,15 +1996,14 @@ function wp_ajax_send_attachment_to_editor() {
 	if ( ! $post = get_post( $id ) )
 		wp_send_json_error();
 
-	if ( ! current_user_can( 'edit_post', $id ) )
-		wp_send_json_error();
-
 	if ( 'attachment' != $post->post_type )
 		wp_send_json_error();
 
-	// If this attachment is unattached, attach it. Primarily a back compat thing.
-	if ( 0 == $post->post_parent && $insert_into_post_id = intval( $_POST['post_id'] ) ) {
-		wp_update_post( array( 'ID' => $id, 'post_parent' => $insert_into_post_id ) );
+	if ( current_user_can( 'edit_post', $id ) ) {
+		// If this attachment is unattached, attach it. Primarily a back compat thing.
+		if ( 0 == $post->post_parent && $insert_into_post_id = intval( $_POST['post_id'] ) ) {
+			wp_update_post( array( 'ID' => $id, 'post_parent' => $insert_into_post_id ) );
+		}
 	}
 
 	$rel = $url = '';

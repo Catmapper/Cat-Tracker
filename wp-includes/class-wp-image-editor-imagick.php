@@ -119,6 +119,9 @@ class WP_Image_Editor_Imagick extends WP_Image_Editor {
 		if ( ! is_file( $this->file ) && ! preg_match( '|^https?://|', $this->file ) )
 			return new WP_Error( 'error_loading_image', __('File doesn&#8217;t exist?'), $this->file );
 
+		// Even though Imagick uses less PHP memory than GD, set higher limit for users that have low PHP.ini limits
+		@ini_set( 'memory_limit', apply_filters( 'image_memory_limit', WP_MAX_MEMORY_LIMIT ) );
+
 		try {
 			$this->image = new Imagick( $this->file );
 
@@ -245,7 +248,7 @@ class WP_Image_Editor_Imagick extends WP_Image_Editor {
 	 * @since 3.5.0
 	 * @access public
 	 *
-	 * @param array $sizes
+	 * @param array $sizes { {'width'=>int, 'height'=>int, 'crop'=>bool}, ... }
 	 * @return array
 	 */
 	public function multi_resize( $sizes ) {
@@ -314,13 +317,13 @@ class WP_Image_Editor_Imagick extends WP_Image_Editor {
 					$dst_h = $src_h;
 
 				$this->image->scaleImage( $dst_w, $dst_h );
-				return $this->update_size( $dst_w, $dst_h );
+				return $this->update_size();
 			}
 		}
 		catch ( Exception $e ) {
 			return new WP_Error( 'image_crop_error', $e->getMessage() );
 		}
-		return $this->update_size( $src_w, $src_h );
+		return $this->update_size();
 	}
 
 	/**
