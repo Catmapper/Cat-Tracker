@@ -79,6 +79,7 @@ class Cat_Mapper_Internal_Map {
 		add_filter( 'cat_tracker_admin_map_id', array( $this, 'map_id' ) );
 		add_filter( 'cat_tracker_admin_map_markers', array( $this, 'map_markers' ), 10, 2 );
 		add_filter( 'cat_tracker_admin_map_ignore_boundaries', array( $this, 'ignore_boundaries' ) );
+		add_filter( 'cat_tracker_valid_marker_contexts', array( $this, 'add_internal_map_as_valid_map_marker_context' ) );
 	}
 
 	/**
@@ -172,15 +173,26 @@ class Cat_Mapper_Internal_Map {
 	}
 
 	/**
+	 * add 'internal map' as a valid map marker context
+	 *
+	 * @since 1.0
+	 * @param (array) $valid_contexts valid marker contexts
+	 * @return (array) filtered valid marker contexts
+	 */
+	public function add_internal_map_as_valid_map_marker_context( $valid_contexts ) {
+		return array_merge( $valid_contexts, array( 'internal_map' ) );
+	}
+
+	/**
 	 * loads markers for the internal map
 	 *
 	 * @since 1.0
 	 * @param (array) $map_markers the markers (which by default are the preview marker only)
-	 * @return (array) $map_markers all ther markers for the map
+	 * @return (array) $map_markers all the markers for the map
 	 */
 	public function map_markers( $markers, $map_id ) {
 		if ( self::is_internal_map_page() )
-			$markers = Cat_Tracker::instance()->get_markers( $map_id );
+			$markers = Cat_Tracker::instance()->get_markers( $map_id, 'internal_map' );
 
 		return $markers;
 	}
