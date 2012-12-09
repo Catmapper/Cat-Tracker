@@ -103,6 +103,12 @@ class Cat_Tracker {
 	const MARKERS_LIMIT_PER_QUERY = 1300;
 
 	/**
+	 * cat tracker default context for displaying map markers
+	 * @since 1.0
+	 */
+	const DEFAULT_MARKER_CONTEXT = 'front_end';
+
+	/**
 	 * @var the one true Cat Tracker
 	 * @since 1.0
 	 */
@@ -172,8 +178,8 @@ class Cat_Tracker {
 		add_action( 'wp_head', array( $this, 'enqueue_ie_styles' ) );
 		add_action( 'template_redirect', array( $this, 'maybe_process_submission' ) );
 		add_action( 'save_post', array( $this, '_flush_markers_cache' ), 1001 );
-		add_action( 'cat_tracker_flush_markers_cache', array( $this, '_build_markers_array' ) );
 		add_action( 'save_post', array( $this, '_flush_map_dropdown_cache' ) );
+		add_action( 'cat_tracker_flush_markers_cache', array( $this, '_build_markers_array' ) );
 		add_filter( 'post_updated_messages', array( $this, 'post_updated_messages' ) );
 		add_filter( 'the_content', array( $this, 'map_content' ) );
 		add_filter( 'the_title', array( $this, 'submission_title' ), 10, 2 );
@@ -631,21 +637,89 @@ class Cat_Tracker {
 	}
 
 	/**
+	 * generate the cache key used for caching the map marker cache keys
+	 *
+	 * @since 1.0
+	 * @param (int) $map_id the map ID
+	 * @param (string) $context the context in which to display the map
+	 * @return (string) the cache key
+	 */
+	public function _get_map_cache_keys_cache_key( $map_id, $context ) {
+		$context = $this->_validate_markers_context( $context );
+		return sanitize_key( Cat_Tracker::MARKERS_CACHE_KEY_PREFIX . 'mid_' . absint( $map_id ) . '_' . $context . '_keys' );
+	}
+
+	/**
+	 * generate the cache key used for caching the map marker query with offset
+	 *
+	 * @since 1.0
+	 * @param (int) $map_id the map ID
+	 * @param (string) $context the context in which to display the map
+	 * @param (int) $offset the query offset
+	 * @return (string) the cache key
+	 */
+	public function _get_map_cache_key_for_offset( $map_id, $context, $offset ) {
+		$context = $this->_validate_markers_context( $context );
+		return sanitize_key( Cat_Tracker::MARKERS_CACHE_KEY_PREFIX . 'mid_' . absint( $map_id ) . '_' . $context . '_offset_' . absint( $offset ) );
+	}
+
+	/**
+	 * generate the cache key used for caching the map marker types
+	 *
+	 * @since 1.0
+	 * @param (int) $map_id the map ID
+	 * @param (string) $context the context in which to display the map
+	 * @return (string) the cache key
+	 */
+	public function _get_marker_types_cache_key( $map_id, $context ) {
+		$context = $this->_validate_markers_context( $context );
+		return sanitize_key( Cat_Tracker::MARKERS_CACHE_KEY_PREFIX . 'mid_' . absint( $map_id ) . '_' . $context . '_mtypes' );
+	}
+
+	/**
+	 * validate a map marker context against the allowed marker contexts
+	 *
+	 * @since 1.0
+	 * @param (int) $map_id the map ID
+	 * @param (string) $context the context in which to display the map
+	 * @return (string) the cache key
+	 */
+	public function _validate_markers_context( $context ) {
+		if ( ! in_array( $context, $this->_get_valid_marker_contexts() ) ) {
+			_doing_it_wrong( __FUNCTION__, 'Cat Tracker invalid marker context called. Backtrace: ' . wp_debug_backtrace_summary(), Cat_Tracker::VERSION );
+			$context = Cat_Tracker::DEFAULT_MARKER_CONTEXT;
+		}
+		return (string) $context;
+	}
+
+	/**
+	 * get valid marker contexts
+	 *
+	 * @since 1.0
+	 * @return (array) valid marker contexts
+	 */
+	public function _get_valid_marker_contexts() {
+		return (array) apply_filters( 'cat_tracker_valid_marker_contexts', array( Cat_Tracker::DEFAULT_MARKER_CONTEXT ) );
+	}
+
+
+	/**
 	 * get markers for map ID
 	 * gets the cached values if possible
 	 *
 	 * @since 1.0
 	 * @uses _build_markers_array
 	 * @param (int) $map_id the map ID
+	 * @param (string) $context the context under which the map is being shown
 	 * @return (array) $markers the markers for the map
 	 */
-	public function get_markers( $map_id = null ) {
+	public function get_markers( $map_id = null, $context = 'front_end' ) {
 		$map_id = ( empty( $map_id ) ) ? get_the_ID() : $map_id;
 
 		if ( Cat_Tracker::MAP_POST_TYPE != get_post_type( $map_id ) )
 			return array();
 
-		$marker_cache_keys = get_transient( Cat_Tracker::MARKERS_CACHE_KEY_PREFIX . 'map_id_' . $map_id . '_cache_keys' );
+		$marker_cache_keys = get_transient( $this->_get_map_cache_keys_cache_key( $map_id, $context ) );
 
 		if ( empty( $marker_cache_keys ) )
 			return $this->_build_markers_array( $map_id );
@@ -654,7 +728,7 @@ class Cat_Tracker {
 		foreach( $marker_cache_keys as $cache_key ) {
 			$_markers = get_transient( $cache_key );
 			if ( empty( $_markers ) )
-				return $this->_build_markers_array( $map_id );
+				return $this->_build_markers_array( $map_id, $context );
 
 			$markers = array_merge_recursive( $markers, $_markers );
 		}
@@ -670,14 +744,14 @@ class Cat_Tracker {
 	 * @param (int) $map_id the map ID
 	 * @return (array) $markers the markers for the map
 	 */
-	public function _build_markers_array( $map_id ) {
+	public function _build_markers_array( $map_id, $context = 'front_end' ) {
 
 		$max_num_pages = $offset = 1;
 		$markers = $cache_keys = $marker_types = array();
 		while ( $offset <= $max_num_pages ) {
 			$_markers = $this->_get_markers_query_with_offset( $map_id, $offset );
 			$max_num_pages = $_markers['max_num_pages'];
-			$cache_key = Cat_Tracker::MARKERS_CACHE_KEY_PREFIX . 'map_id_' . $map_id . '_offset_' . $offset;
+			$cache_key = $this->_get_map_cache_key_for_offset( $map_id, $context, $offset );
 			$cache_keys[] = $cache_key;
 			set_transient( $cache_key, $_markers['markers'] );
 			$markers = array_merge_recursive( $markers, $_markers['markers'] );
@@ -687,9 +761,9 @@ class Cat_Tracker {
 		foreach ( $markers as $marker_type => $markers_of_type )
 			$marker_types[] = get_term_by( 'slug', $marker_type, Cat_Tracker::MARKER_TAXONOMY );
 
-		set_transient( Cat_Tracker::MARKERS_CACHE_KEY_PREFIX . 'map_id_' . $map_id . '_marker_types', $marker_types );
+		set_transient( $this->_get_marker_types_cache_key( $map_id, $context ), $marker_types );
 
-		set_transient( Cat_Tracker::MARKERS_CACHE_KEY_PREFIX . 'map_id_' . $map_id . '_cache_keys', $cache_keys );
+		set_transient( $this->_get_map_cache_keys_cache_key( $map_id, $context ), $cache_keys );
 
 		return $markers;
 	}
@@ -776,8 +850,10 @@ class Cat_Tracker {
 		if ( empty( $map_id ) )
 			return;
 
-	 	// though not strictly required, passing the time paramater ensures the event is unique enough to run again if it's called shortly after this event has occurred already
-		wp_schedule_single_event( time(), 'cat_tracker_flush_markers_cache', array( 'map_id' => $map_id, 'time' => time() ) );
+		// flush cache for each context
+		foreach ( $this->_get_valid_marker_contexts() as $context )
+		 	// though not strictly required, passing the time paramater ensures the event is unique enough to run again if it's called shortly after this event has occurred already
+			wp_schedule_single_event( time(), 'cat_tracker_flush_markers_cache', array( 'map_id' => $map_id, 'context' => $context, 'time' => time() ) );
 	}
 
 	/**
