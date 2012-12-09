@@ -44,67 +44,80 @@ class Cat_Tracker {
 
 	/**
 	 * current version # of this plugin
+	 * @since 1.0
 	 */
 	const VERSION = 1.0;
 
 	/**
 	 * current Leaflet version incldued with this plugin
+	 * @since 1.0
 	 */
 	const LEAFLET_VERSION = '0.4.4';
 
 	/**
 	 * current select2 version incldued with this plugin
+	 * @since 1.0
 	 */
 	const SELECT2_VERSION = '3.2';
 
 	/**
 	 * cat tracker map post type
+	 * @since 1.0
 	 */
 	const MAP_POST_TYPE = 'cat_tracker_map';
 
 	/**
 	 * cat tracker marker post type
+	 * @since 1.0
 	 */
 	const MARKER_POST_TYPE = 'cat_tracker_marker';
 
 	/**
 	 * cat tracker sighting taxonomy
+	 * @since 1.0
 	 */
 	const MARKER_TAXONOMY = 'cat_tracker_marker_type';
 
 	/**
 	 * cat tracker metadata prefix
+	 * @since 1.0
 	 */
 	const META_PREFIX = 'cat_tracker_';
 
 	/**
 	 * cat tracker map drodpdown transient/cache key
+	 * @since 1.0
 	 */
 	const MAP_DROPDOWN_TRANSIENT = 'cat_tracker_map_admin_dropdown_v1';
 
 	/**
 	 * cat tracker markers transient/cache key prefix
+	 * @since 1.0
 	 */
 	const MARKERS_CACHE_KEY_PREFIX = 'cat_tracker_marker_v2_';
 
 	/**
 	 * cat tracker limit the number of markers per query for performance & cache size reasons
+	 * @since 1.0
 	 */
 	const MARKERS_LIMIT_PER_QUERY = 1300;
 
 	/**
 	 * @var the one true Cat Tracker
+	 * @since 1.0
 	 */
 	private static $instance;
 
 	/**
 	 * @var path to this plugin
+	 * @since 1.0
 	 */
 	public $path;
 
 
 	/**
 	 * @var current sighting submission, if there is one
+	 * @since 1.0
 	 */
 	public $sighting_submission;
 
