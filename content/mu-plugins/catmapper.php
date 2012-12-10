@@ -719,9 +719,16 @@ function catmapper_flush_cache_admin_bar() {
 
   afc_add_item( array(
       'id' => 'cat-mapper-flush-marker-cache',
-      'title' => 'Flush Marker Cache',
+      'title' => 'Map markers',
       'function' => 'catmapper_flush_all_markers_cache',
   ) );
+
+  afc_add_item( array(
+      'id' => 'cat-mapper-flush-blog-id-cache',
+      'title' => 'Community site IDs',
+      'function' => 'catmapper_refresh_all_blog_ids',
+  ) );
+
 }
 
 /**
