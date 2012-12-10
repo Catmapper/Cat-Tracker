@@ -92,6 +92,7 @@ class Cat_Tracker {
 
 	/**
 	 * cat tracker markers transient/cache key prefix
+	 * NOTE: if bumped, please add old key(s) to $transients_to_delete
 	 * @since 1.0
 	 */
 	const MARKERS_CACHE_KEY_PREFIX = 'cat_tracker_marker_v2_';
@@ -177,9 +178,9 @@ class Cat_Tracker {
 		add_action( 'wp_enqueue_scripts', array( $this, 'frontend_enqueue' ) );
 		add_action( 'wp_head', array( $this, 'enqueue_ie_styles' ) );
 		add_action( 'template_redirect', array( $this, 'maybe_process_submission' ) );
-		add_action( 'save_post', array( $this, '_flush_markers_cache' ), 1001 );
+		add_action( 'save_post', array( $this, '_queue_flush_markers_cache' ), 1001 );
 		add_action( 'save_post', array( $this, '_flush_map_dropdown_cache' ) );
-		add_action( 'cat_tracker_flush_markers_cache', array( $this, '_build_markers_array' ) );
+		add_action( 'cat_tracker_flush_all_markers_cache', array( $this, '_flush_all_markers_cache' ) );
 		add_filter( 'post_updated_messages', array( $this, 'post_updated_messages' ) );
 		add_filter( 'the_content', array( $this, 'map_content' ) );
 		add_filter( 'the_title', array( $this, 'submission_title' ), 10, 2 );
@@ -722,7 +723,7 @@ class Cat_Tracker {
 		$marker_cache_keys = get_transient( $this->_get_map_cache_keys_cache_key( $map_id, $context ) );
 
 		if ( empty( $marker_cache_keys ) )
-			return $this->_build_markers_array( $map_id );
+			return $this->_build_markers_array( $map_id, $context );
 
 		$markers = array();
 		foreach( $marker_cache_keys as $cache_key ) {
@@ -826,13 +827,13 @@ class Cat_Tracker {
 
 	/**
 	 * whenever a marker or a map is saved
-	 * queue a job to flush the marker cache for the affected map ID
+	 * queue a job to flush all marker cache on this site
 	 *
 	 * @since 1.0
 	 * @param (int) $post_id the post ID that was just saved
 	 * @return void
 	 */
-	public function _flush_markers_cache( $post_id ) {
+	public function _queue_flush_markers_cache( $post_id ) {
 
 		// don't flush if importing
 		if ( defined( 'CAT_TRACKER_IS_IMPORTING' ) && CAT_TRACKER_IS_IMPORTING )
@@ -842,18 +843,52 @@ class Cat_Tracker {
 		if ( wp_is_post_revision( $post_id ) || ( ! in_array( $post_type, array( Cat_Tracker::MAP_POST_TYPE, Cat_Tracker::MARKER_POST_TYPE ) ) ) )
 			return;
 
-		if ( Cat_Tracker::MARKER_POST_TYPE == $post_type )
-			$map_id = $this->get_map_id_for_marker( $post_id );
-		else
-			$map_id = $post_id;
+	 	// though not strictly required, passing the time paramater ensures the event is unique enough to run again if it's called shortly after this event has occurred already
+		wp_schedule_single_event( time(), 'cat_tracker_flush_all_markers_cache', array( 'time' => time() ) );
+	}
 
-		if ( empty( $map_id ) )
-			return;
+	/**
+	 * completely flush marker cache
+	 * deletes old transients and generates new ones
+	 *
+	 * @since 1.0
+	 * @param $map_id
+	 * @return void
+	 */
+	public function _flush_all_markers_cache() {
+		$this->_delete_old_marker_transients();
+		$maps = get_posts( array( 'post_type' => Cat_Tracker::MAP_POST_TYPE, 'fields' => 'ids', 'posts_per_page' => -1 ) );
+		foreach ( $maps as $map ) {
+			foreach ( $this->_get_valid_marker_contexts() as $context )
+				$this->_build_markers_array( $map, $context );
+		}
+	}
 
-		// flush cache for each context
-		foreach ( $this->_get_valid_marker_contexts() as $context )
-		 	// though not strictly required, passing the time paramater ensures the event is unique enough to run again if it's called shortly after this event has occurred already
-			wp_schedule_single_event( time(), 'cat_tracker_flush_markers_cache', array( 'map_id' => $map_id, 'context' => $context, 'time' => time() ) );
+	/**
+	 * delete old marker transients
+	 * avoids cache and DB overpopulation
+	 *
+	 * @since 1.0
+	 * @return void
+	 */
+	public function _delete_old_marker_transients() {
+		global $wpdb;
+
+		$transient_prefix = '_transient_';
+
+		$transients_keys_to_delete = array(
+			'cat_tracker_marker_v1_',
+			Cat_Tracker::MARKERS_CACHE_KEY_PREFIX,
+		);
+
+		foreach ( $transients_keys_to_delete as $transient_key ) {
+			$transient_lookup = $transient_prefix . $transient_key . '%';
+			$transients = $wpdb->get_results( $wpdb->prepare( "SELECT option_name AS name FROM $wpdb->options WHERE option_name LIKE %s", $transient_lookup ) );
+			foreach ( $transients as $transient ) {
+				if ( false === strpos( $transient->name, '_transient_timeout_' ) )
+					delete_transient( str_replace( $transient_prefix, '', $transient->name ) );
+			}
+		}
 	}
 
 	/**
@@ -867,7 +902,7 @@ class Cat_Tracker {
 		$marker_types = get_transient( Cat_Tracker::MARKERS_CACHE_KEY_PREFIX . 'map_id_' . $map_id . '_marker_types' );
 
 		if ( empty( $marker_types ) ) {
-			$this->_flush_markers_cache( $map_id );
+			$this->_queue_flush_markers_cache( $map_id );
 			return array();
 		}
 
