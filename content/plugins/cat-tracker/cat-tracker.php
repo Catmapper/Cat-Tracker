@@ -404,7 +404,7 @@ class Cat_Tracker {
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'description', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'textarea', 'group' => 'marker_information', 'label' => 'Description of the situation' ) );
 		x_add_metadata_field( Cat_Tracker::MARKER_TAXONOMY, array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'taxonomy_select', 'taxonomy' => Cat_Tracker::MARKER_TAXONOMY, 'group' => 'marker_information', 'label' => 'Sighting Type' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'sighting_date', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'datepicker', 'group' => 'marker_information', 'label' => 'Date of sighting' ) );
-		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'cat_is_neuteured', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'checkbox', 'group' => 'marker_information', 'label' => 'Cat(s) is/are believed to be neuteured' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'cat_neuteur_status', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'select', 'values' => array( 'unknown', 'yes', 'no' ), 'group' => 'marker_information', 'label' => 'Current or believed neuteur status' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'num_of_cats', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_information', 'label' => 'Number of cats' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'name_of_reporter', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_information', 'label' => 'Name of Reporter' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'email_of_reporter', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_information', 'label' => 'Email address of Reporter' ) );
@@ -624,7 +624,13 @@ class Cat_Tracker {
 		$submission_form .= '<fieldset><label for="cat-tracker-submission-type">' . __( 'Type of sighting:', 'cat-tracker' );
 		$submission_form .= wp_dropdown_categories( apply_filters( 'cat_tracker_submission_form_dropdown_categories_args', array( 'name' => 'cat-tracker-submission-type', 'hide_empty' => false, 'id' => 'cat-tracker-submission-type', 'taxonomy' => Cat_Tracker::MARKER_TAXONOMY, 'echo' => false ) ) );
 		$submission_form .= '</label></fieldset>';
-		$submission_form .= '<fieldset><label for="cat-tracker-is-neuteured"><input type="checkbox" id="cat-tracker-is-neuteured" name="cat-tracker-is-neuteured"> ' . __( 'I believe this cat is/these cats are spayed/neutered', 'cat-tracker' ) . '</label></fieldset>';
+		$submission_form .= '<fieldset><label for="cat-tracker-neuteur-status">' . __( 'Do you know if this cat is/these cats are spayed/neutered?', 'cat-tracker' );
+		$submission_form .= '<select id="cat-tracker-neuteur-status" name="cat-tracker-neuteur-status">';
+		$submission_form .= '<option value="yes">' . __( 'Yes, it is/they are spayed/neutered', 'cat-tracker' )  . '</option>';
+		$submission_form .= '<option value="no">' . __( 'No, it is/they are not spayed/neutered', 'cat-tracker' )  . '</option>';
+		$submission_form .= '<option value="unknown">' . __( 'I am not sure', 'cat-tracker' )  . '</option>';
+		$submission_form .= '</select>';
+		$submission_form .= '</label></fieldset>';
 		$submission_form .= '<p class="cat-tracker-mandatory-fields">' . __( "Fields marked with '*' are mandatory." ) . '</p>';
 		$submission_form .= '<p>' . __( 'Please provide the location of the sighting using the map below. You can zoom in using the controls on the left-hand side, or by double clicking on the map. Click on the map once to define the location of the sighting. You can then re-click the map or click and drag the marker to re-set the location of the sighting.', 'cat-tracker' ) . '</p>';
 		$submission_form .= '<div class="cat-tracker-submission-map" id="' . esc_attr( 'map-' . $map_id ) . '"></div>';
