@@ -80,6 +80,7 @@ class Cat_Mapper_Internal_Map {
 		add_filter( 'cat_tracker_admin_map_markers', array( $this, 'map_markers' ), 10, 2 );
 		add_filter( 'cat_tracker_admin_map_ignore_boundaries', array( $this, 'ignore_boundaries' ) );
 		add_filter( 'cat_tracker_valid_marker_contexts', array( $this, 'add_internal_map_as_valid_map_marker_context' ) );
+		add_filter( 'cat_tracker_marker_text', array( $this, 'marker_text' ), 10, 2 );
 	}
 
 	/**
@@ -209,6 +210,27 @@ class Cat_Mapper_Internal_Map {
 			$ignore_boundaries = true;
 
 		return $ignore_boundaries;
+	}
+
+	/**
+	 * modify the marker text on internal maps
+	 *
+	 * @since 1.0
+	 * @param (string) $marker_text the original marker text
+	 * @param (int) $marker_id the marker ID
+	 * @param (string) $marker_text the filtered marker text
+	 */
+	public function marker_text( $marker_text, $marker_id ) {
+		if ( ! ( self::is_internal_map_page() || 'internal_map' == Cat_Tracker::instance()->current_context ) )
+			return $marker_text;
+
+		$marker_text = array();
+		$marker_text[] = __( 'Submission type:', 'cat-tracker' ) . ' ' . Cat_Tracker::instance()->get_marker_type( $marker_id, true, 'n/a' );
+		$marker_text[] = __( 'Description:', 'cat-tracker' ) . ' ' . Cat_Tracker::instance()->get_marker_description( $marker_id, true, 'n/a' );
+		$marker_text[] = __( 'Animal ID:', 'cat-mapper' ) . ' ' . Cat_Tracker::instance()->marker_meta_helper( 'animal_id', $marker_id, true, 'n/a' );
+		$marker_text[] = __( 'Neuteur status:', 'cat-mapper' ) . ' ' . Cat_Tracker::instance()->marker_meta_helper( 'cat_neuteur_status', $marker_id, 'unknown' );
+		$marker_text[] = '<a href="' . esc_url( get_edit_post_link( $marker_id ) ) . '">' . __( 'Edit this sighting', 'cat-mapper' ) . '</a>';
+		return implode( "<br>\n", $marker_text );
 	}
 
 	/**

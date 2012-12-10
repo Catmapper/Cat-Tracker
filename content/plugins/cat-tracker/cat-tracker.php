@@ -129,6 +129,12 @@ class Cat_Tracker {
 	public $sighting_submission;
 
 	/**
+	 * @var current context, if there is one
+	 * @since 1.0
+	 */
+	public $current_context;
+
+	/**
 	 * Singleton class for this Cat Tracker
 	 *
 	 * @since 1.0
@@ -723,6 +729,9 @@ class Cat_Tracker {
 	public function get_markers( $map_id = null, $context = 'front_end' ) {
 		$map_id = ( empty( $map_id ) ) ? get_the_ID() : $map_id;
 
+		if ( $this->_validate_markers_context( $context ) )
+			$this->current_context = $context;
+
 		if ( Cat_Tracker::MAP_POST_TYPE != get_post_type( $map_id ) )
 			return array();
 
@@ -753,11 +762,13 @@ class Cat_Tracker {
 	 */
 	public function _build_markers_array( $map_id, $context = 'front_end' ) {
 
+		if ( $this->_validate_markers_context( $context ) )
+			$this->current_context = $context;
+
 		$max_num_pages = $offset = 1;
 		$markers = $cache_keys = $marker_types = array();
 		while ( $offset <= $max_num_pages ) {
 			$_markers = $this->_get_markers_query_with_offset( $map_id, $offset );
-
 			if ( empty( $_markers ) )
 				return $markers;
 
@@ -799,6 +810,7 @@ class Cat_Tracker {
 				array(
 					'key' => Cat_Tracker::META_PREFIX . 'map',
 					'value' => $map_id,
+					'type' => 'NUMERIC',
 				),
 			),
 		) );
@@ -812,7 +824,7 @@ class Cat_Tracker {
 			if ( ! Cat_Tracker_Utils::validate_latitude( $latitude ) || ! Cat_Tracker_Utils::validate_longitude( $longitude ) )
 				continue;
 
-			$marker_type = $this->get_marker_type_slug($marker_id);
+			$marker_type = $this->get_marker_type_slug( $marker_id );
 
 			if ( ! isset( $markers[$marker_type] ) ) {
 				$markers[$marker_type] = array(
@@ -945,7 +957,7 @@ class Cat_Tracker {
 
 	}
 
-	public function _meta_helper( $meta_key, $post_type, $post_id = null, $singular = true ) {
+	public function _meta_helper( $meta_key, $post_type, $post_id = null, $singular = true, $default_value = null ) {
 		$post_id = ( empty( $post_id ) ) ? get_the_ID() : $post_id;
 		if ( $post_type != get_post_type( $post_id ) )
 			return false;
@@ -953,15 +965,18 @@ class Cat_Tracker {
 		if ( false === strpos( $meta_key, Cat_Tracker::META_PREFIX ) )
 			$meta_key = Cat_Tracker::META_PREFIX . $meta_key;
 
-		return get_post_meta( $post_id, $meta_key, (bool) $singular );
+		$value = get_post_meta( $post_id, $meta_key, (bool) $singular );
+		if ( false === $value && ! empty( $default_value ) )
+			$value = $default_value;
+		return $value;
 	}
 
-	public function map_meta_helper( $meta_key, $map_id = null, $singular = true ) {
-		return $this->_meta_helper( $meta_key, self::MAP_POST_TYPE, $map_id, $singular );
+	public function map_meta_helper( $meta_key, $map_id = null, $singular = true, $default_value = null ) {
+		return $this->_meta_helper( $meta_key, self::MAP_POST_TYPE, $map_id, $singular, $default_value );
 	}
 
-	public function marker_meta_helper( $meta_key, $marker_id = null, $singular = true ) {
-		return $this->_meta_helper( $meta_key, self::MARKER_POST_TYPE, $marker_id, $singular );
+	public function marker_meta_helper( $meta_key, $marker_id = null, $singular = true, $default_value = null ) {
+		return $this->_meta_helper( $meta_key, self::MARKER_POST_TYPE, $marker_id, $singular, $default_value );
 	}
 
 	public function get_map_latitude( $map_id = null ) {
@@ -1019,7 +1034,8 @@ class Cat_Tracker {
 	}
 
 	public function get_marker_text( $marker_id ) {
-		return __( 'Submission type:', 'cat-tracker' ) . ' ' . $this->get_marker_type( $marker_id ) . "<br>\n" . ' ' . __( 'Description:', 'cat-tracker' ) . ' ' . $this->get_marker_description( $marker_id );
+		$marker_text = __( 'Submission type:', 'cat-tracker' ) . ' ' . $this->get_marker_type( $marker_id ) . "<br>\n" . ' ' . __( 'Description:', 'cat-tracker' ) . ' ' . $this->get_marker_description( $marker_id );
+		return apply_filters( 'cat_tracker_marker_text', $marker_text, $marker_id );
 	}
 
 	public function get_marker_latitude( $marker_id = null ) {
