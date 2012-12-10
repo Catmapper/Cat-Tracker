@@ -644,14 +644,22 @@ function catmapper_get_all_blog_ids() {
 			_doing_it_wrong( __FUNCTION__, "Unfortunately this function cannot be used anymore for performance reasons now that there are so many sites, let's find a better solution", Cat_Tracker::VERSION );
 
 			// queue a "job" to refresh the blog list
-		 	// though not strictly requried, passing the blog id ensures the event is unique enough to run again if it's called shortly after this event has occurred already
-			wp_schedule_single_event( time(), 'catmapper_refresh_all_blog_ids_event', array( 'blog_id' => $blog_id ) );
+		 	// though not strictly requried, passing the time ensures the event is unique enough to run again if it's called shortly after this event has occurred already
+			wp_schedule_single_event( time(), 'catmapper_refresh_all_blog_ids_event', array( 'time' => time() ) );
 			return array();
 		}
 
 		$site_blog_ids = catmapper_refresh_all_blog_ids();
 	}
 	return $site_blog_ids;
+}
+
+add_action( 'delete_blog', 'catmapper_queue_refresh_all_blog_ids' );
+function catmapper_queue_delete_blog() {
+	// queue a "job" to refresh the blog list, with a 1 minute delay to ensure the blog is deleted by the time the event runs
+ 	// though not strictly requried, passing the time ensures the event is unique enough to run again if it's called shortly after this event has occurred already
+ 	$time_delay = time() + MINUTE_IN_SECONDS;
+	wp_schedule_single_event( $time_delay, 'catmapper_refresh_all_blog_ids_event', array( 'time' => $time_delay ) );
 }
 
 /**
