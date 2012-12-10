@@ -20,7 +20,7 @@ License: GPLv2
  *	-- 	Custom Metadata Manager, without it custom fields will not work
  * 			@link http://wordpress.org/extend/plugins/custom-metadata/
  *
- * -- 	Taxonomy Metadata, without it term meta / sighting type colors will not work
+ * 	-- 	Taxonomy Metadata, without it term meta / sighting type colors will not work
  * 			@link http://wordpress.org/extend/plugins/taxonomy-metadata/
 */
 
