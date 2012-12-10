@@ -757,6 +757,10 @@ class Cat_Tracker {
 		$markers = $cache_keys = $marker_types = array();
 		while ( $offset <= $max_num_pages ) {
 			$_markers = $this->_get_markers_query_with_offset( $map_id, $offset );
+
+			if ( empty( $_markers ) )
+				return $markers;
+
 			$max_num_pages = $_markers['max_num_pages'];
 			$cache_key = $this->_get_map_cache_key_for_offset( $map_id, $context, $offset );
 			$cache_keys[] = $cache_key;
