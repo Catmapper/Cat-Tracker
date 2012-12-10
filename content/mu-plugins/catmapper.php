@@ -702,3 +702,34 @@ function catmapper_assign_map_id( $post_id ) {
 
 	update_post_meta( $post_id, Cat_Tracker::META_PREFIX . 'map', get_option( 'catmapper_community_main_map_id' ) );
 }
+
+/**
+ * add an admin bar menu item to flush caches
+ *
+ * @since 1.0
+ * @return void;
+ */
+add_action( 'init', 'catmapper_flush_cache_admin_bar' );
+function catmapper_flush_cache_admin_bar() {
+
+	if ( ! function_exists( 'afc_add_item' ) ) {
+		_doing_it_wrong( __FUNCTION__, 'A Fresher Cache plugin is not installed', Cat_Tracker::VERSION );
+		return;
+	}
+
+  afc_add_item( array(
+      'id' => 'cat-mapper-flush-marker-cache',
+      'title' => 'Flush Marker Cache',
+      'function' => 'catmapper_flush_all_markers_cache',
+  ) );
+}
+
+/**
+ * wrapper function to flush all marker cache
+ *
+ * @since 1.0
+ * @return void;
+ */
+function catmapper_flush_all_markers_cache() {
+	do_action( 'cat_tracker_flush_all_markers_cache' );
+}
