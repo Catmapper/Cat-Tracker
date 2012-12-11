@@ -966,7 +966,7 @@ class Cat_Tracker {
 			$meta_key = Cat_Tracker::META_PREFIX . $meta_key;
 
 		$value = get_post_meta( $post_id, $meta_key, (bool) $singular );
-		if ( false === $value && ! empty( $default_value ) )
+		if ( false == $value && ! empty( $default_value ) )
 			$value = $default_value;
 		return $value;
 	}
