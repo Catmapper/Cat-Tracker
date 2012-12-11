@@ -59,6 +59,7 @@
 				$.each( marker_data.sightings, function( i, sighting ){
 					if ( 'preview' == marker_type ) {
 						L.marker( [sighting.latitude, sighting.longitude] ).bindPopup( sighting.text ).addTo( map );
+						map.setView( [sighting.latitude, sighting.longitude], map_args.map_zoom_level, true );
 					}
 					markers.push( L.marker( [sighting.latitude, sighting.longitude], {icon: icon} ).bindPopup( sighting.text ) );
 				});
