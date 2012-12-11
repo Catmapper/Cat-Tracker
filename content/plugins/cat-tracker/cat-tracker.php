@@ -1046,6 +1046,10 @@ class Cat_Tracker {
 		return floatval( $this->marker_meta_helper( 'longitude', $marker_id ) );
 	}
 
+	public function get_marker_address( $marker_id = null, $singular = true, $default = 'n/a' ) {
+		return strip_tags( $this->marker_meta_helper( 'address', $marker_id, $singular, $default ) );
+	}
+
 	public function get_map_dropdown() {
 		$dropdown = get_transient( 'cat_tracker_map_dropdown' );
 		if ( empty( $dropdown ) )

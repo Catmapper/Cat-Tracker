@@ -229,6 +229,7 @@ class Cat_Mapper_Internal_Map {
 		$marker_text[] = __( 'Description:', 'cat-tracker' ) . ' ' . Cat_Tracker::instance()->get_marker_description( $marker_id, true, 'n/a' );
 		$marker_text[] = __( 'Animal ID:', 'cat-mapper' ) . ' ' . Cat_Tracker::instance()->marker_meta_helper( 'animal_id', $marker_id, true, 'n/a' );
 		$marker_text[] = __( 'Neuter status:', 'cat-mapper' ) . ' ' . Cat_Tracker::instance()->marker_meta_helper( 'cat_neuter_status', $marker_id, true, 'unknown' );
+		$marker_text[] = __( 'Address:', 'cat-mapper' ) . ' ' . Cat_Tracker::instance()->get_marker_address( $marker_id );
 		$marker_text[] = '<a href="' . esc_url( get_edit_post_link( $marker_id ) ) . '">' . __( 'Edit this sighting', 'cat-mapper' ) . '</a>';
 		return implode( "<br>\n", $marker_text );
 	}
