@@ -41,6 +41,34 @@ class Cat_Tracker_Geocode {
 	}
 
 	/**
+	 * get an address based on coordinates
+	 *
+	 * @since 1.0
+	 * @uses Cat_Tracker_Geocode::request()
+	 * @param (float) $latitude latitude
+	 * @param (float) $longitude longitude
+	 * @return WP_Error|array error on failure or array of latitude + longitude on success
+	 */
+	static function get_address_from_coordinates( $latitude, $longitude ) {
+
+		if ( ! Cat_Tracker_Utils::validate_latitude( $latitude ) || ! Cat_Tracker_Utils::validate_longitude( $longitude ) )
+			return new WP_Error( 'invalid-coordinates', __( 'Invalid coordinates provided', 'cat-tracker' ) );
+
+		$api_response = self::request( array(), (string) $latitude . ',' . $longitude );
+		if ( is_wp_error( $api_response ) )
+			return $api_response;
+
+		$response_data = json_decode( $api_response );
+		if ( ! is_object( $response_data ) )
+			return new WP_Error( 'invalid-response', __( 'Invalid reponse provided by the Bing API', 'cat-tracker' ) );
+
+		if ( ! self::contains_at_least_one_address( $response_data ) )
+			return new WP_Error( 'no-address', __( 'The provided coordinates did not return a valid address', 'cat-tracker' ) );
+
+		return self::get_coordinates_for_first_address_in_response( $response_data );
+	}
+
+	/**
 	 * given a json response of data obtained from the Bing API, make sure
 	 * the response contains at least one address
 	 *
@@ -108,9 +136,10 @@ class Cat_Tracker_Geocode {
 	 * @since 1.0
 	 * @uses WP_HTTP API
 	 * @param (array) $query_args query variables to add as query arguments to the GET request
+	 * @param (string) $append_to_url string to append to the default URL
 	 * @return WP_Error|string error on failure or response body on success
 	 */
-	static function request( $query_args = array() ) {
+	static function request( $query_args = array(), $append_to_url = null ) {
 		if ( ! defined( 'CAT_TRACKER_BING_GEO_API_KEY' ) || '' == CAT_TRACKER_BING_GEO_API_KEY )
 			return new WP_Error( 'missing-bing-api-key', __( 'No Bing API key defined. Please define CAT_TRACKER_BING_GEO_API_KEY in your wp-config.php file.', 'cat-tracker' ) );
 
@@ -120,7 +149,8 @@ class Cat_Tracker_Geocode {
 		);
 		$query_args = wp_parse_args( $query_args, $default_args );
 		$query_args = urlencode_deep( $query_args );
-		$query_url = esc_url_raw( add_query_arg( $query_args, self::BING_BASE_URL ) );
+		$query_url = ( empty( $append_to_url ) ) ? self::BING_BASE_URL : trailingslashit( self::BING_BASE_URL ) . $append_to_url;
+		$query_url = esc_url_raw( add_query_arg( $query_args, $query_url ) );
 
 		$http_response = wp_remote_get( $query_url );
 		if ( is_wp_error( $http_response ) )
