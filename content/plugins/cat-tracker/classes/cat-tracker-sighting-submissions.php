@@ -103,9 +103,9 @@ class Cat_Tracker_Sighting_Submission {
 		if ( isset( $_POST['cat-tracker-contact-reporter'] ) )
 			$this->submission_fields['contact_reporter'] = (bool) $_POST['cat-tracker-contact-reporter'];
 
-		if ( isset( $_POST['cat-tracker-neuteur-status'] ) ) {
-			if ( in_array( $_POST['cat-tracker-neuteur-status'], array( 'unknown', 'yes', 'no' ) ) )
-				$this->submission_fields['cat_neuteur_status'] = $_POST['cat-tracker-neuteur-status'];
+		if ( isset( $_POST['cat-tracker-neuter-status'] ) ) {
+			if ( in_array( $_POST['cat-tracker-neuter-status'], array( 'unknown', 'yes', 'no' ) ) )
+				$this->submission_fields['cat_neuter_status'] = $_POST['cat-tracker-neuter-status'];
 		}
 
 		if ( ! empty( $_POST['cat-tracker-submission-num-of-cats'] ) ) {
@@ -181,8 +181,8 @@ class Cat_Tracker_Sighting_Submission {
 		if ( isset( $this->submission_fields['contact_reporter'] ) )
 			add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'contact_reporter', $this->submission_fields['contact_reporter'], true );
 
-		if ( isset( $this->submission_fields['cat_neuteur_status'] ) )
-			add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'cat_neuteur_status', $this->submission_fields['cat_neuteur_status'], true );
+		if ( isset( $this->submission_fields['cat_neuter_status'] ) )
+			add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'cat_neuter_status', $this->submission_fields['cat_neuter_status'], true );
 
 		if ( isset( $this->submission_fields['num_of_cats'] ) )
 			add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'num_of_cats', $this->submission_fields['num_of_cats'], true );

@@ -285,7 +285,7 @@ function cat_mapper_custom_fields() {
 	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'color', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Animal color' ) );
 	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'gender', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Animal gender' ) );
 	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'age_group', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Animal age group' ) );
-	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'incoming_spay_neuter_status', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Incoming spay/neuteur status' ) );
+	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'incoming_spay_neuter_status', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Incoming spay/neuter status' ) );
 	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'current_spay_neuter_status', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Current spay/neuter status' ) );
 }
 
