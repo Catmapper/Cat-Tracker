@@ -194,6 +194,10 @@ class Cat_Tracker {
 		add_action( 'edited_' . Cat_Tracker::MARKER_TAXONOMY, array( $this, 'edited_sighting_type' ) );
 		add_filter( 'cat_tracker_submission_form_dropdown_categories_args', array( $this, 'excluded_types' ) );
 		add_filter( 'updated_taxonomy_meta', array( $this, 'updated_taxonomy_meta' ), 10, 4 );
+		add_filter( 'wp_ajax_cat_tracker_fetch_address_using_coordinates', array( $this, 'ajax_fetch_address_using_coordinates' ) );
+		add_filter( 'wp_ajax_nopriv_cat_tracker_fetch_address_using_coordinates', array( $this, 'ajax_fetch_address_using_coordinates' ) );
+		add_filter( 'wp_ajax_cat_tracker_fetch_coordinates_using_address', array( $this, 'ajax_fetch_coordinates_using_address' ) );
+		add_filter( 'wp_ajax_nopriv_cat_tracker_fetch_coordinates_using_address', array( $this, 'ajax_fetch_coordinates_using_address' ) );
 	}
 
 	/**
@@ -484,6 +488,18 @@ class Cat_Tracker {
 			'ajax_url' => esc_url( admin_url( 'admin-ajax.php' ) ),
 			'map_source' => $this->map_source,
 			'map_attribution' => $this->map_attribution,
+			'is_admin_submission_mode' => apply_filters( 'cat_tracker_is_admin_submission_mode', true ),
+			'submission_map_selector' => '.cat-tracker-map-preview',
+			'submission_latitude_selector' => '#cat_tracker_latitude',
+			'submission_longitude_selector' => '#cat_tracker_longitude',
+			'submission_address_selector' => '#cat_tracker_address',
+			'submission_confidence_level_selector' => '#cat_tracker_confidence_level',
+			'publish_button_selector' => '#publish',
+			'relocate_text' => __( 'Relocate sighting', 'cat-tracker' ),
+			'relocate_done_text' => __( "Ok, I'm done relocating the marker", 'cat-tracker' ),
+			'fetching_address_text' => __( "Looking up address... shouldn't be more than a few seconds.", 'cat-tracker' ),
+			'default_address' => __( 'n/a', 'cat-tracker' ),
+			'address_nonce' => wp_create_nonce( 'cat_tracker_fetch_address' ),
 			'maps' => array(
 				'map-' . $map_id => array(
 					'map_id' => 'map-' . $map_id,
@@ -494,7 +510,7 @@ class Cat_Tracker {
 					'map_west_bounds' => $this->get_map_west_bounds( $map_id ),
 					'map_east_bounds' => $this->get_map_east_bounds( $map_id ),
 					'map_zoom_level' => $this->get_map_zoom_level( $map_id ),
-					'ignore_boundaries' => apply_filters( 'cat_tracker_admin_map_ignore_boundaries', false ),
+					'ignore_boundaries' => apply_filters( 'cat_tracker_admin_map_ignore_boundaries', true ),
 					'markers' => json_encode( $markers ),
 				),
 			),
@@ -527,6 +543,15 @@ class Cat_Tracker {
 			'map_attribution' => $this->map_attribution,
 			'is_submission_mode' => Cat_Tracker::is_submission_mode(),
 			'new_submission_popup_text' => __( 'Your sighting', 'cat-tracker' ),
+			'submission_map_selector' => '.cat-tracker-submission-map',
+			'submission_latitude_selector' => '#cat-tracker-submission-latitude',
+			'submission_longitude_selector' => '#cat-tracker-submission-longitude',
+			'submission_address_selector' => '#cat-tracker-submission-address',
+			'submission_confidence_level_selector' => '#cat-tracker-submission-confidence-level',
+			'publish_button_selector' => '#cat-tracker-submission-submit',
+			'address_nonce' => wp_create_nonce( 'cat_tracker_fetch_address' ),
+			'fetching_address_text' => __( "Looking up address... shouldn't be more than a few seconds.", 'cat-tracker' ),
+			'default_address' => __( 'Not a valid address.', 'cat-tracker' ),
 			'maps' => array(
 				'map-' . $map_id => array(
 					'map_id' => 'map-' . $map_id,
@@ -638,11 +663,13 @@ class Cat_Tracker {
 		$submission_form .= '</select>';
 		$submission_form .= '</label></fieldset>';
 		$submission_form .= '<p class="cat-tracker-mandatory-fields">' . __( "Fields marked with '*' are mandatory." ) . '</p>';
-		$submission_form .= '<p>' . __( 'Please provide the location of the sighting using the map below. You can zoom in using the controls on the left-hand side, or by double clicking on the map. Click on the map once to define the location of the sighting. You can then re-click the map or click and drag the marker to re-set the location of the sighting.', 'cat-tracker' ) . '</p>';
+		$submission_form .= '<p>' . __( 'Please provide the location of the sighting using the map below or by entering the address manually. You can zoom in using the controls on the left-hand side, or by double clicking on the map. Click on the map once to define the location of the sighting. You can then re-click the map or click and drag the marker to re-set the location of the sighting. When you adjust the marker, the address should auto-populate. When you adjust the address, the marker will adjust its location.', 'cat-tracker' ) . '</p>';
+		$submission_form .= '<fieldset><label for="cat-tracker-submission-address">' . __( 'Sighting address:', 'cat-tracker' ) . '<input type="text" id="cat-tracker-submission-address" name="cat-tracker-submission-address"></label></fieldset>';
 		$submission_form .= '<div class="cat-tracker-submission-map" id="' . esc_attr( 'map-' . $map_id ) . '"></div>';
 		$submission_form .= wp_nonce_field( 'cat_tracker_confirm_submission', 'cat_tracker_confirm_submission', true, false );
 		$submission_form .= '<input type="hidden" name="cat-tracker-submission-latitude" id="cat-tracker-submission-latitude">';
 		$submission_form .= '<input type="hidden" name="cat-tracker-submission-longitude" id="cat-tracker-submission-longitude">';
+		$submission_form .= '<input type="hidden" name="cat-tracker-submission-confidence-level" id="cat-tracker-submission-confidence-level">';
 		$submission_form .= '<fieldset><label for="cat-tracker-contact-reporter"><input type="checkbox" id="cat-tracker-contact-reporter" name="cat-tracker-contact-reporter"> ' . __( 'I would like to be contacted about getting this cat or these cats spayed/neutered', 'cat-tracker' ) . '</label></fieldset>';
 		$submission_form .= '<input type="submit" name="cat-tracker-submission-submit" id="cat-tracker-submission-submit" value="Submit">';
 		$submission_form .= '</form>';
@@ -945,12 +972,14 @@ class Cat_Tracker {
 			'sightings' => array(),
 		);
 
+		$text = __( 'This is where this sighting will be shown on the map', 'cat-tracker' );
+
 		$markers['preview']['sightings'][] = array(
 			'id' => $marker_id,
-			'title' => $this->get_marker_text( $marker_id ),
+			'title' => $text,
 			'latitude' => $this->get_marker_latitude( $marker_id ),
 			'longitude' => $this->get_marker_longitude( $marker_id ),
-			'text' => $this->get_marker_text( $marker_id ),
+			'text' => $text,
 		);
 
 		return $markers;
@@ -1012,7 +1041,7 @@ class Cat_Tracker {
 	}
 
 	public function get_map_id_for_marker( $marker_id = null ) {
-		return absint( $this->marker_meta_helper( 'map', $marker_id ) );
+		return absint( apply_filters( 'cat_tracker_get_map_id_for_marker', $this->marker_meta_helper( 'map', $marker_id ) ) );
 	}
 
 	public function get_marker_description( $marker_id = null ) {
@@ -1107,22 +1136,23 @@ class Cat_Tracker {
 			return;
 
 		echo '<div class="custom-metadata-field text">';
-			echo '<label>Sighting Preview</label>';
+			echo '<label>' . __( 'Sighting Preview/Set-up', 'cat-tracker' ) . '</label>';
 
 			$map = get_post( $this->get_map_id_for_marker( $object_id ) );
 			if ( empty( $map ) || self::MAP_POST_TYPE != get_post_type( $map->ID ) ) {
-				echo '<p>' . __( 'Please select a map below and save the sighting to get a preview', 'cat_tracker' ) . '</p>';
+				echo '<p>' . __( 'A map ID needs to be assigned to the sighting to get a preview', 'cat_tracker' ) . '</p>';
 				return;
 			}
 
 			$latitude = $this->get_marker_latitude( $object_id );
 			$longitude = $this->get_marker_longitude( $object_id );
-			if ( empty( $latitude ) || empty( $longitude ) ) {
-				echo '<p>' . __( 'Please set a latitude and longitude below and save the sighting to get a preview', 'cat_tracker' ) . '</p>';
-				return;
+			if ( ! empty( $latitude ) && ! empty( $longitude ) ) {
+				echo '<p>' . __( 'The following is a preview of how this sighting will appear on the map, it does not include the description or colouring that the sighting will have on the internal or public map(s). To modify the location of the sighting, click on the relocate button, or modify the address or coordinates directly below. When you click on the relocate button, you will be able to click or drag the marker to place it in a new location. Once you\'re done moving it, just click done or hit the update button.' ) . '</p>';
+				submit_button( __( 'Relocate sighting', 'cat-tracker' ), 'primary', 'cat-tracker-relocate', false );
+				echo '<div class="clear"></div><br>';
+			} else {
+				echo '<p>' . __( 'The following is a blank map upon which you can place the sighting. To place the sighting, click on the relocate button, or add an address or coordinates directly below. When you click on the relocate button, you will be able to click or drag the marker to place it. Once you\'re done moving it, just click done or hit the publish button. Note that this preview does not include the description or colouring that the sighting will have on the internal or public map(s).' ) . '</p>';
 			}
-
-
 			?>
 			<div class="cat-tracker-map-preview" id="<?php echo esc_attr( 'map-' . $this->get_map_id_for_marker( get_the_ID() ) ); ?>"></div>
 		</div>
@@ -1254,6 +1284,70 @@ class Cat_Tracker {
 			return;
 
 		$this->determine_internal_type_ids();
+	}
+
+	/**
+	 * fetch the address using coordinates
+	 * used to return an ajax response
+	 *
+	 * @since 1.0
+	 * @return void
+	 */
+	public function ajax_fetch_address_using_coordinates() {
+		header('Content-Type: application/json');
+
+		if ( empty( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'cat_tracker_fetch_address' ) ) {
+			$error = new WP_Error( 'invalid-latitude', __( 'Address could not be fetched because the latitude is invalid.', 'cat-tracker' ) );
+			die( json_encode( array( 'errors' => $error->get_error_message() ) ) );
+		}
+
+		if ( empty( $_REQUEST['latitude'] ) || ! Cat_Tracker_Utils::validate_latitude( $_REQUEST['latitude'] ) ) {
+			$error = new WP_Error( 'invalid-latitude', __( 'Address could not be fetched because the latitude is invalid.', 'cat-tracker' ) );
+			die( json_encode( array( 'errors' => $error->get_error_message() ) ) );
+		}
+
+		if ( empty( $_REQUEST['longitude'] ) || ! Cat_Tracker_Utils::validate_longitude( $_REQUEST['longitude'] ) ){
+			$error = new WP_Error( 'invalid-longitude', __( 'Address could not be fetched because the longitude is invalid.', 'cat-tracker' ) );
+			die( json_encode( array( 'errors' => $error->get_error_message() ) ) );
+		}
+
+		$coordinates = Cat_Tracker_Geocode::get_address_from_coordinates( $_REQUEST['latitude'], $_REQUEST['longitude'] );
+
+		if ( is_wp_error( $coordinates ) )
+			die( json_encode( array( 'errors' => $coordinates->get_error_message() ) ) );
+
+		if ( ! empty( $coordinates['formatted_address'] ) )
+			die( json_encode( array( 'coordinates' => $coordinates ) ) );
+
+		$error = new WP_Error( 'no-address', __( 'Address could not be fetched, please try again.', 'cat-tracker' ) );
+		die( json_encode( array( 'errors' => $error->get_error_message() ) ) );
+	}
+
+	/**
+	 * fetch coordinates using an address
+	 * used to return an ajax response
+	 *
+	 * @since 1.0
+	 * @return void
+	 */
+	public function ajax_fetch_coordinates_using_address() {
+		header('Content-Type: application/json');
+
+		if ( empty( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'cat_tracker_fetch_address' ) ) {
+			$error = new WP_Error( 'invalid-latitude', __( 'Coordinates could not be fetched because the address is invalid.', 'cat-tracker' ) );
+			die( json_encode( array( 'errors' => $error->get_error_message() ) ) );
+		}
+
+		$coordinates = Cat_Tracker_Geocode::get_location_by_address( $_REQUEST['address'] );
+
+		if ( is_wp_error( $coordinates ) )
+			die( json_encode( array( 'errors' => $coordinates->get_error_message() ) ) );
+
+		if ( ! empty( $coordinates['latitude'] ) )
+			die( json_encode( array( 'coordinates' => $coordinates ) ) );
+
+		$error = new WP_Error( 'no-address', __( 'Coordinates could not be fetched, please try again.', 'cat-tracker' ) );
+		die( json_encode( array( 'errors' => $error->get_error_message() ) ) );
 	}
 
 

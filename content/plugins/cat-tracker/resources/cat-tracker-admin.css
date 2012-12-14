@@ -27,6 +27,12 @@
   border: 0;
 }
 
+.cat-tracker-map-preview.reloading {
+  opacity: 0.3;
+  -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+  filter: alpha(opacity=30);
+}
+
 .leaflet-control-fullscreen {
   background-image: url( 'images/icon-fullscreen.png' );
   margin-bottom: 5px;

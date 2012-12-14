@@ -32,10 +32,10 @@ class Cat_Tracker_Geocode {
 
 		$response_data = json_decode( $api_response );
 		if ( ! is_object( $response_data ) )
-			return new WP_Error( 'invalid-response', __( 'Invalid reponse provided by the Bing API', 'cat-tracker' ) );
+			return new WP_Error( 'invalid-response', __( 'Coordinates could not be fetched because the Bing API returned an invalid reponse.', 'cat-tracker' ) );
 
 		if ( ! self::contains_at_least_one_address( $response_data ) )
-			return new WP_Error( 'invalid-address', __( 'The provided address returned as an invalid address', 'cat-tracker' ) );
+			return new WP_Error( 'invalid-address', __( 'Coordinates could not be fetched because the provided address is invalid.', 'cat-tracker' ) );
 
 		return self::get_coordinates_for_first_address_in_response( $response_data );
 	}

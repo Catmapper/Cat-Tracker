@@ -521,7 +521,23 @@ function cat_mapper_map_content_map_id( $map_id ) {
 		return $map_id;
 
 	if ( is_front_page() )
-		return get_option( 'catmapper_community_main_map_id' );
+		return absint( get_option( 'catmapper_community_main_map_id' ) );
+
+	return $map_id;
+}
+
+/**
+ * filter the map ID assigned to markers
+ *
+ * @since 1.0
+ * @param (int) $map_id map ID to use
+ * @return (int) $map_id filtered value for map ID to use
+ */
+add_filter( 'get_map_id_for_marker', 'cat_mapper_get_map_id_for_marker' );
+function cat_mapper_get_map_id_for_marker( $map_id ) {
+	$catmapper_community_main_map_id = get_option( 'catmapper_community_main_map_id' );
+	if ( isset( $catmapper_community_main_map_id ) )
+		$map_id = absint( $catmapper_community_main_map_id );
 
 	return $map_id;
 }

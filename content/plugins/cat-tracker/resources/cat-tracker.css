@@ -16,6 +16,12 @@
 	width: 100%;
 }
 
+.cat-tracker-submission-map.reloading {
+  opacity: 0.3;
+  -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+  filter: alpha(opacity=30);
+}
+
 .cat-tracker-map.leaflet-fullscreen, .cat-tracker-submission-map.leaflet-fullscreen {
   position: fixed;
   width: 100%;

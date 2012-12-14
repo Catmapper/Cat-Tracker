@@ -79,6 +79,7 @@ class Cat_Mapper_Internal_Map {
 		add_filter( 'cat_tracker_admin_map_id', array( $this, 'map_id' ) );
 		add_filter( 'cat_tracker_admin_map_markers', array( $this, 'map_markers' ), 10, 2 );
 		add_filter( 'cat_tracker_admin_map_ignore_boundaries', array( $this, 'ignore_boundaries' ) );
+		add_filter( 'cat_tracker_is_admin_submission_mode', array( $this, 'is_maybe_not_submission_mode' ) );
 		add_filter( 'cat_tracker_valid_marker_contexts', array( $this, 'add_internal_map_as_valid_map_marker_context' ) );
 		add_filter( 'cat_tracker_marker_text', array( $this, 'marker_text' ), 10, 2 );
 	}
@@ -213,6 +214,20 @@ class Cat_Mapper_Internal_Map {
 	}
 
 	/**
+	 * disallow submissions directly in the internal map
+	 *
+	 * @since 1.0
+	 * @param (bool) $is_submission_mode submission mode or not
+	 * @return (bool) $is_submission_mode filtered value of submission mode or not
+	 */
+	public function is_maybe_not_submission_mode( $is_submission_mode ) {
+		if ( self::is_internal_map_page() )
+			$is_submission_mode = false;
+
+		return $is_submission_mode;
+	}
+
+	/**
 	 * modify the marker text on internal maps
 	 *
 	 * @since 1.0
@@ -230,7 +245,11 @@ class Cat_Mapper_Internal_Map {
 		$marker_text[] = __( 'Animal ID:', 'cat-mapper' ) . ' ' . Cat_Tracker::instance()->marker_meta_helper( 'animal_id', $marker_id, true, 'n/a' );
 		$marker_text[] = __( 'Neuter status:', 'cat-mapper' ) . ' ' . Cat_Tracker::instance()->marker_meta_helper( 'cat_neuter_status', $marker_id, true, 'unknown' );
 		$marker_text[] = __( 'Address:', 'cat-mapper' ) . ' ' . Cat_Tracker::instance()->get_marker_address( $marker_id );
-		$marker_text[] = '<a href="' . esc_url( get_edit_post_link( $marker_id ) ) . '">' . __( 'Edit this sighting', 'cat-mapper' ) . '</a>';
+
+		$post_type_object = get_post_type_object( Cat_Tracker::MARKER_POST_TYPE );
+		$edit_link = add_query_arg( array( 'action' => 'edit' ), admin_url( sprintf ( $post_type_object->_edit_link , $marker_id ) ) );
+
+		$marker_text[] = '<a href="' . esc_url( $edit_link ) . '">' . __( 'Edit this sighting', 'cat-mapper' ) . '</a>';
 		return implode( "<br>\n", $marker_text );
 	}
 
