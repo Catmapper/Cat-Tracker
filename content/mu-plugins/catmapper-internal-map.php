@@ -116,14 +116,14 @@ class Cat_Mapper_Internal_Map {
 				echo '</div>';
 			} else {
 				echo '<div id="map-' . esc_attr( $map_id ) . '" class="catmapper-internal-map"></div>';
-				$marker_types = Cat_Tracker::instance()->get_markers( $map_id );
+				$marker_types = Cat_Tracker::instance()->get_marker_types( $map_id );
 				if ( ! empty( $marker_types ) ) {
 					// TODO: this should be abstracted out to a function and should have a better function to get the types, should also be cached better
 					echo '<div class="leaflet-control-layers leaflet-control leaflet-control-layers-expanded" id="cat-tracker-custom-controls"><div class="leaflet-control-layers-overlays">';
 					echo '<span>' . __( 'Select types of sightings:', 'cat-tracker' ) . '</span>';
 					echo '<form>';
 					foreach ( $marker_types as $marker_type )
-						echo '<label><input data-marker-type="' . esc_attr( $marker_type['slug'] ) . '" class="cat-tracker-layer-control" type="checkbox" checked="checked"> ' . esc_html( $marker_type['title'] ) . '</label>';
+						echo '<label><input data-marker-type="' . esc_attr( $marker_type->slug ) . '" class="cat-tracker-layer-control" type="checkbox" checked="checked"> ' . esc_html( $marker_type->name ) . '</label>';
 					echo '</div></form></div>';
 				}
 			}

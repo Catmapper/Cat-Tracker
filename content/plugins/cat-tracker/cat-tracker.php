@@ -181,7 +181,9 @@ class Cat_Tracker {
 		add_action( 'init', array( $this, 'register_post_types_and_taxonomies' ) );
 		add_action( 'admin_menu', array( $this, 'custom_fields' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue' ) );
+		add_action( 'admin_print_styles', array( $this, 'admin_print_styles' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'frontend_enqueue' ) );
+		add_action( 'wp_print_styles', array( $this, 'frontend_print_styles' ) );
 		add_action( 'wp_head', array( $this, 'enqueue_ie_styles' ) );
 		add_action( 'template_redirect', array( $this, 'maybe_process_submission' ) );
 		add_action( 'save_post', array( $this, '_queue_flush_markers_cache' ), 1001 );
@@ -521,6 +523,31 @@ class Cat_Tracker {
 
 	}
 
+	public function admin_print_styles() {
+		global $post, $current_screen;
+
+		if ( apply_filters( 'cat_tracker_admin_should_enqueue_map_scripts', ( 'post' != $current_screen->base || self::MARKER_POST_TYPE != $current_screen->id || empty( $post ) || self::MARKER_POST_TYPE != get_post_type( $post->ID ) ) ) )
+			return;
+
+		$map_id = ( ! empty( $post ) ) ? $this->get_map_id_for_marker( $post->ID ) : null;
+		$map_id = apply_filters( 'cat_tracker_admin_map_id', $map_id );
+
+		if ( empty( $map_id ) )
+			return;
+
+		$marker_types = $this->get_marker_types( $map_id );
+		if ( empty( $marker_types ) )
+			return;
+
+		echo '<style>' . "\n";
+		foreach ( $marker_types as $marker_type ) {
+			echo '.cat-tracker-map-icon.' . sanitize_html_class( 'icon-' . $marker_type->slug ) . '::before {' . "\n";
+			echo "\t" . 'color: ' . get_term_meta( $marker_type->term_id, 'color', true ) . ';'  . "\n";
+			echo '}' . "\n";
+		}
+		echo '</style>' . "\n";
+	}
+
 	public function frontend_enqueue() {
 
 		if ( ! Cat_Tracker::is_showing_map() )
@@ -568,7 +595,29 @@ class Cat_Tracker {
 				),
 			),
 		) );
+
 	}
+
+	public function frontend_print_styles() {
+
+		if ( ! Cat_Tracker::is_showing_map() )
+			return;
+
+		$map_id = apply_filters( 'cat_tracker_map_content_map_id', get_the_ID() );
+
+		$marker_types = $this->get_marker_types( $map_id );
+		if ( empty( $marker_types ) )
+			return;
+
+		echo '<style>' . "\n";
+		foreach ( $marker_types as $marker_type ) {
+			echo '.cat-tracker-map-icon.' . sanitize_html_class( 'icon-' . $marker_type->slug ) . '::before {' . "\n";
+			echo "\t" . 'color: ' . get_term_meta( $marker_type->term_id, 'color', true ) . ';'  . "\n";
+			echo '}' . "\n";
+		}
+		echo '</style>' . "\n";
+	}
+
 
 	public function enqueue_ie_styles() {
 		?>
@@ -606,7 +655,6 @@ class Cat_Tracker {
 			foreach ( $marker_types as $marker_type )
 				$content .= '<label><input data-marker-type="' . esc_attr( $marker_type->slug ) . '" class="cat-tracker-layer-control" type="checkbox" checked="checked">' . esc_html( $marker_type->name ) . '</label>';
 			$content .= '</div></form></div>';
-			return $content;
 		}
 
 		return $content;
@@ -713,12 +761,10 @@ class Cat_Tracker {
 	 *
 	 * @since 1.0
 	 * @param (int) $map_id the map ID
-	 * @param (string) $context the context in which to display the map
 	 * @return (string) the cache key
 	 */
-	public function _get_marker_types_cache_key( $map_id, $context ) {
-		$context = $this->_validate_markers_context( $context );
-		return sanitize_key( Cat_Tracker::MARKERS_CACHE_KEY_PREFIX . 'mid_' . absint( $map_id ) . '_' . $context . '_mtypes' );
+	public function _get_marker_types_cache_key( $map_id ) {
+		return sanitize_key( Cat_Tracker::MARKERS_CACHE_KEY_PREFIX . 'mid_' . absint( $map_id ) . '_mtypes' );
 	}
 
 	/**
@@ -731,7 +777,7 @@ class Cat_Tracker {
 	 */
 	public function _validate_markers_context( $context ) {
 		if ( ! in_array( $context, $this->_get_valid_marker_contexts() ) ) {
-			_doing_it_wrong( __FUNCTION__, 'Cat Tracker invalid marker context called. Backtrace: ' . wp_debug_backtrace_summary(), Cat_Tracker::VERSION );
+			_doing_it_wrong( __FUNCTION__, 'Cat Tracker invalid marker context called. Context: ' . $context . ' Backtrace: ' . wp_debug_backtrace_summary(), Cat_Tracker::VERSION );
 			$context = Cat_Tracker::DEFAULT_MARKER_CONTEXT;
 		}
 		return (string) $context;
@@ -815,7 +861,7 @@ class Cat_Tracker {
 		foreach ( $markers as $marker_type => $markers_of_type )
 			$marker_types[] = get_term_by( 'slug', $marker_type, Cat_Tracker::MARKER_TAXONOMY );
 
-		set_transient( $this->_get_marker_types_cache_key( $map_id, $context ), $marker_types );
+		set_transient( $this->_get_marker_types_cache_key( $map_id ), $marker_types );
 
 		set_transient( $this->_get_map_cache_keys_cache_key( $map_id, $context ), $cache_keys );
 
@@ -953,7 +999,7 @@ class Cat_Tracker {
 	 * @return void
 	 */
 	public function get_marker_types( $map_id ) {
-		$marker_types = get_transient( Cat_Tracker::MARKERS_CACHE_KEY_PREFIX . 'map_id_' . $map_id . '_marker_types' );
+		$marker_types = get_transient( $this->_get_marker_types_cache_key( $map_id ) );
 
 		if ( empty( $marker_types ) ) {
 			$this->_queue_flush_markers_cache( $map_id );
