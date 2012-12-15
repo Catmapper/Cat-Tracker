@@ -408,6 +408,7 @@ class Cat_Tracker {
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'east_bounds', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'East bounds' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'zoom_level', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'Default Zoom Level' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'max_zoom_level', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'map_geo_information', 'label' => 'Max Zoom Level' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'rural_map', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'checkbox', 'group' => 'map_geo_information', 'label' => 'This is a rural map' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'disallow_submissions', array( Cat_Tracker::MAP_POST_TYPE ), array( 'field_type' => 'checkbox', 'group' => 'map_geo_information', 'label' => 'Disallow community submissions for this map' ) );
 
 		x_add_metadata_group( 'marker_information', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'label' => 'Sighting Information', 'priority' => 'high' ) );
@@ -625,6 +626,10 @@ class Cat_Tracker {
 
 	public static function is_community_submissions_disabled_for_map_id( $map_id ) {
 		return (bool) get_post_meta( $map_id, Cat_Tracker::META_PREFIX . 'disallow_submissions', true );
+	}
+
+	public static function is_rural_map( $map_id ) {
+		return (bool) get_post_meta( $map_id, Cat_Tracker::META_PREFIX . 'rural_map', true );
 	}
 
 	public function maybe_process_submission() {

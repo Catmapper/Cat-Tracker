@@ -88,7 +88,7 @@ function cat_mapper_remove_screen_help() {
  */
 add_filter( 'cat_tracker_map_source', 'cat_mapper_map_source' );
 function cat_mapper_map_source() {
-	if ( Cat_Tracker::is_submission_mode() || is_admin() )
+	if ( Cat_Tracker::is_submission_mode() || is_admin() || Cat_Tracker::is_rural_map( get_option( 'catmapper_community_main_map_id' ) ) )
 		return 'http://b.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/75872/256/{z}/{x}/{y}.png';
 
 	return 'http://b.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/75869/256/{z}/{x}/{y}.png';
