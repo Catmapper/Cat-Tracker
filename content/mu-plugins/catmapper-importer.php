@@ -81,7 +81,7 @@ class Cat_Mapper_Importer {
 	 * @return void
 	 */
 	public function register_submenu() {
-		add_submenu_page( 'edit.php?post_type=cat_tracker_marker', __( 'Import', 'cat-tracker' ), __( 'Import', 'cat-tracker' ), 'upload_files', 'cat_tracker_importer', array( $this, 'admin_page' ) );
+		add_submenu_page( 'edit.php?post_type=cat_tracker_marker', __( 'Import', 'cat-tracker' ), __( 'Import', 'cat-tracker' ), 'import_markers', 'cat_tracker_importer', array( $this, 'admin_page' ) );
 	}
 
 	/**

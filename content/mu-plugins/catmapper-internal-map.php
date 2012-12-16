@@ -91,10 +91,10 @@ class Cat_Mapper_Internal_Map {
 	 * @return void
 	 */
 	public function register_menu() {
-		add_menu_page( 'Map', 'Map', 'edit_posts', 'internal-map', array( $this, 'render_page' ), ' ', 30 );
+		add_menu_page( 'Map', 'Map', 'read_map', 'internal-map', array( $this, 'render_page' ), ' ', 30 );
 		$map_id = self::get_map_id_for_current_community();
 		if ( ! empty( $map_id ) ) {
-			add_submenu_page( 'internal-map', 'Edit Map', 'Edit Map', 'edit_posts', 'post.php?post=' . $map_id . ' &action=edit' );
+			add_submenu_page( 'internal-map', 'Edit Map', 'Edit Map', 'edit_maps', 'post.php?post=' . $map_id . ' &action=edit' );
 		}
 	}
 
