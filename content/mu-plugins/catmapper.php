@@ -419,7 +419,7 @@ function cat_mapper_admin_bar_sites_menu( $wp_admin_bar ) {
 			'href'   => admin_url(),
 		) );
 
-		if ( ! is_main_site() && current_user_can( 'edit_posts' ) ) {
+		if ( ! is_main_site() && current_user_can( 'edit_markers' ) ) {
 			$wp_admin_bar->add_menu( array(
 				'parent' => $menu_id,
 				'id'     => $menu_id . '-n',
@@ -431,6 +431,12 @@ function cat_mapper_admin_bar_sites_menu( $wp_admin_bar ) {
 				'id'     => $menu_id . '-c',
 				'title'  => __( 'Manage Sightings', 'cat-mapper' ),
 				'href'   => add_query_arg( array( 'post_type' => Cat_Tracker::MARKER_POST_TYPE ), admin_url( 'edit.php' ) ),
+			) );
+			$wp_admin_bar->add_menu( array(
+				'parent' => $menu_id,
+				'id'     => $menu_id . '-e',
+				'title'  => __( 'View map', 'cat-mapper' ),
+				'href'   => add_query_arg( array( 'page' => 'internal-map' ), admin_url( 'admin.php' ) ),
 			) );
 		}
 
@@ -475,6 +481,12 @@ function cat_mapper_admin_bar_sightings_menu( $wp_admin_bar ) {
 	$map_id = get_option( 'catmapper_community_main_map_id' );
 	if ( empty( $map_id ) )
 		return;
+
+	$wp_admin_bar->add_menu( array(
+		'id'    => 'view_map',
+		'title' => __( 'View Map', 'cat_mapper' ),
+		'href'  => add_query_arg( array( 'page' => 'internal-map' ), admin_url( 'admin.php' ) ),
+	) );
 
 	$wp_admin_bar->add_menu( array(
 		'id'    => 'edit_map',
