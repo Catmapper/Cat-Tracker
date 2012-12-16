@@ -260,7 +260,7 @@ function cat_mapper_enter_title_here( $title, $post ) {
 add_action( 'wp_dashboard_setup', 'catmapper_adjust_dashboard_widgets' );
 function catmapper_adjust_dashboard_widgets() {
 	global $wp_meta_boxes;
-	// unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_right_now']); // right now [content, discussion, theme, etc]
+	unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_right_now']); // right now [content, discussion, theme, etc]
 	unset( $wp_meta_boxes['dashboard']['normal']['core']['dashboard_plugins'] ); // plugins
 	unset( $wp_meta_boxes['dashboard']['normal']['core']['dashboard_incoming_links'] ); // incoming links
 	unset( $wp_meta_boxes['dashboard']['side']['core']['dashboard_primary'] ); // wordpress blog
@@ -268,6 +268,13 @@ function catmapper_adjust_dashboard_widgets() {
 	unset( $wp_meta_boxes['dashboard']['side']['core']['dashboard_quick_press'] ); // quickpress
 	unset( $wp_meta_boxes['dashboard']['side']['core']['dashboard_recent_drafts'] ); // drafts
 	unset( $wp_meta_boxes['dashboard']['normal']['core']['dashboard_recent_comments'] ); // comments
+
+	if ( current_user_can( 'edit_others_markers' ) ) {
+		$user = wp_get_current_user();
+		$user_name = ( ! empty ( $user->first_name ) ) ? $user->first_name : $user->display_name;
+		$title = sprintf( __( 'Welcome to Cat Mapper %s!', 'cat-mapper' ), $user_name );
+		wp_add_dashboard_widget( 'dashboard_right_now', $title, 'catmapper_dashboard_widget' );
+	}
 }
 
 /**
@@ -759,8 +766,51 @@ function catmapper_flush_cache_admin_bar() {
  * wrapper function to flush all marker cache
  *
  * @since 1.0
- * @return void;
+ * @return void
  */
 function catmapper_flush_all_markers_cache() {
 	do_action( 'cat_tracker_flush_all_markers_cache' );
+}
+
+/**
+ * dashboard widget
+ *
+ * @since 1.0
+ * @return void
+ */
+function catmapper_dashboard_widget() {
+	$pages = wp_count_posts( 'page' );
+	$sightings = wp_count_posts( Cat_Tracker::MARKER_POST_TYPE );
+	$marker_types = wp_count_terms( Cat_Tracker::MARKER_TAXONOMY );
+	?>
+	<div class="table table_content">
+		<p class="sub"><?php _e( 'Content', 'cat-mapper' ); ?></p>
+		<table>
+			<tbody>
+				<tr class="first">
+					<?php $sightings_url = esc_url( add_query_arg( array( 'post_type' => Cat_Tracker::MARKER_POST_TYPE ), admin_url( 'edit.php' ) ) ); ?>
+					<td class="first b b-posts"><a href="<?php echo $sightings_url; ?>"><?php echo $sightings->publish ?></a></td>
+					<td class="t posts"><a href="<?php echo $sightings_url; ?>"><?php _e( 'Sightings', 'cat-mapper' ); ?></a></td>
+				</tr>
+				<tr>
+					<?php $pending_sightings_url = esc_url( add_query_arg( array( 'post_status' => 'pending', 'post_type' => Cat_Tracker::MARKER_POST_TYPE ), admin_url( 'edit.php' ) ) ); ?>
+					<td class="first b b_pages"><a href="<?php echo $pending_sightings_url; ?>"><?php echo $sightings->pending ?></a></td>
+					<td class="t pages"><a href="<?php echo $pending_sightings_url; ?>"><?php _e( 'Sightings to review', 'cat-mapper' ); ?></a></td>
+				</tr>
+				<tr>
+					<?php $sighting_types_url = esc_url( add_query_arg( array( 'taxonomy' => Cat_Tracker::MARKER_TAXONOMY, 'post_type' => Cat_Tracker::MARKER_POST_TYPE ), admin_url( 'edit-tags.php' ) ) ); ?>
+					<td class="first b b-cats"><a href="<?php echo $sighting_types_url ?>"><?php echo $marker_types ?></a></td>
+					<td class="t cats"><a href="<?php echo $sighting_types_url ?>"><?php _e( 'Sighting types', 'cat-mapper' ); ?></a></td></tr>
+				<tr>
+					<?php $pages_url = esc_url( add_query_arg( array( 'post_type' => 'page' ), admin_url( 'edit.php' ) ) ); ?>
+					<td class="first b b-tags"><a href="<?php echo $pages_url ?>"><?php echo $pages->publish ?></a></td>
+					<td class="t tags"><a href="<?php echo $pages_url ?>"><?php _e( 'Pages', 'cat-mapper' ); ?></a></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="clear"></div>
+	<?php
+	echo '<p>' . sprintf( __( '<a href="%s">View %s map</a>', 'cat-mapper' ), esc_url( add_query_arg( array( 'page' => 'internal-map' ), admin_url( 'admin.php' ) ) ), get_bloginfo() ) . '</p>';
+
 }
