@@ -311,16 +311,12 @@
 				process_coordinates_ajax_request.abort();
 			process_coordinates_ajax_request = $.get( cat_tracker_vars.ajax_url, { action : 'cat_tracker_fetch_address_using_coordinates', latitude : $( cat_tracker_vars.submission_latitude_selector ).val(), longitude : $( cat_tracker_vars.submission_longitude_selector ).val(), nonce : cat_tracker_vars.address_nonce }, function( response ){
 
-				console.log( response );
-
 				if ( ( 'undefined' != typeof( response.errors ) && response.errors ) || 'undefined' == typeof( response.coordinates ) || _.isEmpty( response.coordinates ) ) {
 					if ( 'undefined' != typeof( response.errors ) )
 						alert( response.errors );
 
 					return;
 				}
-
-				console.log( response );
 
 		    $( cat_tracker_vars.submission_latitude_selector ).val( response.coordinates.latitude ).prop( 'readonly', false );
 		    $( cat_tracker_vars.submission_longitude_selector ).val( response.coordinates.longitude ).prop( 'readonly', false );
