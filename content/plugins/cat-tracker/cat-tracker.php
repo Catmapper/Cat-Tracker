@@ -705,15 +705,15 @@ class Cat_Tracker {
 		$submission_form .= '<fieldset><label for="cat-tracker-submitter-email">' . __( 'Your email address (optional):', 'cat-tracker' ) . '<input type="email" id="cat-tracker-submitter-email" name="cat-tracker-submitter-email"></label></fieldset>';
 		$submission_form .= '<fieldset><label for="cat-tracker-submission-date">' . __( 'Date of sighting (optional):', 'cat-tracker' ) . '<input type="date" id="cat-tracker-submission-date" name="cat-tracker-submission-date"></label></fieldset>';
 		$submission_form .= '<fieldset><label for="cat-tracker-submission-num-of-cats">' . __( 'Number of cats:', 'cat-tracker' ) . '<input type="number" id="cat-tracker-submission-num-of-cats" name="cat-tracker-submission-num-of-cats" min="1" max="100"></label></fieldset>';
-		$submission_form .= '<fieldset><label for="cat-tracker-submission-description">' . __( 'Please describe the situation*:', 'cat-tracker' ) . '<textarea id="cat-tracker-submission-description" name="cat-tracker-submission-description"></textarea> <br> <span class="cat-tracker-submission-extra-description">' . __( 'Describe the cats environment. Are they being fed? Are they fixed? What do they look like?', 'cat-tracker' ) . '</label></fieldset>';
 		$submission_form .= '<fieldset><label for="cat-tracker-submission-type">' . __( 'Type of sighting:', 'cat-tracker' );
 		$submission_form .= wp_dropdown_categories( apply_filters( 'cat_tracker_submission_form_dropdown_categories_args', array( 'name' => 'cat-tracker-submission-type', 'hide_empty' => false, 'id' => 'cat-tracker-submission-type', 'taxonomy' => Cat_Tracker::MARKER_TAXONOMY, 'echo' => false ) ) );
 		$submission_form .= '</label></fieldset>';
+		$submission_form .= '<fieldset><label for="cat-tracker-submission-description">' . __( 'Please describe the situation*:', 'cat-tracker' ) . '<textarea id="cat-tracker-submission-description" name="cat-tracker-submission-description"></textarea> <br> <span class="cat-tracker-submission-extra-description">' . __( 'Describe the cats environment. Are they being fed? Are they fixed? What do they look like?', 'cat-tracker' ) . '</label></fieldset>';
 		$submission_form .= '<fieldset><label for="cat-tracker-neuter-status">' . __( 'Do you know if this cat is/these cats are spayed/neutered?', 'cat-tracker' );
 		$submission_form .= '<select id="cat-tracker-neuter-status" name="cat-tracker-neuter-status">';
+		$submission_form .= '<option value="unknown">' . __( 'I am not sure', 'cat-tracker' )  . '</option>';
 		$submission_form .= '<option value="yes">' . __( 'Yes, it is/they are spayed/neutered', 'cat-tracker' )  . '</option>';
 		$submission_form .= '<option value="no">' . __( 'No, it is/they are not spayed/neutered', 'cat-tracker' )  . '</option>';
-		$submission_form .= '<option value="unknown">' . __( 'I am not sure', 'cat-tracker' )  . '</option>';
 		$submission_form .= '</select>';
 		$submission_form .= '</label></fieldset>';
 		$submission_form .= '<p class="cat-tracker-mandatory-fields">' . __( "Fields marked with '*' are mandatory." ) . '</p>';
