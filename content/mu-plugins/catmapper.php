@@ -294,6 +294,12 @@ function cat_mapper_custom_fields() {
 	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'age_group', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Animal age group' ) );
 	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'incoming_spay_neuter_status', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Incoming spay/neuter status' ) );
 	x_add_metadata_field( Cat_Tracker::META_PREFIX . 'current_spay_neuter_status', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'bcspca_extra_information', 'label' => 'Current spay/neuter status' ) );
+
+	remove_meta_box( 'postcustom', 'page', 'normal' );
+	remove_meta_box( 'commentstatusdiv', 'page', 'normal' );
+	remove_meta_box( 'commentsdiv', 'page', 'normal' );
+	remove_meta_box( 'slugdiv', 'page', 'normal' );
+	remove_meta_box( 'postimagediv', 'page', 'side' );
 }
 
 /**
@@ -458,7 +464,7 @@ function cat_mapper_admin_bar_sites_menu( $wp_admin_bar ) {
  * @return void
  */
 function cat_mapper_admin_bar_sightings_menu( $wp_admin_bar ) {
-	if ( is_main_site() || ! current_user_can( 'edit_posts' ) )
+	if ( is_main_site() || ! current_user_can( 'edit_markers' ) )
 		return;
 
 	$awaiting_mod = wp_count_posts( Cat_Tracker::MARKER_POST_TYPE );
@@ -474,7 +480,7 @@ function cat_mapper_admin_bar_sightings_menu( $wp_admin_bar ) {
 	$wp_admin_bar->add_menu( array(
 		'id'    => 'sightings',
 		'title' => $icon . $title,
-		'href'  => add_query_arg( array( 'post_type' => Cat_Tracker::MARKER_POST_TYPE ), admin_url( 'edit.php' ) ),
+		'href'  => add_query_arg( array( 'post_type' => Cat_Tracker::MARKER_POST_TYPE, 'post_status' => 'pending' ), admin_url( 'edit.php' ) ),
 		'meta'  => array( 'title' => $awaiting_title ),
 	) );
 
@@ -488,11 +494,13 @@ function cat_mapper_admin_bar_sightings_menu( $wp_admin_bar ) {
 		'href'  => add_query_arg( array( 'page' => 'internal-map' ), admin_url( 'admin.php' ) ),
 	) );
 
-	$wp_admin_bar->add_menu( array(
-		'id'    => 'edit_map',
-		'title' => __( 'Edit Map', 'cat_mapper' ),
-		'href'  => add_query_arg( array( 'post' => $map_id, 'action' => 'edit' ), admin_url( 'post.php' ) ),
-	) );
+	if ( current_user_can( 'edit_maps' ) ) {
+		$wp_admin_bar->add_menu( array(
+			'id'    => 'edit_map',
+			'title' => __( 'Edit Map', 'cat_mapper' ),
+			'href'  => add_query_arg( array( 'post' => $map_id, 'action' => 'edit' ), admin_url( 'post.php' ) ),
+		) );
+	}
 }
 
 /**

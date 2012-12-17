@@ -4,12 +4,12 @@
 Plugin Name: Roles & Permissions for CatMapper.ca
 Plugin URI: https://catmapper.ca
 Description: set Roles & Permissions for CatMapper.ca
-Version: 1.0
+Version: 2.0
 Author: Joachim Kudish
 Author URI: http://jkudish.com/
 */
 
-define( 'CATMAPPER_ROLES_AND_PERMISSIONS_VERSION', 1.0 );
+define( 'CATMAPPER_ROLES_AND_PERMISSIONS_VERSION', 2.0 );
 
 add_filter( 'cat_tracker_map_post_type_args', function( $post_type_args ){
 	$post_type_args['capability_type'] = 'map';
@@ -32,8 +32,10 @@ add_filter( 'cat_tracker_marker_type_taxonomy_args', function( $taxonomy_args ){
 });
 
 
-add_action( 'plugins_loaded', 'catmapper_roles_and_permissions' );
+add_action( 'init', 'catmapper_roles_and_permissions' );
 function catmapper_roles_and_permissions() {
+
+	remove_post_type_support( 'page', 'thumbnail' );
 
 	// only modify permissions when an admin visits the dashboard or via WP CLI
 	if ( ( ! is_admin() || ! current_user_can( 'edit_users' ) ) && ( ! defined( 'WP_CLI' ) || ! WP_CLI ) )
@@ -169,14 +171,6 @@ function catmapper_roles_and_permissions() {
 			'read_private_pages' => true,
 			'edit_others_pages' => true,
 			'edit_published_pages' => true,
-
-			// media
-			'edit_posts' => true,
-			'delete_posts' => true,
-			'edit_others_posts' => true,
-			'delete_others_posts' => true,
-			'upload_files' => true,
-			'edit_files' => true,
 		) );
 
 		update_option( 'catmapper_roles_and_permissions_version',  CATMAPPER_ROLES_AND_PERMISSIONS_VERSION );
