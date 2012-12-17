@@ -656,7 +656,7 @@ class Cat_Tracker {
 			$content .= '<span>' . __( 'Select types of sightings:', 'cat-tracker' ) . '</span>';
 			$content .= '<form>';
 			foreach ( $marker_types as $marker_type )
-				$content .= '<label><input data-marker-type="' . esc_attr( $marker_type->slug ) . '" class="cat-tracker-layer-control" type="checkbox" checked="checked">' . esc_html( $marker_type->name ) . '</label>';
+				$content .= '<label><input data-marker-type="' . esc_attr( $marker_type->slug ) . '" class="cat-tracker-layer-control cat-tracker-layer-control-marker-type" type="checkbox" checked="checked">' . esc_html( $marker_type->name ) . '</label>';
 			$content .= '</div></form></div>';
 		}
 

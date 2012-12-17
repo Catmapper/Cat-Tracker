@@ -210,25 +210,27 @@
 				var active_markers = _.flatten( active_markers_by_type );
 
 				// figure out which attributes are currently selected
-				var active_attributes = new Array();
-				var active_markers_by_attribute = new Array();
-				var ignore_attributes = true;
-				$.each( sortable_attributes, function( attribute_type, attribute_params ){
-					active_attributes[attribute_type] = new Array();
-					var $active_attributes_of_type = $custom_controls.find( '.cat-tracker-layer-control-' + attribute_type + ':checked' );
-					$.each( $active_attributes_of_type, function( i, active_attribute_checkbox ){
-						var active_attribute = $( active_attribute_checkbox ).data( attribute_type );
-						active_attributes[attribute_type].push( active_attribute );
-						layer_key += active_attribute + '_';
-						if ( 'all' != active_attribute ) {
-							ignore_attributes = false;
-							active_markers_by_attribute.push( all_marker_layers_by_attribute[attribute_type][active_attribute] );
-						}
+				if ( cat_tracker_vars.do_sorting ) {
+					var active_attributes = new Array();
+					var active_markers_by_attribute = new Array();
+					var ignore_attributes = true;
+					$.each( sortable_attributes, function( attribute_type, attribute_params ){
+						active_attributes[attribute_type] = new Array();
+						var $active_attributes_of_type = $custom_controls.find( '.cat-tracker-layer-control-' + attribute_type + ':checked' );
+						$.each( $active_attributes_of_type, function( i, active_attribute_checkbox ){
+							var active_attribute = $( active_attribute_checkbox ).data( attribute_type );
+							active_attributes[attribute_type].push( active_attribute );
+							layer_key += active_attribute + '_';
+							if ( 'all' != active_attribute ) {
+								ignore_attributes = false;
+								active_markers_by_attribute.push( all_marker_layers_by_attribute[attribute_type][active_attribute] );
+							}
+						});
 					});
-				});
+				}
 
 				// combine and intersect the markers
-				if ( ! ignore_attributes ) {
+				if ( cat_tracker_vars.do_sorting && ! ignore_attributes ) {
 					active_markers_by_attribute = _.flatten( active_markers_by_attribute );
 					active_markers = _.intersection( active_markers, active_markers_by_attribute );
 				}
