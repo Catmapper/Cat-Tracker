@@ -7,7 +7,10 @@
 		var default_layer = {};
 		var active_marker_layers = {};
 		var all_marker_layers = {};
+		var all_marker_layers_by_attribute = {};
 		var marker_cluster = {};
+		var sortable_attributes = {};
+		var markers_by_type = {};
 		var address_ajax_request = false;
 		var process_address_ajax_request = false;
 		var process_coordinates_ajax_request = false;
@@ -41,8 +44,12 @@
 					zoomControl : false
 				});
 
-				if ( undefined != typeof( map_args.markers ) && ! _.isEmpty( map_args.markers ) )
-					build_markers( $.parseJSON( map_args.markers ) );
+				if ( undefined != typeof( map_args.markers ) && ! _.isEmpty( map_args.markers ) ) {
+					sortable_attributes = cat_tracker_vars.sortable_attributes;
+					build_sortable_attributes();
+					markers_by_type = $.parseJSON( map_args.markers );
+					build_markers();
+				}
 			}
 
 			if ( ! map_args.ignore_boundaries )
@@ -102,22 +109,51 @@
 			return new L.LatLngBounds( south_west_bounds, north_east_bounds );
 		}
 
-		function build_markers( marker_types ) {
+		function build_sortable_attributes() {
+			$.each( sortable_attributes, function( attribute_type, attribute_params ){
+				all_marker_layers_by_attribute[attribute_type] = new Array();
+				$.each( attribute_params.values, function( attribute_value, attribute_name ){
+					all_marker_layers_by_attribute[attribute_type][attribute_value] = new Array();
+				});
+			});
+		}
+
+		function build_markers() {
+
 			// loop the marker types/marker array and create a marker object for each marker
-			$.each( marker_types, function( marker_type, marker_data ){
+			$.each( markers_by_type, function( marker_type, marker_data ){
+
+				// custom icon class for each marker type
 				var icon = L.divIcon( { className: 'cat-tracker-map-icon icon-' + marker_type } );
+
+				// markers for this marker type
 				var markers = new Array();
+
+				// loop the markers
 				$.each( marker_data.sightings, function( i, sighting ){
+
+					// if we're in preview / submission mode
 					if ( 'preview' == marker_type ) {
 						submission_marker = L.marker( [sighting.latitude, sighting.longitude], { clickable : true, draggable : true } ).bindPopup( sighting.text ).addTo( map );
 						map.setView( [sighting.latitude, sighting.longitude], map_args.map_zoom_level, true );
 					}
-					markers.push( L.marker( [sighting.latitude, sighting.longitude], {icon: icon} ).bindPopup( sighting.text ) );
+
+					// create the marker object
+					var __marker = L.marker( [sighting.latitude, sighting.longitude], {icon: icon} ).bindPopup( sighting.text );
+
+					// add the marker to the array of markers for this marker type
+					markers.push( __marker );
+
+					// sort the markers into the all_marker_layers_by_attribute array for filtering later on
+					$.each( sighting.sortable_attributes, function( attribute_type, attribute_value ){
+						all_marker_layers_by_attribute[attribute_type][attribute_value].push( __marker );
+					});
+
 				});
 
 				// group the markers by type
 				active_marker_layers[marker_type] = L.layerGroup( markers );
-				all_marker_layers[marker_type] = L.layerGroup( markers );
+				all_marker_layers[marker_type] = markers;
 			});
 
 			if ( _.has( active_marker_layers, 'preview' ) )
@@ -137,38 +173,73 @@
 					}
 
 					return new L.DivIcon({ html: '<div><span>' + childCount + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point( 40, 40 ) });
-				},
+				}
 			});
 			$.each( active_marker_layers, function( i, marker_group ){
-					marker_cluster.addLayer( marker_group );
+				marker_cluster.addLayer( marker_group );
 			});
 
 			// add the cluster as a layer to the map
 			map.addLayer( marker_cluster );
 			init_legend();
-
 		}
 
 		function init_legend() {
 			$( '#cat-tracker-custom-controls' ).appendTo( '.leaflet-top.leaflet-right' );
 			$( '#cat-tracker-custom-controls' ).on( 'change.cat_tracker_controls', '.cat-tracker-layer-control', function( e ) {
 
-				var marker_type = $( this ).data( 'marker-type' );
-				var add = $( this ).prop( 'checked' );
+				var $custom_controls = $( '#cat-tracker-custom-controls' );
 
-				// add or remove the (un)checked type from the active layers
-				if ( add ) {
-					active_marker_layers[marker_type] = all_marker_layers[marker_type];
-				} else {
-					delete active_marker_layers[marker_type];
+				// figure out which marker type is currently enabled
+				var $active_marker_types = $custom_controls.find( '.cat-tracker-layer-control-marker-type:checked' );
+				var active_marker_types = new Array();
+				var active_markers_by_type = new Array();
+				var layer_key = '';
+				$.each( $active_marker_types, function( i, marker_type_checkbox ){
+					var marker_type = $( marker_type_checkbox ).data( 'marker-type' );
+					layer_key += marker_type + '_';
+					active_marker_types.push( marker_type );
+					active_markers_by_type.push( all_marker_layers[marker_type] );
+				});
+
+				var active_markers = _.flatten( active_markers_by_type );
+
+				// figure out which attributes are currently selected
+				var active_attributes = new Array();
+				var active_markers_by_attribute = new Array();
+				var ignore_attributes = true;
+				$.each( sortable_attributes, function( attribute_type, attribute_params ){
+					active_attributes[attribute_type] = new Array();
+					var $active_attributes_of_type = $custom_controls.find( '.cat-tracker-layer-control-' + attribute_type + ':checked' );
+					$.each( $active_attributes_of_type, function( i, active_attribute_checkbox ){
+						var active_attribute = $( active_attribute_checkbox ).data( attribute_type );
+						active_attributes[attribute_type].push( active_attribute );
+						layer_key += active_attribute + '_';
+						if ( 'all' != active_attribute ) {
+							ignore_attributes = false;
+							active_markers_by_attribute.push( all_marker_layers_by_attribute[attribute_type][active_attribute] );
+						}
+					});
+				});
+
+				// combine and intersect the markers
+				if ( ! ignore_attributes ) {
+					active_markers_by_attribute = _.flatten( active_markers_by_attribute );
+					active_markers = _.intersection( active_markers, active_markers_by_attribute );
 				}
 
-				// remove the cluster layer from the map
+				// remove existing layers from map
 				map.removeLayer( marker_cluster );
 
+				// if no markers, bail
+				if ( _.isEmpty( active_markers ) )
+					return;
+
 				// rebuild the cluster
+				active_marker_layers = {};
+				active_marker_layers[layer_key] = L.layerGroup( active_markers );
 				marker_cluster = new L.MarkerClusterGroup({
-					iconCreateFunction: function (cluster) {
+					iconCreateFunction: function (cluster){
 						var childCount = cluster.getChildCount();
 						var c = ' marker-cluster-';
 						if ( childCount < 10 ) {
@@ -177,11 +248,12 @@
 							c += 'medium';
 						} else {
 							c += 'large';
-						}
+					}
 
-						return new L.DivIcon({ html: '<div><span>' + childCount + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point( 40, 40 ) });
-					},
+					return new L.DivIcon({ html: '<div><span>' + childCount + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point( 40, 40 ) });
+					}
 				});
+
 				$.each( active_marker_layers, function( i, marker_group ){
 					marker_cluster.addLayer( marker_group );
 				});

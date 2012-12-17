@@ -51,6 +51,20 @@
 	cursor: pointer;
 }
 
+/* legend controls */
+.leaflet-control-layers label {
+	font-size: 12px;
+	line-height: 10px;
+	margin: 5px 0;
+}
+
+.leaflet-control-layers label input {
+	margin-top: 0;
+	top: 0;
+	margin-right: 2px;
+}
+
+/* new sighting button */
 .cat-tracker-report-new-sighting-button {
 	display: inline-block;
 	vertical-align: middle;

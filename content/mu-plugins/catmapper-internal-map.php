@@ -119,12 +119,24 @@ class Cat_Mapper_Internal_Map {
 				$marker_types = Cat_Tracker::instance()->get_marker_types( $map_id );
 				if ( ! empty( $marker_types ) ) {
 					// TODO: this should be abstracted out to a function and should have a better function to get the types, should also be cached better
-					echo '<div class="leaflet-control-layers leaflet-control leaflet-control-layers-expanded" id="cat-tracker-custom-controls"><div class="leaflet-control-layers-overlays">';
-					echo '<span>' . __( 'Select types of sightings:', 'cat-tracker' ) . '</span>';
-					echo '<form>';
-					foreach ( $marker_types as $marker_type )
-						echo '<label><input data-marker-type="' . esc_attr( $marker_type->slug ) . '" class="cat-tracker-layer-control" type="checkbox" checked="checked"> ' . esc_html( $marker_type->name ) . '</label>';
-					echo '</div></form></div>';
+					echo '<div class="leaflet-control-layers leaflet-control leaflet-control-layers-expanded" id="cat-tracker-custom-controls">';
+						echo '<div class="leaflet-control-layers-overlays">';
+							echo '<form>';
+								echo '<span>' . __( 'Select types of sightings:', 'cat-tracker' ) . '</span>';
+								foreach ( $marker_types as $marker_type )
+									echo '<label><input data-marker-type="' . esc_attr( $marker_type->slug ) . '" class="cat-tracker-layer-control cat-tracker-layer-control-marker-type" type="checkbox" checked="checked"> ' . esc_html( $marker_type->name ) . '</label>';
+								echo '<div class="leaflet-control-layers-separator" style=""></div>';
+									foreach ( Cat_Tracker::instance()->get_sortable_attributes() as $sortable_attribute => $sortable_attribute_params ) {
+										echo '<span>' . sprintf( __( 'Select %s:', 'cat-tracker' ),  $sortable_attribute_params['name'] ) . '</span>';
+											if ( ! empty( $sortable_attribute_params['display_any'] ) )
+												echo '<label><input data-' . esc_attr( $sortable_attribute ) . '="all" class="cat-tracker-layer-control cat-tracker-layer-control-' . esc_attr( $sortable_attribute ) . '" type="' . esc_attr( $sortable_attribute_params['type'] ) . '" name="' . esc_attr( $sortable_attribute ) . '" checked="checked"> ' . __( 'Any', 'cat-mapper' ) . '</label>';
+												foreach ( $sortable_attribute_params['values'] as $sortable_attribute_value => $sortable_attribute_value_name ) {
+													echo '<label><input data-' . esc_attr( $sortable_attribute ) . '="' . esc_attr( $sortable_attribute_value ) . '" class="cat-tracker-layer-control cat-tracker-layer-control-' . esc_attr( $sortable_attribute ) . '" type="' . esc_attr( $sortable_attribute_params['type'] ) . '" name="' . esc_attr( $sortable_attribute ) . '"> ' . esc_html( $sortable_attribute_value_name ) . '</label>';
+												}
+									}
+							echo '</form>';
+						echo '</div>';
+					echo '</div>';
 				}
 			}
 		echo '</div>';
