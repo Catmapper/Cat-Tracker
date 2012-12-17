@@ -165,7 +165,8 @@ class Cat_Tracker_Sighting_Submission {
 		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'map', $map_id, true );
 
 		// insert sighting type
-		add_post_meta( $sighting_id, Cat_Tracker::MARKER_TAXONOMY, $this->submission_fields['type_id'], true );
+		$term = get_term_by( 'id', $this->submission_fields['type_id'], Cat_Tracker::MARKER_TAXONOMY );
+		add_post_meta( $sighting_id, Cat_Tracker::MARKER_TAXONOMY, $term->slug, true );
 		wp_set_object_terms( $sighting_id, $this->submission_fields['type_id'], Cat_Tracker::MARKER_TAXONOMY );
 
 		// insert optional metadata
