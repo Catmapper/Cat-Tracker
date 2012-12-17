@@ -168,7 +168,7 @@ function catmapper_new_community_created( $blog_id, $user_id ) {
 	add_term_meta( $tnr_colony['term_id'], 'color', '#fff61b' ); // yellow
 	add_term_meta( $group_of_comm_cats['term_id'], 'color', '#ff96a5' ); // pink
 	add_term_meta( $community_cat['term_id'], 'color', '#7fd771' ); // green
-	add_term_meta( $community_cat_with_kittens['term_id'], 'color', '#00b4fe' ); // green
+	add_term_meta( $community_cat_with_kittens['term_id'], 'color', '#00b4fe' ); // blue
 	add_term_meta( $orphaned_kittens['term_id'], 'color', '#ac3eff' ); // purple
 	add_term_meta( $bcspca_cat['term_id'], 'color', '#636363' ); // grey
 	add_term_meta( $bcspca_kitten['term_id'], 'color', '#636363' ); // grey
