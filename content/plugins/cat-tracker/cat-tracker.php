@@ -503,6 +503,7 @@ class Cat_Tracker {
 			'fetching_address_text' => __( "Looking up address... shouldn't be more than a few seconds.", 'cat-tracker' ),
 			'default_address' => __( 'n/a', 'cat-tracker' ),
 			'address_nonce' => wp_create_nonce( 'cat_tracker_fetch_address' ),
+			'do_sorting' => true,
 			'sortable_attributes' => $this->get_sortable_attributes(),
 			'maps' => array(
 				'map-' . $map_id => array(
@@ -581,6 +582,7 @@ class Cat_Tracker {
 			'address_nonce' => wp_create_nonce( 'cat_tracker_fetch_address' ),
 			'fetching_address_text' => __( "Looking up address... shouldn't be more than a few seconds.", 'cat-tracker' ),
 			'default_address' => __( 'Not a valid address.', 'cat-tracker' ),
+			'do_sorting' => false,
 			'maps' => array(
 				'map-' . $map_id => array(
 					'map_id' => 'map-' . $map_id,

@@ -45,8 +45,11 @@
 				});
 
 				if ( undefined != typeof( map_args.markers ) && ! _.isEmpty( map_args.markers ) && 'null' != map_args.markers ) {
-					sortable_attributes = cat_tracker_vars.sortable_attributes;
-					build_sortable_attributes();
+					if ( cat_tracker_vars.do_sorting ) {
+						sortable_attributes = cat_tracker_vars.sortable_attributes;
+						build_sortable_attributes();
+					}
+
 					markers_by_type = $.parseJSON( map_args.markers );
 					build_markers();
 				}
@@ -145,9 +148,11 @@
 					markers.push( __marker );
 
 					// sort the markers into the all_marker_layers_by_attribute array for filtering later on
-					$.each( sighting.sortable_attributes, function( attribute_type, attribute_value ){
-						all_marker_layers_by_attribute[attribute_type][attribute_value].push( __marker );
-					});
+					if ( cat_tracker_vars.do_sorting ) {
+						$.each( sighting.sortable_attributes, function( attribute_type, attribute_value ){
+							all_marker_layers_by_attribute[attribute_type][attribute_value].push( __marker );
+						});
+					}
 
 				});
 
