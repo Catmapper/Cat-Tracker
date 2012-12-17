@@ -44,7 +44,7 @@
 					zoomControl : false
 				});
 
-				if ( undefined != typeof( map_args.markers ) && ! _.isEmpty( map_args.markers ) ) {
+				if ( undefined != typeof( map_args.markers ) && ! _.isEmpty( map_args.markers ) && 'null' != map_args.markers ) {
 					sortable_attributes = cat_tracker_vars.sortable_attributes;
 					build_sortable_attributes();
 					markers_by_type = $.parseJSON( map_args.markers );

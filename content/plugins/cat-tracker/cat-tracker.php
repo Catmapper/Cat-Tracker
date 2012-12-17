@@ -1220,7 +1220,9 @@ class Cat_Tracker {
 				submit_button( __( 'Relocate sighting', 'cat-tracker' ), 'primary', 'cat-tracker-relocate', false );
 				echo '<div class="clear"></div><br>';
 			} else {
-				echo '<p>' . __( 'The following is a blank map upon which you can place the sighting. To place the sighting, click on the relocate button, or add an address or coordinates directly below. When you click on the relocate button, you will be able to click or drag the marker to place it. Once you\'re done moving it, just click done or hit the publish button. Note that this preview does not include the description or colouring that the sighting will have on the internal or public map(s).' ) . '</p>';
+				echo '<p>' . __( 'The following is a blank map upon which you can place the sighting. To place the sighting, click on the locate button, or add an address or coordinates directly below. When you click on the locate button, you will be able to click or drag the marker to place it. Once you\'re done moving it, just click done or hit the publish button. Note that this preview does not include the description or colouring that the sighting will have on the internal or public map(s).' ) . '</p>';
+				submit_button( __( 'Locate sighting', 'cat-tracker' ), 'primary', 'cat-tracker-relocate', false );
+				echo '<div class="clear"></div><br>';
 			}
 			?>
 			<div class="cat-tracker-map-preview" id="<?php echo esc_attr( 'map-' . $this->get_map_id_for_marker( get_the_ID() ) ); ?>"></div>
