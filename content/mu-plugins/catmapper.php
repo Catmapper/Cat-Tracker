@@ -823,6 +823,7 @@ function catmapper_dashboard_widget() {
 	</div>
 	<div class="clear"></div>
 	<?php
-	echo '<p>' . sprintf( __( '<a href="%s">View %s map</a>', 'cat-mapper' ), esc_url( add_query_arg( array( 'page' => 'internal-map' ), admin_url( 'admin.php' ) ) ), get_bloginfo() ) . '</p>';
+	echo '<p>' . sprintf( __( '<a href="%s">Click here to view</a> the %s map', 'cat-mapper' ), esc_url( add_query_arg( array( 'page' => 'internal-map' ), admin_url( 'admin.php' ) ) ), get_bloginfo() ) . '</p>';
+	echo '<p>' . sprintf( __( 'If you require any assistance, please contact <a href="%s">%s</a>.', 'cat-mapper' ), esc_url( "mailto:info@catmapper.ca" ), 'info@catmapper.ca' ) . '</p>';
 
 }
