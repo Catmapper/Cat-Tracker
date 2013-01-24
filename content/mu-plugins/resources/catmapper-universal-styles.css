@@ -15,7 +15,15 @@ body.login {
 	background-size: 328px 76px;
 }
 
-/** admin bar **/
+/* hide marker edit screen search & date filtering */
+/*.catmapper-markers .search-box,*/
+.catmapper-markers .tablenav.top .alignleft.actions select[name="m"],
+.catmapper-markers .tablenav.top .alignleft.actions input#post-query-submit,
+.catmapper-markers .tablenav.top .view-switch {
+    display: none;
+}
+
+/* admin bar */
 #wp-admin-bar-sightings .ab-icon:before {
 	content: "\f041";
 	font-family: 'FontAwesome';

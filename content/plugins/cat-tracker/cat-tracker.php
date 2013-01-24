@@ -1107,8 +1107,16 @@ class Cat_Tracker {
 
 	public function _get_marker_type_helper( $marker_id, $fields ) {
 		$_types = wp_get_object_terms( $marker_id, Cat_Tracker::MARKER_TAXONOMY, array( 'fields' => $fields ) );
-		$type = ( ! empty( $_types ) ) ? $_types[0] : 'n/a';
-		return esc_html( $type );
+
+		$type = ( ! empty( $_types[0] ) ) ? $_types[0] : null;
+
+		if ( 'ids' == $fields ) {
+			$type = ( empty( $type ) ) ? false : $type;
+			return $type;
+		} else {
+			$type = ( empty( $type ) ) ? 'n/a' : $type;
+			return esc_html( $type );
+		}
 	}
 
 	public function get_marker_type( $marker_id ) {
@@ -1117,6 +1125,10 @@ class Cat_Tracker {
 
 	public function get_marker_type_slug( $marker_id ) {
 		return $this->_get_marker_type_helper( $marker_id, 'slugs' );
+	}
+
+	public function get_marker_type_id( $marker_id ) {
+		return $this->_get_marker_type_helper( $marker_id, 'ids' );
 	}
 
 	public function get_marker_text( $marker_id ) {
