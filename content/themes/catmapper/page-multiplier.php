@@ -99,7 +99,7 @@ get_header(); ?>
 								echo ( isset( $_POST['number_of_females_per_litter'] ) ) ? absint( $_POST['number_of_females_per_litter'] ) : 2;
 							echo '"></p>';
 						echo '<p><label for="death_percentage_per_litter">Percentage of death at birth:</label> <input name="death_percentage_per_litter" id="death_percentage_per_litter" type="number" min="0" max="99" value="';
-								echo ( isset( $_POST['death_percentage_per_litter'] ) ) ? absint( $_POST['death_percentage_per_litter'] ) : 2;
+								echo ( isset( $_POST['death_percentage_per_litter'] ) ) ? absint( $_POST['death_percentage_per_litter'] ) : 20;
 							echo '"></p>';
 						echo '<p><input type="submit" value="Calculate" name="calculate_animals"></p>';
 						echo '</form>';
