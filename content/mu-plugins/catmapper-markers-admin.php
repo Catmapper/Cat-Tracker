@@ -80,6 +80,7 @@ class Cat_Mapper_Markers_Admin {
 		add_filter( 'request' , array( $this, 'orderby') );
 		add_filter( 'pre_get_posts' , array( $this, 'filter_search') );
 		add_filter( 'get_search_query' , array( $this, 'get_search_query') );
+		add_action( 'admin_init', array( $this, 'approve_post' ) );
 	}
 
 	function admin_body_class( $classes ) {
@@ -105,6 +106,7 @@ class Cat_Mapper_Markers_Admin {
 			'address' => __('Address', 'cat-mapper' ),
 			'sighting_date' => __('Sighting Date', 'cat-mapper' ),
 			'sighting_type' => __('Sighting Type', 'cat-mapper' ),
+			'status' => __('Status', 'cat-mapper' ),
 		);
 
 		return $columns;
@@ -138,7 +140,7 @@ class Cat_Mapper_Markers_Admin {
 				echo '<span class="trash"><a href="' . esc_url( get_delete_post_link( $marker_id ) ) . '" class="submitdelete">' . __( 'Trash' ) . '</a> | </span>';
 			}
 
-			echo '<span class="view"><a href="' . esc_url( get_edit_post_link( $marker_id ) ) . '">' . __( 'View' ) . '</a></span>';
+			echo '<span class="view"><a href="' . esc_url( add_query_arg( array( 'page' => 'internal-map' ), 'admin.php' ) ) . '">' . __( 'View on Map' ) . '</a></span>';
 			echo '</div>';
 		}
 
@@ -157,6 +159,22 @@ class Cat_Mapper_Markers_Admin {
 			} else {
 				echo '&mdash;';
 			}
+		}
+
+		if ( 'status' == $column ) {
+			$status = get_post_status( $marker_id );
+			if ( 'pending' == $status )
+				$status = 'Pending &mdash; <a href="' . esc_url( wp_nonce_url( add_query_arg( array( 'approve' => true ), get_edit_post_link( $marker_id ) ), 'cat_mapper_approve_marker' ) ) . '">Approve</a>';
+			elseif ( 'publish' == $status )
+				$status = 'Approved / Published';
+			elseif ( 'draft' == $status )
+				$status = 'Draft &mdash; <a href="' . esc_url( wp_nonce_url( add_query_arg( array( 'approve' => true ), get_edit_post_link( $marker_id ) ), 'cat_mapper_approve_marker' ) ) . '">Publish</a>';
+			elseif ( empty( $status ) )
+				echo '&mdash;';
+			else
+				$status = ucfirst( $status );
+
+			echo $status;
 		}
 
 	}
@@ -230,6 +248,23 @@ class Cat_Mapper_Markers_Admin {
 			return $search_query;
 
 		return strip_tags( $_REQUEST['s'] );
+	}
+
+	function approve_post() {
+		global $pagenow;
+		if ( $pagenow != 'post.php' || empty ( $_GET['post'] ) || Cat_Tracker::MARKER_POST_TYPE != get_post_type( absint( $_GET['post'] ) ) )
+			return;
+
+		if ( empty( $_GET['approve'] ) || empty( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'cat_mapper_approve_marker' ) )
+			return;
+
+		$marker_id = absint( $_GET['post'] );
+		$marker = get_post( $marker_id, 'ARRAY_A' );
+		$marker['post_status'] = 'publish';
+		wp_update_post( $marker );
+
+		$redirect_url = add_query_arg( array( 'action' => 'edit', 'message' => 6 ), get_edit_post_link( $marker_id ) );
+		wp_redirect( $redirect_url );
 	}
 
 }
