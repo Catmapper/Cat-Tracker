@@ -223,7 +223,7 @@ function catmapper_new_community_created( $blog_id, $user_id ) {
 	$map_id = wp_insert_post( array( 'post_type' => Cat_Tracker::MAP_POST_TYPE, 'post_title' => get_bloginfo( 'name' ) ) );
 
 	// queue a "job" to refresh the blog list
- 	// though not strictly requried, passing the blog id ensures the event is unique enough to run again if it's called shortly after this event has occurred already
+ 	// though not strictly required, passing the blog id ensures the event is unique enough to run again if it's called shortly after this event has occurred already
 	wp_schedule_single_event( time(), 'catmapper_refresh_all_blog_ids_event', array( 'blog_id' => $blog_id ) );
 
 	if ( $map_id && ! is_wp_error( $map_id ) ) {
