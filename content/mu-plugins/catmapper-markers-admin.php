@@ -87,6 +87,9 @@ class Cat_Mapper_Markers_Admin {
 		if ( Cat_Tracker::MARKER_POST_TYPE == get_post_type() )
 			$classes .= 'catmapper-markers';
 
+		if ( Cat_Tracker::MAP_POST_TYPE == get_post_type() )
+			$classes .= 'catmapper-maps';
+
 		return $classes;
 	}
 

@@ -23,6 +23,11 @@ body.login {
     display: none;
 }
 
+/* hide add new map button */
+.catmapper-maps .add-new-h2 {
+	display: none;
+}
+
 /* admin bar */
 #wp-admin-bar-sightings .ab-icon:before {
 	content: "\f041";
