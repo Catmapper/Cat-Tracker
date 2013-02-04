@@ -197,6 +197,7 @@ function catmapper_new_community_created( $blog_id, $user_id ) {
 		'sidebars_widgets' => array(),
 		'theme_mods_twentytwelve' => $main_site_theme_mods,
 		'theme_mods_catmapper' => $main_site_theme_mods,
+		'admin_email' => CAT_MAPPER_ADMIN_EMAIL,
 	);
 
 	foreach ( $default_options as $option_key => $option_value )
