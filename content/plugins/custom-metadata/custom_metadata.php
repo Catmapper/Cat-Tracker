@@ -886,7 +886,9 @@ class custom_metadata_manager {
 				if (!$value) $value = ''; // if empty, give it an empty string instead
 				$value = (array)$value;
 				$count = 1;
-				foreach( $value as $v ) :	?>
+				foreach( $value as $v ) :
+					if ( empty( $v ) && ! empty( $field->default_value ) ) $v = $field->default_value;
+					?>
 
 				<div class="<?php echo $field_slug ?> cloneable" id="<?php echo $field_slug ?>-<?php echo $count;?>">
 
