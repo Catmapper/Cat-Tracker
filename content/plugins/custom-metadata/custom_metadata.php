@@ -67,9 +67,9 @@ class custom_metadata_manager {
 	// Column filter names
 	var $_column_types = array( 'posts', 'pages', 'users', 'comments' );
 	// field types
-	var $_field_types = array( 'text', 'textarea', 'password', 'checkbox', 'radio', 'select', 'upload', 'wysiwyg', 'editor', 'richtext', 'datepicker', 'taxonomy_select', 'taxonomy_radio' );
+	var $_field_types = array( 'text', 'number', 'textarea', 'password', 'checkbox', 'radio', 'select', 'upload', 'wysiwyg', 'editor', 'richtext', 'datepicker', 'taxonomy_select', 'taxonomy_radio' );
 	// field types that are cloneable
-	var $_cloneable_field_types = array( 'text', 'textarea', 'upload', 'password');
+	var $_cloneable_field_types = array( 'text', 'number', 'textarea', 'upload', 'password');
 	// Object types whose columns are generated through apply_filters instead of do_action
 	var $_column_filter_object_types = array( 'user' );
 	// Whitelisted pages that get stylesheets and scripts
@@ -833,6 +833,11 @@ class custom_metadata_manager {
 			$value = strtotime($value);
 		}
 
+		// absint number fields
+		if ( $field->field_type == 'number' )	{
+			$value = absint( $value );
+		}
+
 		return $value;
 	}
 
@@ -888,6 +893,14 @@ class custom_metadata_manager {
 					<?php switch ($field->field_type) :
 							case 'text': ?>
 							<input type="text" id="<?php echo $field_slug; ?>" name="<?php echo $field_id; ?>" value="<?php echo esc_attr( $v ); ?>" <?php echo $readonly_str ?>/>
+						<?php break; ?>
+
+						<?php case 'number': ?>
+                        	<input type="number" id="<?php echo $field_slug; ?>" name="<?php echo $field_id; ?>" value="<?php echo absint( $v ); ?>"
+								<?php if ( ! empty( $field->min ) ) echo ' min="' . absint( $field->min )  . '"'; ?>
+								<?php if ( ! empty( $field->max ) ) echo ' max="' . absint( $field->max )  . '"'; ?>
+								<?php echo $readonly_str ?>
+							/>
 						<?php break; ?>
 
 						<?php case 'textarea': ?>

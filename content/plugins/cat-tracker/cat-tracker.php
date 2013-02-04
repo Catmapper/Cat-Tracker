@@ -418,7 +418,7 @@ class Cat_Tracker {
 		x_add_metadata_field( Cat_Tracker::MARKER_TAXONOMY, array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'taxonomy_select', 'taxonomy' => Cat_Tracker::MARKER_TAXONOMY, 'group' => 'marker_information', 'label' => 'Sighting Type' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'sighting_date', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'datepicker', 'group' => 'marker_information', 'label' => 'Date of sighting' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'cat_neuter_status', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'select', 'values' => $this->get_possible_neuter_status(), 'group' => 'marker_information', 'label' => 'Current or believed neuter status' ) );
-		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'num_of_cats', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_information', 'label' => 'Number of cats' ) );
+		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'num_of_cats', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'number', 'group' => 'marker_information', 'label' => 'Number of cats', 'min' => 1, 'max' => 500 ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'name_of_reporter', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_information', 'label' => 'Name of Reporter' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'email_of_reporter', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_information', 'label' => 'Email address of Reporter' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'telephone_of_reporter', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_information', 'label' => 'Phone number of Reporter' ) );
@@ -915,17 +915,21 @@ class Cat_Tracker {
 				);
 			}
 
+			$number_of_markers_to_insert = ( is_numeric( $this->get_marker_num_of_cats( $marker_id ) ) && $this->get_marker_num_of_cats( $marker_id ) > 1 ) ? $this->get_marker_num_of_cats( $marker_id ) : 1;
+			$markers_to_insert = range( 1, $number_of_markers_to_insert );
 
-			$markers[$marker_type]['sightings'][] = array(
-				'id' => $marker_id,
-				'title' => $this->get_marker_text( $marker_id ),
-				'latitude' => $this->get_marker_latitude( $marker_id ),
-				'longitude' => $this->get_marker_longitude( $marker_id ),
-				'text' => $this->get_marker_text( $marker_id ),
-				'sortable_attributes' => array(
-					'neuter_status' => $this->get_marker_neuter_status( $marker_id ),
-				),
-			);
+			foreach( $markers_to_insert as $marker_to_insert ) {
+				$markers[$marker_type]['sightings'][] = array(
+					'id' => $marker_id,
+					'title' => $this->get_marker_text( $marker_id ),
+					'latitude' => $this->get_marker_latitude( $marker_id ),
+					'longitude' => $this->get_marker_longitude( $marker_id ),
+					'text' => $this->get_marker_text( $marker_id ),
+					'sortable_attributes' => array(
+						'neuter_status' => $this->get_marker_neuter_status( $marker_id ),
+					),
+				);
+			}
 		}
 
 		return array( 'markers' => $markers, 'found_posts' => $_markers->found_posts, 'max_num_pages' => $_markers->max_num_pages );
@@ -1150,6 +1154,10 @@ class Cat_Tracker {
 
 	public function get_marker_neuter_status( $marker_id = null, $singular = true, $default = 'unknown' ) {
 		return strip_tags( $this->marker_meta_helper( 'cat_neuter_status', $marker_id, $singular, $default ) );
+	}
+
+	public function get_marker_num_of_cats( $marker_id = null, $singular = true, $default = 1 ) {
+		return absint( $this->marker_meta_helper( 'num_of_cats', $marker_id, $singular, $default ) );
 	}
 
 	public function get_possible_neuter_status() {
