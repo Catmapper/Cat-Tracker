@@ -842,3 +842,17 @@ function catmapper_dashboard_widget() {
 	echo '<p>' . sprintf( __( 'If you require any assistance, please contact <a href="%s">%s</a>.', 'cat-mapper' ), esc_url( "mailto:info@catmapper.ca" ), 'info@catmapper.ca' ) . '</p>';
 
 }
+
+/**
+ * filter the URL given for maps when displayed in the admin messages
+ * filters the URL to display the internal map instead of the front-end URL
+ *
+ * @since 1.0
+ * @param (string) $url the displayed URL
+ * @param (int) $map_id the map ID for which to display the URL
+ * @return (string) $url filtered URL
+ */
+function catmapper_admin_internal_map_url( $url, $map_id ){
+	return esc_url( add_query_arg( array( 'page' => 'internal-map' ), admin_url( 'admin.php' ) ) );
+}
+add_filter( 'cat_tracker_admin_map_url', 'catmapper_admin_internal_map_url', 10, 2 );

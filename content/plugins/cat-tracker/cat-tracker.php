@@ -334,7 +334,7 @@ class Cat_Tracker {
 	  global $post, $post_ID;
 
 	  if ( self::MAP_POST_TYPE == get_post_type( $post_ID ) ) {
-	  	$map_url = esc_url( get_permalink( $post_ID ) );
+	  	$map_url = apply_filters( 'cat_tracker_admin_map_url', esc_url( get_permalink( $post_ID ) ), $post_ID );
 
 		  $messages[self::MAP_POST_TYPE] = array(
 		    1 => sprintf( __( 'Map updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
@@ -356,7 +356,7 @@ class Cat_Tracker {
 		}
 
 		if ( self::MARKER_POST_TYPE == get_post_type( $post_ID ) ) {
-	  	$map_url = esc_url( get_permalink( $this->get_map_id_for_marker( $post_ID ) ) );
+	  	$map_url = apply_filters( 'cat_tracker_admin_map_url', esc_url( get_permalink( $this->get_map_id_for_marker( $post_ID ) ) ), $post_ID );
 
 		  $messages[self::MARKER_POST_TYPE] = array(
 		    1 => sprintf( __( 'Sighting updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
