@@ -124,7 +124,7 @@ class Cat_Mapper_Markers_Admin {
 		if ( in_array( $column, array( 'animal_id', 'address' ) ) ) {
 			$meta = Cat_Tracker::instance()->marker_meta_helper( $column, $marker_id );
 			if ( ! empty( $meta ) )
-				echo '<a href="' . esc_url( get_permalink( $marker_id ) ) . '">' . esc_html( $meta ) . '</a>';
+				echo '<a href="' . esc_url( get_edit_post_link( $marker_id ) ) . '">' . esc_html( $meta ) . '</a>';
 			else
 				echo '&mdash;';
 		}
@@ -138,7 +138,7 @@ class Cat_Mapper_Markers_Admin {
 				echo '<span class="trash"><a href="' . esc_url( get_delete_post_link( $marker_id ) ) . '" class="submitdelete">' . __( 'Trash' ) . '</a> | </span>';
 			}
 
-			echo '<span class="view"><a href="' . esc_url( get_permalink( $marker_id ) ) . '">' . __( 'View' ) . '</a></span>';
+			echo '<span class="view"><a href="' . esc_url( get_edit_post_link( $marker_id ) ) . '">' . __( 'View' ) . '</a></span>';
 			echo '</div>';
 		}
 
