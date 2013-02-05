@@ -148,7 +148,7 @@
 					markers.push( __marker );
 
 					// sort the markers into the all_marker_layers_by_attribute array for filtering later on
-					if ( cat_tracker_vars.do_sorting ) {
+					if ( cat_tracker_vars.do_sorting && 'undefined' != typeof( sighting.sortable_attributes ) && sighting.sortable_attributes.length > 0 ) {
 						$.each( sighting.sortable_attributes, function( attribute_type, attribute_value ){
 							all_marker_layers_by_attribute[attribute_type][attribute_value].push( __marker );
 						});
