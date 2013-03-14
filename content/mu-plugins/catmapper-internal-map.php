@@ -52,7 +52,7 @@ class Cat_Mapper_Internal_Map {
 	 */
 	public static function instance() {
 		if ( isset( self::$instance ) )
-			return $instance;
+			return self::$instance;
 
 		self::$instance = new Cat_Mapper_Internal_Map;
 		self::$instance->run_hooks();
