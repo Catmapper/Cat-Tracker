@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 class Cat_Mapper_Importer {
 
 	/**
-	 * @var the one true Cat Mapper Importer
+	 * @var $instance, the one true Cat Mapper Importer
 	 */
 	private static $instance;
 
@@ -48,10 +48,11 @@ class Cat_Mapper_Importer {
 	 */
 	public static function instance() {
 		if ( isset( self::$instance ) )
-			return $instance;
+			return self::$instance;
 
 		self::$instance = new Cat_Mapper_Importer;
 		self::$instance->run_hooks();
+		return self::$instance;
 	}
 
 	/**
@@ -88,7 +89,7 @@ class Cat_Mapper_Importer {
 	 * determine if the current request is an import request
 	 *
 	 * @since 1.0
-	 * @return void
+	 * @return bool importing or not
 	 */
 	public function is_importing() {
 		return ( ! empty( $_POST ) && ! empty( $_POST['save'] ) && ! empty( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'media-form' ) && ! empty( $_POST['attachments'] ) );
@@ -178,6 +179,7 @@ class Cat_Mapper_Importer {
 			<script type="text/javascript">
 				jQuery(function($){
 					var preloaded = $(".media-item.preloaded");
+					var shortform;
 					if ( preloaded.length > 0 ) {
 						preloaded.each(function(){prepareMediaItem({id:this.id.replace(/[^0-9]/g, '')},'');});
 					}
