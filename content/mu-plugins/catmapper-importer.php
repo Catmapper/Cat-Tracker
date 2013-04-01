@@ -252,6 +252,10 @@ class Cat_Mapper_Importer {
 
 			define( 'CAT_TRACKER_IS_IMPORTING', true );
 
+			// create terms
+			$this->create_terms();
+			echo '<p>' . __( 'Verified and created missing terms (sighting types and intake types)', 'cat-tracker' ) . '</p>';
+
 			$row_num = 1;
 			$start_importing = false;
 			$excluded_sources = apply_filters( 'cat_mapper_importer_excluded_sources', array( 'return', 'owner surrender', 'returns', 'owner surrenders', 'humane officer surrendered', 'humane officer  surrendered', 'humane officer surrender', 'humane officer  surrender', 'humane officer seized', 'humane officer  seized' ) );
@@ -394,6 +398,91 @@ class Cat_Mapper_Importer {
 		}
 	}
 
+	/**
+	 * create terms if they do not exist yet
+	 *
+	 * @since 1.1
+	 * @return void
+	 */
+	public function create_terms() {
+
+		$stray_sub_types = array(
+			'ACO Impound',
+			'Agency / Shelter',
+			'Ambulance',
+			'DOA - ACO',
+			'DOA - Ambulance',
+			'DOA - Stray',
+			'Stray',
+		);
+
+		$surrendered_sub_types = array(
+			'Ambulance - Euthanasia Request',
+			'Ambulance - Owner Surrender',
+			'DOA - Humane Officer',
+			'DOA - Owner Surrender',
+			'Euthanasia Request',
+			'Humane Officer',
+			'Humane Officer Seized',
+			'Humane Officer Surrendered',
+			'Owner Surrender',
+			'Owner Surrender - ACO',
+			'Surrender - Good Samaritan',
+		);
+
+		$offspring_sub_types = array(
+			'Foster Offspring',
+			'Shelter Offspring',
+		);
+
+		$taxonomy_terms = array(
+			Cat_Tracker::MARKER_TAXONOMY => array(
+				'Intake',
+				'Community',
+			),
+			CAT_MAPPER_INTERNAL_TAXONOMY => array(
+				'Stray Cat' => $stray_sub_types,
+				'Surrendered Cat' => $surrendered_sub_types,
+				'Stray Kitten' => $stray_sub_types,
+				'Surrendered Kitten' => $surrendered_sub_types,
+				'Offspring' => $offspring_sub_types,
+			),
+		);
+
+		foreach ( $taxonomy_terms as $taxonomy => $terms ) {
+			if ( ! taxonomy_exists( $taxonomy ) )
+				continue;
+
+			foreach ( $terms as $key => $term )
+				$this->create_term_if_not_exists( $taxonomy, $term, $key );
+		}
+
+	}
+
+	/**
+	 * helper function to create term and it's sub terms if it doesn't exist yet
+	 *
+	 * @since 1.1
+	 * @return void
+	 */
+	public function create_term_if_not_exists( $taxonomy, $term, $key = null ) {
+
+		// if it's an array, then there's sub terms to create
+		if ( is_array( $term ) ) {
+			$sub_terms = $term;
+			$term = $key;
+		}
+
+		// create the term if it doesn't exist yet
+		if ( ! term_exists( $term, $taxonomy ) )
+			wp_insert_term( $term, $taxonomy );
+
+		// check if there are sub terms, if not proceed to next term in loop
+		if ( ! empty( $sub_terms ) ) {
+			foreach ( $sub_terms as $term )
+				$this->create_term_if_not_exists( $taxonomy, $term );
+		}
+	}
 
 }
 
