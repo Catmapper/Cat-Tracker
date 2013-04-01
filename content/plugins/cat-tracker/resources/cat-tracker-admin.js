@@ -1,5 +1,7 @@
 jQuery( document ).ready(function($){
 
-	$( '#cat_tracker_map, #cat_tracker_marker_type' ).select2();
+	// todo: make the select2 dropdown "clearable"
+	// todo: display hierarchy
+	$( '#cat_tracker_map, .custom-metadata-field.taxonomy_select select' ).select2();
 
 });

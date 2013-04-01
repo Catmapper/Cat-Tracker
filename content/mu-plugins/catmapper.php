@@ -125,6 +125,56 @@ function catmapper_deregister_post_types() {
 }
 
 /**
+ * register intake (internal) taxonomy
+ *
+ * @since 1.1
+ * @return void
+ */
+add_action( 'init', 'catmapper_register_intake_taxonomy', 20 );
+function catmapper_register_intake_taxonomy() {
+	if ( 1 === get_current_blog_id() )
+		return;
+
+	if ( ! defined( 'CAT_MAPPER_INTERNAL_TAXONOMY' ) )
+		define( 'CAT_MAPPER_INTERNAL_TAXONOMY', 'cat_mapper_intake_type' );
+
+	$intake_taxonomy_labels = array(
+		'name' => __( 'Intake Types (internal)', 'cat_mapper' ),
+		'singular_name' => __( 'Intake Type', 'cat_mapper' ),
+		'search_items' => __( 'Search Intake Types', 'cat_mapper' ),
+		'all_items' => __( 'All Intake Types', 'cat_mapper' ),
+		'parent_item' => __( 'Parent Intake Type', 'cat_mapper' ),
+		'parent_item_colon' => __( 'Search Intake Type:', 'cat_mapper' ),
+		'edit_item' => __( 'Edit Intake Type', 'cat_mapper' ),
+		'update_item' => __( 'Update Intake Type', 'cat_mapper' ),
+		'add_new_item' => __( 'Add New Intake Type', 'cat_mapper' ),
+		'new_item_name' => __( 'New Intake Type', 'cat_mapper' ),
+		'separate_items_with_commas' => __( 'Separate Intake Types with Commas', 'cat_mapper' ),
+		'add_or_remove_items' => __( 'Add or remove intake types', 'cat_mapper' ),
+		'choose_from_most_used' => __( 'Choose from the most used intake types', 'cat_mapper' ),
+		'menu_name' => __( 'Intake Types', 'cat_mapper' ),
+	);
+
+	$intake_taxonomy_args = array(
+		'labels' => $intake_taxonomy_labels,
+		'hierarchical' => true,
+		'query_var' => false,
+		'public' => false,
+		'show_ui' => true,
+		'show_tagcloud' => false,
+		'capabilities' => array(
+			'manage_terms' => 'manage_intake_types',
+			'edit_terms'   => 'manage_intake_types',
+			'delete_terms' => 'manage_intake_types',
+			'assign_terms' => 'manage_intake_types',
+		),
+	);
+
+	register_taxonomy( CAT_MAPPER_INTERNAL_TAXONOMY, Cat_Tracker::MARKER_POST_TYPE, $intake_taxonomy_args );
+
+}
+
+/**
  * do default stuff when a new community is created
  *
  * @since 1.0
@@ -285,6 +335,13 @@ function cat_mapper_custom_fields() {
 	remove_meta_box( 'commentsdiv', 'page', 'normal' );
 	remove_meta_box( 'slugdiv', 'page', 'normal' );
 	remove_meta_box( 'postimagediv', 'page', 'side' );
+
+	// internal type removal of meta box + addition of custom dropdown
+	if ( current_user_can( 'manage_intake_types' ) ) {
+		remove_meta_box(  CAT_MAPPER_INTERNAL_TAXONOMY . 'div', Cat_Tracker::MARKER_POST_TYPE, 'side' );
+		x_add_metadata_field( CAT_MAPPER_INTERNAL_TAXONOMY, array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'taxonomy_select', 'taxonomy' => CAT_MAPPER_INTERNAL_TAXONOMY, 'group' => 'marker_information', 'label' => 'Intake Type' ) );
+	}
+
 }
 
 /**

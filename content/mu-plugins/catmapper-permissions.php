@@ -4,12 +4,12 @@
 Plugin Name: Roles & Permissions for CatMapper.ca
 Plugin URI: https://catmapper.ca
 Description: set Roles & Permissions for CatMapper.ca
-Version: 2.0
+Version: 3.0
 Author: Joachim Kudish
 Author URI: http://jkudish.com/
 */
 
-define( 'CATMAPPER_ROLES_AND_PERMISSIONS_VERSION', 2.0 );
+define( 'CATMAPPER_ROLES_AND_PERMISSIONS_VERSION', 3.0 );
 
 add_filter( 'cat_tracker_map_post_type_args', function( $post_type_args ){
 	$post_type_args['capability_type'] = 'map';
@@ -81,6 +81,9 @@ function catmapper_roles_and_permissions() {
     $administrator->add_cap( 'edit_private_markers' );
     $administrator->add_cap( 'edit_published_markers' );
 
+	// full intake type permissions
+	$administrator->add_cap( 'manage_intake_types' );
+
     // import permissions
     $administrator->add_cap( 'import_markers' );
 
@@ -111,7 +114,6 @@ function catmapper_roles_and_permissions() {
 			'manage_marker_types' => true,
 			'edit_marker_types' => true,
 			'delete_marker_types' => true,
-			'edit_markers' => true,
 
 			// import permissions
 			'import_markers' => true,
@@ -122,7 +124,6 @@ function catmapper_roles_and_permissions() {
 			'edit_others_pages' => true,
 			'edit_private_pages' => true,
 			'read_private_pages' => true,
-			'edit_others_pages' => true,
 			'edit_published_pages' => true,
 
 			// media
@@ -132,6 +133,9 @@ function catmapper_roles_and_permissions() {
 			'delete_others_posts' => true,
 			'upload_files' => true,
 			'edit_files' => true,
+
+			// full intake type permissions
+			'manage_intake_types' => true,
 		) );
 
 		remove_role( 'sightings_administrator' );
@@ -161,7 +165,6 @@ function catmapper_roles_and_permissions() {
 			'manage_marker_types' => true,
 			'edit_marker_types' => true,
 			'delete_marker_types' => true,
-			'edit_markers' => true,
 
 			// limited page permissions
 			'edit_pages' => true,
@@ -169,7 +172,6 @@ function catmapper_roles_and_permissions() {
 			'edit_others_pages' => true,
 			'edit_private_pages' => true,
 			'read_private_pages' => true,
-			'edit_others_pages' => true,
 			'edit_published_pages' => true,
 		) );
 

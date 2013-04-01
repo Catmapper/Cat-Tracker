@@ -3,8 +3,8 @@
    ================================================== */
 #cat_tracker_map,
 #s2id_cat_tracker_map,
-#cat_tracker_marker_type,
-#s2id_cat_tracker_marker_type {
+.custom-metadata-field.taxonomy_select > div,
+.custom-metadata-field.taxonomy_select > div .select2-container {
   width: 250px;
 }
 
