@@ -218,7 +218,7 @@ class Cat_Mapper_Importer {
 		echo '<p>' . __( 'importing...', 'cat-tracker' ) . '</p>';
 		$map_id = get_option( 'catmapper_community_main_map_id' );
 		if ( empty( $map_id ) ) {
-			echo '<p>' . __( 'There is no valid map ID set for this site. Aborting...', 'cat-tracker' ) . '</p>';
+			echo '<p>' . __( 'There is no valid map ID set for this community. Aborting...', 'cat-tracker' ) . '</p>';
 			return;
 		}
 
