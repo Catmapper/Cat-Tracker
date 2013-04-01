@@ -8,13 +8,13 @@ Version: 1.0
 Author: Joachim Kudish
 Author URI: http://jkudish.com/
 License: GPLv2
-*/
+ */
 
 /**
  * @package Cat Mapper
  * @author Joachim Kudish
  * @version 1.0
-*/
+ */
 
 /*
 This program is free software; you can redistribute it and/or
@@ -115,12 +115,12 @@ class Cat_Mapper_Importer {
 	 */
 	public function admin_page() {
 		echo '<div class="wrap">';
-			screen_icon();
-			echo '<h2>' . __( 'Import sightings/cases' ) . '</h2>';
-			if ( $this->is_importing() )
-				$this->handle_import();
-			else
-				$this->upload_form();
+		screen_icon();
+		echo '<h2>' . __( 'Import sightings/cases' ) . '</h2>';
+		if ( $this->is_importing() )
+			$this->handle_import();
+		else
+			$this->upload_form();
 		echo '</div>';
 	}
 
@@ -170,32 +170,32 @@ class Cat_Mapper_Importer {
 		add_filter( 'plupload_init', array( $this, 'plupload_init' ) );
 		?>
 		<form enctype="multipart/form-data" method="post" class="media-upload-form type-form validate" id="file-form">
-		<?php
-		media_upload_form();
-		wp_nonce_field( 'media-form' );
-		?>
-		<div id="media-items" class="hide-if-no-js"></div>
-		<script type="text/javascript">
-		jQuery(function($){
-			var preloaded = $(".media-item.preloaded");
-			if ( preloaded.length > 0 ) {
-				preloaded.each(function(){prepareMediaItem({id:this.id.replace(/[^0-9]/g, '')},'');});
-			}
-			updateMediaForm();
-			post_id = 0;
-			shortform = 0;
-		});
-		</script>
-		<?php
-		$maps = get_posts( array( 'post_type' => Cat_Tracker::MAP_POST_TYPE, 'posts_per_page' => -1, 'fields' => 'ids' ) );
-		if ( ! empty( $maps ) ) :
-		?>
-			<?php submit_button( __( 'Import', 'cat-tracker' ), 'button savebutton hidden', 'save' ); ?>
-		<?php else : ?>
-			<p><?php _e( 'You need to create at least one map before you can import sightings.', 'cat-tracker' ); ?></p>
-		<?php endif; ?>
+			<?php
+			media_upload_form();
+			wp_nonce_field( 'media-form' );
+			?>
+			<div id="media-items" class="hide-if-no-js"></div>
+			<script type="text/javascript">
+				jQuery(function($){
+					var preloaded = $(".media-item.preloaded");
+					if ( preloaded.length > 0 ) {
+						preloaded.each(function(){prepareMediaItem({id:this.id.replace(/[^0-9]/g, '')},'');});
+					}
+					updateMediaForm();
+					post_id = 0;
+					shortform = 0;
+				});
+			</script>
+			<?php
+			$maps = get_posts( array( 'post_type' => Cat_Tracker::MAP_POST_TYPE, 'posts_per_page' => -1, 'fields' => 'ids' ) );
+			if ( ! empty( $maps ) ) :
+				?>
+				<?php submit_button( __( 'Import', 'cat-tracker' ), 'button savebutton hidden', 'save' ); ?>
+			<?php else : ?>
+				<p><?php _e( 'You need to create at least one map before you can import sightings.', 'cat-tracker' ); ?></p>
+			<?php endif; ?>
 		</form>
-		<?php
+	<?php
 	}
 
 	/**
@@ -256,65 +256,65 @@ class Cat_Mapper_Importer {
 			$type = 'cat';
 			$count_imported = $cat_count = $kitten_count = $dupe = $count_excluded = $count_no_address = $count_bad_address = 0;
 			while ( $row_data = fgetcsv( $open_file ) ) {
-        $row_num++;
+				$row_num++;
 
-        if ( empty( $row_data[0] ) || empty( $row_data[23] ) )
-        	continue;
+				if ( empty( $row_data[0] ) || empty( $row_data[23] ) )
+					continue;
 
-        $animal_id = $row_data[0];
-        $date = $row_data[2];
-        $type = $row_data[3];
-        $source = $row_data[4];
-        $breed = $row_data[12];
-        $color = $row_data[13];
-        $age_group = $row_data[15];
-        $gender = $row_data[16];
-        $incoming_spay_neuter_status = $row_data[17];
-        $current_spay_neuter_status = $row_data[18];
-        $address = $row_data[23];
+				$animal_id = $row_data[0];
+				$date = $row_data[2];
+				$type = $row_data[3];
+				$source = $row_data[4];
+				$breed = $row_data[12];
+				$color = $row_data[13];
+				$age_group = $row_data[15];
+				$gender = $row_data[16];
+				$incoming_spay_neuter_status = $row_data[17];
+				$current_spay_neuter_status = $row_data[18];
+				$address = $row_data[23];
 
-        if ( 'Animal ID' == $animal_id && 'L/F Address' == $address ) {
-        	$start_importing = true;
-        	continue;
-        }
+				if ( 'Animal ID' == $animal_id && 'L/F Address' == $address ) {
+					$start_importing = true;
+					continue;
+				}
 
-        if ( ! $start_importing )
-        	continue;
+				if ( ! $start_importing )
+					continue;
 
-      	$_already_exists = new WP_Query();
-      	$_already_exists->query( array(
-      		'post_type' => Cat_Tracker::MARKER_POST_TYPE,
-        	'meta_key' => Cat_Tracker::META_PREFIX . 'animal_id',
-        	'meta_value' => $animal_id,
-        	'fields' => 'ids',
-        ) );
+				$_already_exists = new WP_Query();
+				$_already_exists->query( array(
+					'post_type' => Cat_Tracker::MARKER_POST_TYPE,
+					'meta_key' => Cat_Tracker::META_PREFIX . 'animal_id',
+					'meta_value' => $animal_id,
+					'fields' => 'ids',
+				) );
 
-        if ( $_already_exists->have_posts() ) {
-        	$dupe++;
+				if ( $_already_exists->have_posts() ) {
+					$dupe++;
 					printf( '<p>' . __( 'Animal ID #%d has already been imported and is being to be skipped from this import.' ) . '</p>', $animal_id );
-        	continue;
-        }
+					continue;
+				}
 
-        // exclude returns & owner surrenders
-        if ( in_array( strtolower( $source ), $excluded_sources ) ) {
-        	$count_excluded++;
-        	continue;
-        }
+				// exclude returns & owner surrenders
+				if ( in_array( strtolower( $source ), $excluded_sources ) ) {
+					$count_excluded++;
+					continue;
+				}
 
-        // exclude if no address
-        if ( empty( $address ) ) {
-        	$count_no_address++;
-        	continue;
-        }
+				// exclude if no address
+				if ( empty( $address ) ) {
+					$count_no_address++;
+					continue;
+				}
 
-        $type = strtolower( $type );
+				$type = strtolower( $type );
 				$_type = ( 'kitten' == $type ) ? 'bc-spca-unowned-intake-kitten' : 'bc-spca-unowned-intake-cat';
 				$type_object = get_term_by( 'slug', $_type, Cat_Tracker::MARKER_TAXONOMY );
 				if ( ! is_wp_error( $type_object ) && is_object( $type_object ) )
 					$type_id = absint( $type_object->term_id );
 
-        if ( empty( $breed ) )
-        	$breed = 'unknown';
+				if ( empty( $breed ) )
+					$breed = 'unknown';
 
 				$location = Cat_Tracker_Geocode::get_location_by_address( $address );
 
@@ -331,15 +331,15 @@ class Cat_Mapper_Importer {
 				}
 
 				$sighting_id = wp_insert_post( array(
-						'post_title' => sprintf( _x( 'Community cat sighting from imported file at %s', 'Post title for imported sightings with the current timestamp/date', 'cat_tracker' ), date( 'Y-m-d g:i:a' ) ),
-						'post_status' => 'publish',
-						'post_type' => Cat_Tracker::MARKER_POST_TYPE,
-						'to_ping' => false,
+					'post_title' => sprintf( _x( 'Community cat sighting from imported file at %s', 'Post title for imported sightings with the current timestamp/date', 'cat_tracker' ), date( 'Y-m-d g:i:a' ) ),
+					'post_status' => 'publish',
+					'post_type' => Cat_Tracker::MARKER_POST_TYPE,
+					'to_ping' => false,
 				) );
 
 				if ( empty( $sighting_id ) || is_wp_error( $sighting_id ) ) {
-	 				printf( '<p>' . __( 'Could not insert Animal ID #%d from attachment ID #%d.' ) . '</p>', $animal_id, $attachment_id );
-	 				continue;
+					printf( '<p>' . __( 'Could not insert Animal ID #%d from attachment ID #%d.' ) . '</p>', $animal_id, $attachment_id );
+					continue;
 				}
 
 				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'description', $description, true );
