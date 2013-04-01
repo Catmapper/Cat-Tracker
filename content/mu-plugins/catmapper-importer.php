@@ -380,7 +380,7 @@ class Cat_Mapper_Importer {
 				// insert sighting type
 				add_post_meta( $sighting_id, Cat_Tracker::MARKER_TAXONOMY, $type_id, true );
 				wp_set_object_terms( $sighting_id, $type_id, Cat_Tracker::MARKER_TAXONOMY );
-				printf( '<p>' . __( 'Animal ID #%d succesfully imported.' ) . '</p>', $animal_id );
+				printf( '<p>' . __( 'Animal ID #%d successfully imported.' ) . '</p>', $animal_id );
 				if ( $_type == 'kitten' ) {
 					$kitten_count++;
 				} else {
