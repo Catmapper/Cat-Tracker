@@ -337,7 +337,7 @@ function cat_mapper_custom_fields() {
 	remove_meta_box( 'postimagediv', 'page', 'side' );
 
 	// internal type removal of meta box + addition of custom dropdown
-	if ( current_user_can( 'manage_intake_types' ) ) {
+	if ( defined( 'CAT_MAPPER_INTERNAL_TAXONOMY' ) && current_user_can( 'manage_intake_types' ) ) {
 		remove_meta_box(  CAT_MAPPER_INTERNAL_TAXONOMY . 'div', Cat_Tracker::MARKER_POST_TYPE, 'side' );
 		x_add_metadata_field( CAT_MAPPER_INTERNAL_TAXONOMY, array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'taxonomy_select', 'taxonomy' => CAT_MAPPER_INTERNAL_TAXONOMY, 'group' => 'marker_information', 'label' => 'Intake Type' ) );
 	}
