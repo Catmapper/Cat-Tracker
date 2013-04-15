@@ -207,6 +207,7 @@ class Cat_Mapper_Importer {
 			if ( ! empty( $maps ) ) :
 				?>
 				<?php submit_button( __( 'Import', 'cat-tracker' ), 'button savebutton hidden', 'save' ); ?>
+				<p class="savebutton hidden"><?php _e( 'After you click Import, the import process will begin. It is normal for this process to take a long amount of time. If the page has finished loading and the FINISHED message has not appeared, then you need to refresh the page.', 'cat-tracker' ); ?></p>
 			<?php else : ?>
 				<p><?php _e( 'You need to create at least one map before you can import sightings.', 'cat-tracker' ); ?></p>
 			<?php endif; ?>
@@ -231,7 +232,7 @@ class Cat_Mapper_Importer {
 	 * @return void
 	 */
 	public function handle_import() {
-		echo '<p>' . __( 'importing...', 'cat-tracker' ) . '</p>';
+		echo '<p>' . __( 'Importer has started... IMPORTANT: If this page has finished loading and the FINISHED message has not appeared, then you need to refresh the page.', 'cat-tracker' ) . '</p>';
 		$map_id = get_option( 'catmapper_community_main_map_id' );
 		if ( empty( $map_id ) ) {
 			echo '<p>' . __( 'There is no valid map ID set for this community. Aborting...', 'cat-tracker' ) . '</p>';
@@ -415,6 +416,7 @@ class Cat_Mapper_Importer {
 			wp_delete_attachment( $attachment_id );
 			Cat_Tracker::instance()->queue_flush_marker_cache();
 			printf( '<p class="cat-mapper-import-result">' . __( '%d sightings succesfully imported. %d were cats and %d were kittens. %d were duplicate animal IDs. %d sightings excluded because of their source, %d sightings not imported because they did not have an address at all and %d sightings not imported because they did not have a valid address.' ) . '</p>', $count_imported, $cat_count, $kitten_count, $dupe, $count_excluded, $count_no_address, $count_bad_address );
+			echo '<p>' . __( 'FINISHED: the importer has finished, DO NOT refresh the page.', 'cat-tracker' ) . '</p>';
 
 		}
 	}
