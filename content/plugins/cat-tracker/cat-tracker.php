@@ -3,7 +3,7 @@
 Plugin Name: Cat Tracker
 Plugin URI: https://github.com/jkudish/Cat-Tracker
 Description: Cat tracking software built on WordPress
-Version: 1.0
+Version: 1.1
 Author: Joachim Kudish
 Author URI: http://jkudish.com/
 License: GPLv2
@@ -12,7 +12,7 @@ License: GPLv2
 /**
  * @package Cat_Tracker
  * @author Joachim Kudish
- * @version 1.0
+ * @version 1.1
  *
  * Note: this plugin requires 2 other plugins in
  * order to properly function:
@@ -46,7 +46,7 @@ class Cat_Tracker {
 	 * current version # of this plugin
 	 * @since 1.0
 	 */
-	const VERSION = 1.0;
+	const VERSION = 1.1;
 
 	/**
 	 * current Leaflet version incldued with this plugin
