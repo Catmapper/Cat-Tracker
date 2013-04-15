@@ -186,7 +186,7 @@ class Cat_Tracker {
 		add_action( 'wp_print_styles', array( $this, 'frontend_print_styles' ) );
 		add_action( 'wp_head', array( $this, 'enqueue_ie_styles' ) );
 		add_action( 'template_redirect', array( $this, 'maybe_process_submission' ) );
-		add_action( 'save_post', array( $this, '_queue_flush_markers_cache' ), 1001 );
+		add_action( 'save_post', array( $this, '_queue_flush_markers_cache_on_save' ), 1001 );
 		add_action( 'save_post', array( $this, '_flush_map_dropdown_cache' ) );
 		add_action( 'cat_tracker_flush_all_markers_cache', array( $this, '_flush_all_markers_cache' ) );
 		add_filter( 'post_updated_messages', array( $this, 'post_updated_messages' ) );
@@ -943,7 +943,7 @@ class Cat_Tracker {
 	 * @param (int) $post_id the post ID that was just saved
 	 * @return void
 	 */
-	public function _queue_flush_markers_cache( $post_id ) {
+	public function _queue_flush_markers_cache_on_save( $post_id ) {
 
 		// don't flush if importing
 		if ( defined( 'CAT_TRACKER_IS_IMPORTING' ) && CAT_TRACKER_IS_IMPORTING )
@@ -952,6 +952,18 @@ class Cat_Tracker {
 		$post_type = get_post_type( $post_id );
 		if ( wp_is_post_revision( $post_id ) || ( ! in_array( $post_type, array( Cat_Tracker::MAP_POST_TYPE, Cat_Tracker::MARKER_POST_TYPE ) ) ) )
 			return;
+
+	 	// though not strictly required, passing the time paramater ensures the event is unique enough to run again if it's called shortly after this event has occurred already
+		wp_schedule_single_event( time(), 'cat_tracker_flush_all_markers_cache', array( 'time' => time() ) );
+	}
+
+	/**
+	 * helper function to queue a job to flush marker cache on demand
+	 *
+	 * @since 1.1
+	 * @return void
+	 */
+	public function queue_flush_marker_cache() {
 
 	 	// though not strictly required, passing the time paramater ensures the event is unique enough to run again if it's called shortly after this event has occurred already
 		wp_schedule_single_event( time(), 'cat_tracker_flush_all_markers_cache', array( 'time' => time() ) );
@@ -1006,15 +1018,18 @@ class Cat_Tracker {
 	 *
 	 * @since 1.0
 	 * @param (int) $map_id the Map ID to use
-	 * @return void
+	 * @return array the marker types
 	 */
 	public function get_marker_types( $map_id ) {
 		$marker_types = get_transient( $this->_get_marker_types_cache_key( $map_id ) );
 
 		if ( empty( $marker_types ) ) {
-			$this->_queue_flush_markers_cache( $map_id );
+			$this->queue_flush_marker_cache();
 			return array();
 		}
+
+		if ( empty( $marker_types ) || empty( $marker_types[0] ) )
+			return array();
 
 		return $marker_types;
 	}
