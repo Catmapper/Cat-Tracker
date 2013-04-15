@@ -876,6 +876,8 @@ class custom_metadata_manager {
 			else $field_id = $field_slug;
 
 			$readonly_str = ($field->readonly) ? 'readonly="readonly" ' : '';
+			$disabled_str = ($field->readonly) ? 'disabled="disabled" ' : '';
+			$disabled_class_str = ($field->readonly) ? 'class="select-disabled" ' : '';
 
 			if (get_post_type()) $numb = $post->ID; else $numb = 1; ?>
 			<script>var numb = '<?php echo $numb ?>'; </script>
@@ -932,7 +934,7 @@ class custom_metadata_manager {
 						<?php break; ?>
 
 						<?php case 'select': ?>
-							<select id="<?php echo $field_slug; ?>" name="<?php echo $field_id; ?>">
+							<select <?php echo $disabled_class_str; ?> id="<?php echo $field_slug; ?>" name="<?php echo $field_id; ?>" <?php echo $disabled_str; ?>>
 								<?php foreach( $field->values as $value_slug => $value_label ) : ?>
 									<?php
 									$selected = ( $v == $value_slug ) ? ' selected="selected"' : '';
@@ -962,7 +964,7 @@ class custom_metadata_manager {
 						<?php break; ?>
 
 						<?php case 'taxonomy_select': ?>
-							<select name="<?php echo $field_id; ?>" id="<?php echo $field_slug; ?>">
+							<select <?php echo $disabled_class_str; ?> id="<?php echo $field_slug; ?>" name="<?php echo $field_id; ?>" <?php echo $disabled_str; ?>>
 							<?php
 							$terms = get_terms( $field->taxonomy, array('hide_empty' => false));
 							foreach ( $terms as $term ) { ?>
