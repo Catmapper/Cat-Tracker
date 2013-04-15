@@ -125,7 +125,7 @@ class Cat_Mapper_Internal_Map {
 								echo '<span>' . __( 'Select types of sightings:', 'cat-tracker' ) . '</span>';
 								foreach ( $marker_types as $marker_type )
 									echo '<label><input data-marker-type="' . esc_attr( $marker_type->slug ) . '" class="cat-tracker-layer-control cat-tracker-layer-control-marker-type" type="checkbox" checked="checked"> ' . esc_html( $marker_type->name ) . '</label>';
-								echo '<div class="leaflet-control-layers-separator" style=""></div>';
+									echo '<div class="leaflet-control-layers-separator" style=""></div>';
 									foreach ( Cat_Tracker::instance()->get_sortable_attributes() as $sortable_attribute => $sortable_attribute_params ) {
 										echo '<span>' . sprintf( __( 'Select %s:', 'cat-tracker' ),  $sortable_attribute_params['name'] ) . '</span>';
 											if ( ! empty( $sortable_attribute_params['display_any'] ) )
