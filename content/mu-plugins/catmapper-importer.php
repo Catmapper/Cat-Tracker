@@ -395,7 +395,7 @@ class Cat_Mapper_Importer {
 				// insert sighting type
 				$sighting_type = get_term_by( 'name', 'Intake', Cat_Tracker::MARKER_TAXONOMY );
 				add_post_meta( $sighting_id, Cat_Tracker::MARKER_TAXONOMY, absint( $sighting_type->term_id ), true );
-				wp_set_object_terms( $sighting_id, $sighting_type->term_id, Cat_Tracker::MARKER_TAXONOMY );
+				wp_set_object_terms( $sighting_id, absint( $sighting_type->term_id ), Cat_Tracker::MARKER_TAXONOMY );
 
 				// insert intake type
 				add_post_meta( $sighting_id, CAT_MAPPER_INTERNAL_TAXONOMY, $intake_type->term_id, true );
