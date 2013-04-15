@@ -4,7 +4,7 @@
 Plugin Name: Cat Mapper Importer
 Plugin URI: https://github.com/jkudish/Cat-Tracker
 Description: BCSPCA Importer for the Cat Tracking Software
-Version: 1.0
+Version: 1.1
 Author: Joachim Kudish
 Author URI: http://jkudish.com/
 License: GPLv2
@@ -13,7 +13,7 @@ License: GPLv2
 /**
  * @package Cat Mapper
  * @author Joachim Kudish
- * @version 1.0
+ * @version 1.1
  */
 
 /*
@@ -73,6 +73,7 @@ class Cat_Mapper_Importer {
 		add_action( 'admin_menu', array( $this, 'register_submenu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_filter( 'attachment_fields_to_edit', array( $this, 'attachment_fields_to_edit' ), 20, 2 );
+		add_filter( 'get_media_item_args', array( $this, 'filter_get_media_item_args' ) );
 	}
 
 	/**
@@ -148,14 +149,27 @@ class Cat_Mapper_Importer {
 	 * @return (array) $form_fields filtered form fields
 	 */
 	public function attachment_fields_to_edit( $form_fields, $post ) {
-		if ( admin_url( 'edit.php?post_type=cat_tracker_marker&page=cat_tracker_importer' ) != $_SERVER['HTTP_REFERER'] || empty( $_REQUEST['fetch'] ) || 2 != $_REQUEST['fetch'] || 'text/csv' != $post->post_mime_type )
+		if ( false === strpos( $_SERVER['HTTP_REFERER'], 'cat_tracker_importer' ) || empty( $_REQUEST['fetch'] ) || 'text/csv' != $post->post_mime_type )
 			return $form_fields;
 
-		$unset_fields = array( 'post_title', 'image_alt', 'post_excerpt', 'post_content', 'menu_order', 'url' );
+		$unset_fields = array( 'post_title', 'image_alt', 'post_excerpt', 'post_content', 'menu_order' );
 		foreach( $unset_fields as $field )
 			unset( $form_fields[$field] );
 
 		return $form_fields;
+	}
+
+	/**
+	 * filter args for get_media_item_args() to remove the send button
+	 *
+	 * @since 1.1
+	 * @see get_media_item_args()
+	 * @param array $args the original args
+	 * @return array $args the filtered args
+	 */
+	public function filter_get_media_item_args( $args ){
+		$args['send'] = false;
+		return $args;
 	}
 
 	/**
@@ -227,6 +241,11 @@ class Cat_Mapper_Importer {
 		foreach ( $_REQUEST['attachments'] as $attachment_id => $attachment_data ) {
 			$attachment = get_post( $attachment_id );
 
+			if ( empty( $attachment ) ) {
+				printf( '<p>' . __( '%s is not a valid csv file and could not be imported', 'cat-tracker' ) . '</p>', esc_url( $attachment_data['url'] ) );
+				continue;
+			}
+
 			if ( empty( $attachment_data['url'] ) ) {
 				printf( '<p>' . __( 'Attachment ID #%d does not have a valid URL and could not be imported', 'cat-tracker' ) . '</p>', $attachment_id );
 				continue;
@@ -253,13 +272,11 @@ class Cat_Mapper_Importer {
 			define( 'CAT_TRACKER_IS_IMPORTING', true );
 
 			// create terms
-			$this->create_terms();
+			$this->create_default_terms();
 			echo '<p>' . __( 'Verified and created missing terms (sighting types and intake types)', 'cat-tracker' ) . '</p>';
 
 			$row_num = 1;
 			$start_importing = false;
-			$excluded_sources = apply_filters( 'cat_mapper_importer_excluded_sources', array( 'return', 'owner surrender', 'returns', 'owner surrenders', 'humane officer surrendered', 'humane officer  surrendered', 'humane officer surrender', 'humane officer  surrender', 'humane officer seized', 'humane officer  seized' ) );
-			$type = 'cat';
 			$count_imported = $cat_count = $kitten_count = $dupe = $count_excluded = $count_no_address = $count_bad_address = 0;
 			while ( $row_data = fgetcsv( $open_file ) ) {
 				$row_num++;
@@ -279,6 +296,7 @@ class Cat_Mapper_Importer {
 				$current_spay_neuter_status = $row_data[18];
 				$address = $row_data[23];
 
+				// determine when to start importing
 				if ( 'Animal ID' == $animal_id && 'L/F Address' == $address ) {
 					$start_importing = true;
 					continue;
@@ -301,23 +319,20 @@ class Cat_Mapper_Importer {
 					continue;
 				}
 
-				// exclude returns & owner surrenders
-				if ( in_array( strtolower( $source ), $excluded_sources ) ) {
-					$count_excluded++;
-					continue;
-				}
-
 				// exclude if no address
 				if ( empty( $address ) ) {
 					$count_no_address++;
 					continue;
 				}
 
-				$type = strtolower( $type );
-				$_type = ( 'kitten' == $type ) ? 'bc-spca-unowned-intake-kitten' : 'bc-spca-unowned-intake-cat';
-				$type_object = get_term_by( 'slug', $_type, Cat_Tracker::MARKER_TAXONOMY );
-				if ( ! is_wp_error( $type_object ) && is_object( $type_object ) )
-					$type_id = absint( $type_object->term_id );
+				// parse the source and determine the intake type ID
+				$intake_type = $this->parse_source( $source, $type );
+
+				// if the intake type is false, than we are excluding this sighting
+				if ( false === $intake_type || is_wp_error( $intake_type ) ) {
+					$count_excluded++;
+					continue;
+				}
 
 				if ( empty( $breed ) )
 					$breed = 'unknown';
@@ -378,33 +393,39 @@ class Cat_Mapper_Importer {
 				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'map', $map_id, true );
 
 				// insert sighting type
-				add_post_meta( $sighting_id, Cat_Tracker::MARKER_TAXONOMY, $type_id, true );
-				wp_set_object_terms( $sighting_id, $type_id, Cat_Tracker::MARKER_TAXONOMY );
+				$sighting_type = get_term_by( 'name', 'Intake', Cat_Tracker::MARKER_TAXONOMY );
+				add_post_meta( $sighting_id, Cat_Tracker::MARKER_TAXONOMY, $sighting_type->term_id, true );
+				wp_set_object_terms( $sighting_id, $sighting_type->term_id, Cat_Tracker::MARKER_TAXONOMY );
+
+				// insert intake type
+				add_post_meta( $sighting_id, CAT_MAPPER_INTERNAL_TAXONOMY, $intake_type->term_id, true );
+				wp_set_object_terms( $sighting_id, absint( $intake_type->term_id ), CAT_MAPPER_INTERNAL_TAXONOMY );
+
 				printf( '<p>' . __( 'Animal ID #%d successfully imported.' ) . '</p>', $animal_id );
-				if ( $_type == 'kitten' ) {
+				if ( $type == 'kitten' ) {
 					$kitten_count++;
 				} else {
 					$cat_count++;
 				}
+
 				$count_imported++;
 			}
 
 			fclose( $open_file );
 			wp_delete_attachment( $attachment_id );
-			Cat_Tracker::instance()->_flush_markers_cache();
-			Cat_Tracker::instance()->_flush_map_dropdown_cache();
+			Cat_Tracker::instance()->queue_flush_marker_cache();
 			printf( '<p class="cat-mapper-import-result">' . __( '%d sightings succesfully imported. %d were cats and %d were kittens. %d were duplicate animal IDs. %d sightings excluded because of their source, %d sightings not imported because they did not have an address at all and %d sightings not imported because they did not have a valid address.' ) . '</p>', $count_imported, $cat_count, $kitten_count, $dupe, $count_excluded, $count_no_address, $count_bad_address );
 
 		}
 	}
 
 	/**
-	 * create terms if they do not exist yet
+	 * create default terms if they do not exist yet
 	 *
 	 * @since 1.1
 	 * @return void
 	 */
-	public function create_terms() {
+	public function create_default_terms() {
 
 		$stray_sub_types = array(
 			'ACO Impound',
@@ -465,7 +486,10 @@ class Cat_Mapper_Importer {
 	 * @since 1.1
 	 * @return void
 	 */
-	public function create_term_if_not_exists( $taxonomy, $term, $key = null ) {
+	public function create_term_if_not_exists( $taxonomy, $term, $key = null, $parent = null, $clean_cache = true ) {
+
+		$created_ids = array();
+		$args = array();
 
 		// if it's an array, then there's sub terms to create
 		if ( is_array( $term ) ) {
@@ -473,15 +497,56 @@ class Cat_Mapper_Importer {
 			$term = $key;
 		}
 
+		// find the parent if one is set
+		if ( ! empty( $parent ) ) {
+			$parent_term = get_term_by( 'name', $parent, $taxonomy );
+			if ( ! empty( $parent_term ) && ! is_wp_error( $parent_term ) )
+				$args['parent'] = $parent_term->term_id;
+		}
+
 		// create the term if it doesn't exist yet
 		if ( ! term_exists( $term, $taxonomy ) )
-			wp_insert_term( $term, $taxonomy );
+			$created_ids[] = wp_insert_term( $term, $taxonomy, $args );
 
 		// check if there are sub terms, if not proceed to next term in loop
 		if ( ! empty( $sub_terms ) ) {
-			foreach ( $sub_terms as $term )
-				$this->create_term_if_not_exists( $taxonomy, $term );
+			foreach ( $sub_terms as $sub_term )
+				$this->create_term_if_not_exists( $taxonomy, $sub_term, null, $key, false );
 		}
+
+	}
+
+	/**
+	 * parse source from csv file and determine the intake type ID
+	 *
+	 * @since 1.1
+	 * @return mixed, false if not a valid source, taxonomy term object if valid
+	 */
+	function parse_source( $source, $type ) {
+
+		$type = trim( strtolower( $type ) );
+
+		// detect aliens, seriously, why this would be something different is beyond me
+		if ( ! in_array( $type, array( 'cat', 'kitten' ) ) )
+			return false;
+
+		// keep a copy of the original source, could be handy further below
+		$_source = $source;
+
+		// remove any extra spaces
+		$source = str_replace( '  ', ' ', $source );
+		$source = trim( $source );
+
+		// term exists, return its object
+		if ( term_exists( $source, CAT_MAPPER_INTERNAL_TAXONOMY ) )
+			return get_term_by( 'name', $source, CAT_MAPPER_INTERNAL_TAXONOMY );
+
+		// slugilize the source to try to find it that way
+		if ( term_exists( sanitize_title( $_source ), CAT_MAPPER_INTERNAL_TAXONOMY ) )
+			return get_term_by( 'slug', $source, CAT_MAPPER_INTERNAL_TAXONOMY );
+
+		// out of luck, this must be an excluded source
+		return false;
 	}
 
 }
