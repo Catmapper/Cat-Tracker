@@ -161,7 +161,7 @@ function catmapper_register_intake_taxonomy() {
 		'query_var' => false,
 		'public' => false,
 		'show_ui' => true,
-		'show_tagcloud' => false,
+		'show_admin_column' => true,
 		'capabilities' => array(
 			'manage_terms' => 'manage_intake_types',
 			'edit_terms'   => 'manage_intake_types',
