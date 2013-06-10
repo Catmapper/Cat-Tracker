@@ -105,6 +105,9 @@
 			}
 
 			$( '#marker_geo_information, #cat-tracker-new-submission' ).on( 'keyup', cat_tracker_vars.submission_address_selector, function(e){
+				if ( e.keyCode === 13 )
+					return;
+
 				e.preventDefault();
 				if ( ! cat_tracker_vars.is_submission_mode )
 					disable_submission_click();
