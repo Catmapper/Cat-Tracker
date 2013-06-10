@@ -20,9 +20,9 @@
 
 		function load_map( selector ) {
 
-			var default_layer = L.tileLayer( cat_tracker_vars.map_source, {attribution : cat_tracker_vars.map_attribution} );
+			default_layer = L.tileLayer( cat_tracker_vars.map_source, {attribution : cat_tracker_vars.map_attribution} );
 
- 			// map for submission mode doesn't contain any markers
+			// map for submission mode doesn't contain any markers
 			if ( cat_tracker_vars.is_submission_mode ) {
 
 				map = L.map( selector, {
@@ -33,6 +33,19 @@
 				});
 
 				enable_submission_click();
+
+				map.addControl( new L.Control.ZoomFS() );
+
+			} else if ( cat_tracker_vars.is_admin_submission_mode ) {
+
+				map = L.map( selector, {
+					center : [map_args.map_latitude, map_args.map_longitude],
+					layers : [default_layer],
+					zoom : map_args.map_zoom_level,
+					maxZoom : map_args.map_max_zoom_level,
+					zoomControl : true,
+					scrollWheelZoom : false
+				});
 
 			} else {
 
@@ -53,27 +66,30 @@
 					markers_by_type = $.parseJSON( map_args.markers );
 					build_markers();
 				}
+
+				map.addControl( new L.Control.ZoomFS() );
 			}
 
 			if ( ! map_args.ignore_boundaries )
 				map.setMaxBounds( get_max_bounds() );
 
-	    map.addControl( new L.Control.ZoomFS() );
 
-  		if ( cat_tracker_vars.is_admin_submission_mode ) {
-				$( '#marker_geo_information' ).on( 'click.cat_tracker_relocate', '#cat-tracker-relocate', function(e){
+			if ( cat_tracker_vars.is_admin_submission_mode ) {
+				var $marker_geo_info = $( '#marker_geo_information' );
+
+				$marker_geo_info.on( 'click.cat_tracker_relocate', '#cat-tracker-relocate', function(e){
 					e.preventDefault();
 					enable_submission_click();
 					$(this).attr( 'id', 'cat-tracker-relocate-done' ).attr( 'name', 'cat-tracker-relocate-done' ).val( cat_tracker_vars.relocate_done_text );
 				});
 
-				$( '#marker_geo_information' ).on( 'click.cat_tracker_relocate', '#cat-tracker-relocate-done', function(e){
+				$marker_geo_info.on( 'click.cat_tracker_relocate', '#cat-tracker-relocate-done', function(e){
 					e.preventDefault();
 					disable_submission_click();
 					$(this).attr( 'id', 'cat-tracker-relocate' ).attr( 'name', 'cat-tracker-relocate' ).val( cat_tracker_vars.relocate_text );
 				});
 
-				$( '#marker_geo_information' ).on( 'keyup', cat_tracker_vars.submission_latitude_selector + ', ' + cat_tracker_vars.submission_longitude_selector, function(e){
+				$marker_geo_info.on( 'keyup', cat_tracker_vars.submission_latitude_selector + ', ' + cat_tracker_vars.submission_longitude_selector, function(e){
 					e.preventDefault();
 					disable_submission_click();
 
@@ -93,6 +109,9 @@
 				if ( ! cat_tracker_vars.is_submission_mode )
 					disable_submission_click();
 
+				if ( _.isEmpty( $( cat_tracker_vars.submission_address_selector ).val() ) )
+					return;
+
 				$( cat_tracker_vars.publish_button_selector ).prop( 'disabled', true );
 				$( '#cat-tracker-relocate' ).prop( 'disabled', true );
 				$( cat_tracker_vars.submission_latitude_selector ).prop( 'readonly', true );
@@ -104,19 +123,40 @@
 				address_typing_timer = setTimeout( process_address_change, 2000 );
 			});
 
+			$( 'body' ).on( 'keypress', cat_tracker_vars.submission_address_selector, function(e){
+				if ( e.keyCode === 13 ) {
+					e.preventDefault();
+
+					if ( ! cat_tracker_vars.is_submission_mode )
+						disable_submission_click();
+
+					if ( _.isEmpty( $( cat_tracker_vars.submission_address_selector ).val() ) )
+						return;
+
+					$( cat_tracker_vars.publish_button_selector ).prop( 'disabled', true );
+					$( '#cat-tracker-relocate' ).prop( 'disabled', true );
+					$( cat_tracker_vars.submission_latitude_selector ).prop( 'readonly', true );
+					$( cat_tracker_vars.submission_longitude_selector ).prop( 'readonly', true );
+					$( cat_tracker_vars.submission_map_selector ).addClass( 'reloading' );
+
+					clearTimeout( address_typing_timer );
+					process_address_change();
+				}
+			});
+
 		}
 
 		function get_max_bounds() {
 			var south_west_bounds = new L.LatLng( map_args.map_south_bounds, map_args.map_west_bounds ),
-	  			north_east_bounds = new L.LatLng( map_args.map_north_bounds, map_args.map_east_bounds );
+				north_east_bounds = new L.LatLng( map_args.map_north_bounds, map_args.map_east_bounds );
 			return new L.LatLngBounds( south_west_bounds, north_east_bounds );
 		}
 
 		function build_sortable_attributes() {
 			$.each( sortable_attributes, function( attribute_type, attribute_params ){
-				all_marker_layers_by_attribute[attribute_type] = new Array();
-				$.each( attribute_params.values, function( attribute_value, attribute_name ){
-					all_marker_layers_by_attribute[attribute_type][attribute_value] = new Array();
+				all_marker_layers_by_attribute[attribute_type] = [];
+				$.each( attribute_params.values, function( attribute_value ){
+					all_marker_layers_by_attribute[attribute_type][attribute_value] = [];
 				});
 			});
 		}
@@ -130,7 +170,7 @@
 				var icon = L.divIcon( { className: 'cat-tracker-map-icon icon-' + marker_type } );
 
 				// markers for this marker type
-				var markers = new Array();
+				var markers = [];
 
 				// loop the markers
 				$.each( marker_data.sightings, function( i, sighting ){
@@ -191,15 +231,14 @@
 		}
 
 		function init_legend() {
-			$( '#cat-tracker-custom-controls' ).appendTo( '.leaflet-top.leaflet-right' );
-			$( '#cat-tracker-custom-controls' ).on( 'change.cat_tracker_controls', '.cat-tracker-layer-control', function( e ) {
-
-				var $custom_controls = $( '#cat-tracker-custom-controls' );
+			var $custom_controls = $( '#cat-tracker-custom-controls' );
+			$custom_controls.appendTo( '.leaflet-top.leaflet-right' );
+			$custom_controls.on( 'change.cat_tracker_controls', '.cat-tracker-layer-control', function() {
 
 				// figure out which marker type is currently enabled
 				var $active_marker_types = $custom_controls.find( '.cat-tracker-layer-control-marker-type:checked' );
-				var active_marker_types = new Array();
-				var active_markers_by_type = new Array();
+				var active_marker_types = [];
+				var active_markers_by_type = [];
 				var layer_key = '';
 				$.each( $active_marker_types, function( i, marker_type_checkbox ){
 					var marker_type = $( marker_type_checkbox ).data( 'marker-type' );
@@ -212,11 +251,11 @@
 
 				// figure out which attributes are currently selected
 				if ( cat_tracker_vars.do_sorting ) {
-					var active_attributes = new Array();
-					var active_markers_by_attribute = new Array();
+					var active_attributes = [];
+					var active_markers_by_attribute = [];
 					var ignore_attributes = true;
-					$.each( sortable_attributes, function( attribute_type, attribute_params ){
-						active_attributes[attribute_type] = new Array();
+					$.each( sortable_attributes, function( attribute_type ){
+						active_attributes[attribute_type] = [];
 						var $active_attributes_of_type = $custom_controls.find( '.cat-tracker-layer-control-' + attribute_type + ':checked' );
 						$.each( $active_attributes_of_type, function( i, active_attribute_checkbox ){
 							var active_attribute = $( active_attribute_checkbox ).data( attribute_type );
@@ -256,9 +295,9 @@
 							c += 'medium';
 						} else {
 							c += 'large';
-					}
+						}
 
-					return new L.DivIcon({ html: '<div><span>' + childCount + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point( 40, 40 ) });
+						return new L.DivIcon({ html: '<div><span>' + childCount + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point( 40, 40 ) });
 					}
 				});
 
@@ -281,20 +320,26 @@
 
 			$( cat_tracker_vars.submission_latitude_selector ).prop( 'readonly', true );
 			$( cat_tracker_vars.submission_longitude_selector ).prop( 'readonly', true );
+			$( cat_tracker_vars.publish_button_selector ).prop( 'disabled', true ).attr( 'title', cat_tracker_vars.publish_button_disabled_title );
 
 			map.on( 'click', capture_submission_click );
-			if ( ! _.isEmpty( submission_marker ) )
-	     	submission_marker.on( 'dragend', capture_submission_marker_drag_end );
+			if ( ! _.isEmpty( submission_marker ) ) {
+				submission_marker.dragging.enable();
+				submission_marker.on( 'dragend', capture_submission_marker_drag_end );
+			}
 		}
 
 		function disable_submission_click() {
 			map.off( 'click', capture_submission_click );
-			if ( ! _.isEmpty( submission_marker ) )
-	     	submission_marker.off( 'dragend', capture_submission_marker_drag_end );
+			if ( ! _.isEmpty( submission_marker ) ) {
+				submission_marker.dragging.disable();
+				submission_marker.off( 'dragend', capture_submission_marker_drag_end );
+			}
 
 			$( cat_tracker_vars.submission_address_selector ).prop( 'readonly', false );
 			$( cat_tracker_vars.submission_latitude_selector ).prop( 'readonly', false );
 			$( cat_tracker_vars.submission_longitude_selector ).prop( 'readonly', false );
+			$( cat_tracker_vars.publish_button_selector ).prop( 'disabled', false ).attr( 'title', '' );
 		}
 
 		function capture_submission_click( e ) {
@@ -307,12 +352,12 @@
 				click_count = 0;
 
 				if ( _.isEmpty( submission_marker ) ) {
-	      	submission_marker = new L.Marker( e.latlng , { title : cat_tracker_vars.new_submission_popup_text, clickable : true, draggable : true } ).addTo( map );
-		     	submission_marker.on( 'dragend', capture_submission_marker_drag_end );
-	     	} else {
-	     		submission_marker.setLatLng( e.latlng )
-	     	}
-	     	capture_coordinates_and_address( e.latlng );
+					submission_marker = new L.Marker( e.latlng , { title : cat_tracker_vars.new_submission_popup_text, clickable : true, draggable : true } ).addTo( map );
+					submission_marker.on( 'dragend', capture_submission_marker_drag_end );
+				} else {
+					submission_marker.setLatLng( e.latlng )
+				}
+				capture_coordinates_and_address( e.latlng );
 			}, 200 );
 		}
 
@@ -321,71 +366,80 @@
 		}
 
 		function capture_coordinates_and_address( latlng ) {
-      $( cat_tracker_vars.submission_latitude_selector ).val( latlng.lat );
-	    $( cat_tracker_vars.submission_longitude_selector ).val( latlng.lng );
-	    $( cat_tracker_vars.submission_address_selector ).val( cat_tracker_vars.fetching_address_text ).prop( 'readonly', true );
-			$( cat_tracker_vars.publish_button_selector ).prop( 'disabled', true );
-	    if ( false != address_ajax_request && 4 != address_ajax_request.readyState )
-	    	address_ajax_request.abort();
-	    address_ajax_request = $.get( cat_tracker_vars.ajax_url, { action : 'cat_tracker_fetch_address_using_coordinates', latitude : latlng.lat, longitude : latlng.lng, nonce : cat_tracker_vars.address_nonce }, function( response ){
+			$( cat_tracker_vars.submission_latitude_selector ).val( latlng.lat );
+			$( cat_tracker_vars.submission_longitude_selector ).val( latlng.lng );
+			$( cat_tracker_vars.submission_address_selector ).val( cat_tracker_vars.fetching_address_text ).prop( 'readonly', true );
+			$( cat_tracker_vars.publish_button_selector ).prop( 'disabled', true ).attr( 'title', cat_tracker_vars.publish_button_disabled_title );
+			if ( false != address_ajax_request && 4 != address_ajax_request.readyState )
+				address_ajax_request.abort();
+			address_ajax_request = $.get( cat_tracker_vars.ajax_url, { action : 'cat_tracker_fetch_address_using_coordinates', latitude : latlng.lat, longitude : latlng.lng, nonce : cat_tracker_vars.address_nonce }, function( response ){
 
-	    	if ( cat_tracker_vars.is_submission_mode )
-					$( cat_tracker_vars.submission_address_selector ).prop( 'readonly', false );
+				if ( ( 'undefined' != typeof( response.errors ) && response.errors ) || 'undefined' == typeof( response.coordinates ) || _.isEmpty( response.coordinates ) ) {
+					if ( 'undefined' != typeof( response.errors ) )
+						alert( response.errors );
 
-	    	if ( ( 'undefined' != typeof( response.errors ) && response.errors ) || 'undefined' == typeof( response.coordinates ) || _.isEmpty( response.coordinates ) ) {
-	    		if ( 'undefined' != typeof( response.errors ) )
-	    			alert( response.errors );
+					$( cat_tracker_vars.submission_address_selector ).val( cat_tracker_vars.default_address );
+					return;
+				}
 
-			    $( cat_tracker_vars.submission_address_selector ).val( cat_tracker_vars.default_address );
-	    		return;
-	    	}
-
-		    $( cat_tracker_vars.submission_address_selector ).val( response.coordinates.formatted_address );
-		    $( cat_tracker_vars.submission_confidence_level_selector ).val( response.coordinates.confidence );
-				$( cat_tracker_vars.publish_button_selector ).prop( 'disabled', false );
-
-	    });;
+				$( cat_tracker_vars.submission_address_selector ).val( response.coordinates.formatted_address );
+				$( cat_tracker_vars.submission_confidence_level_selector ).val( response.coordinates.confidence );
+			});
 		}
 
 		function process_address_change(){
-	    $( cat_tracker_vars.submission_confidence_level_selector ).val( cat_tracker_vars.fetching_address_text );
+
+			if ( _.isEmpty( $( cat_tracker_vars.submission_address_selector ).val() ) ) {
+				$( cat_tracker_vars.submission_address_selector ).val( '' ).prop( 'readonly', false );
+				$( cat_tracker_vars.submission_confidence_level_selector ).val( '' );
+				$( cat_tracker_vars.submission_latitude_selector ).val( '' ).prop( 'readonly', false );
+				$( cat_tracker_vars.submission_longitude_selector ).val( '' ).prop( 'readonly', false );
+				$( cat_tracker_vars.submission_map_selector ).removeClass( 'reloading' );
+				$( '#cat-tracker-relocate' ).prop( 'disabled', false );
+				$( cat_tracker_vars.publish_button_selector ).prop( 'disabled', false ).attr( 'title', '' );
+				return;
+			}
+
+			$( cat_tracker_vars.submission_map_selector ).addClass( 'reloading' );
+			$( cat_tracker_vars.submission_confidence_level_selector ).val( cat_tracker_vars.fetching_address_text );
 			if ( false != process_address_ajax_request && 4 != process_address_ajax_request.readyState )
 				process_address_ajax_request.abort();
+
 			process_address_ajax_request = $.get( cat_tracker_vars.ajax_url, { action : 'cat_tracker_fetch_coordinates_using_address', address : $( cat_tracker_vars.submission_address_selector ).val(), nonce : cat_tracker_vars.address_nonce }, function( response ){
 
-	    	if ( ( 'undefined' != typeof( response.errors ) && response.errors ) || 'undefined' == typeof( response.coordinates ) || _.isEmpty( response.coordinates ) ) {
-	    		if ( 'undefined' != typeof( response.errors ) )
-	    			alert( response.errors );
+				if ( ( 'undefined' != typeof( response.errors ) && response.errors ) || 'undefined' == typeof( response.coordinates ) || _.isEmpty( response.coordinates ) ) {
+					if ( 'undefined' != typeof( response.errors ) )
+						alert( response.errors );
 
-			    $( cat_tracker_vars.submission_address_selector ).val( cat_tracker_vars.default_address );
-	    		return;
-	    	}
+					$( cat_tracker_vars.submission_address_selector ).val( cat_tracker_vars.default_address );
+					return;
+				}
 
 				if ( _.isEmpty( submission_marker ) ) {
-	      	submission_marker = new L.Marker( [response.coordinates.latitude, response.coordinates.longitude], { title : cat_tracker_vars.new_submission_popup_text, clickable : true, draggable : true } ).addTo( map );
-		     	submission_marker.on( 'dragend', capture_submission_marker_drag_end );
-	     	} else {
-	     		submission_marker.setLatLng( [response.coordinates.latitude, response.coordinates.longitude] );
+					submission_marker = new L.Marker( [response.coordinates.latitude, response.coordinates.longitude], { title : cat_tracker_vars.new_submission_popup_text, clickable : true, draggable : true } ).addTo( map );
+					submission_marker.on( 'dragend', capture_submission_marker_drag_end );
+				} else {
+					submission_marker.setLatLng( [response.coordinates.latitude, response.coordinates.longitude] );
 				}
 
 				map.setView( [response.coordinates.latitude, response.coordinates.longitude], map_args.map_zoom_level, true );
 
-		    $( cat_tracker_vars.submission_address_selector ).val( response.coordinates.formatted_address ).prop( 'readonly', false );
-		    $( cat_tracker_vars.submission_confidence_level_selector ).val( response.coordinates.confidence );
-		    $( cat_tracker_vars.submission_latitude_selector ).val( response.coordinates.latitude ).prop( 'readonly', false );
-		    $( cat_tracker_vars.submission_longitude_selector ).val( response.coordinates.longitude ).prop( 'readonly', false );
+				$( cat_tracker_vars.submission_address_selector ).val( response.coordinates.formatted_address ).prop( 'readonly', false );
+				$( cat_tracker_vars.submission_confidence_level_selector ).val( response.coordinates.confidence );
+				$( cat_tracker_vars.submission_latitude_selector ).val( response.coordinates.latitude ).prop( 'readonly', false );
+				$( cat_tracker_vars.submission_longitude_selector ).val( response.coordinates.longitude ).prop( 'readonly', false );
 				$( cat_tracker_vars.submission_map_selector ).removeClass( 'reloading' );
 				$( '#cat-tracker-relocate' ).prop( 'disabled', false );
-				$( cat_tracker_vars.publish_button_selector ).prop( 'disabled', false );
+				$( cat_tracker_vars.publish_button_selector ).prop( 'disabled', false ).attr( 'title', '' );
 
-	    });
+			});
 
 		}
 
 		function process_coordinates_change(){
-	    $( cat_tracker_vars.submission_latitude_selector ).prop( 'readonly', true );
-	    $( cat_tracker_vars.submission_longitude_selector ).prop( 'readonly', true );
-	    $( cat_tracker_vars.submission_confidence_level_selector ).val( cat_tracker_vars.fetching_address_text );
+			$( cat_tracker_vars.submission_latitude_selector ).prop( 'readonly', true );
+			$( cat_tracker_vars.submission_longitude_selector ).prop( 'readonly', true );
+			$( cat_tracker_vars.submission_confidence_level_selector ).val( cat_tracker_vars.fetching_address_text );
 			$( cat_tracker_vars.submission_map_selector ).addClass( 'reloading' );
 			if ( false != process_coordinates_ajax_request && 4 != process_coordinates_ajax_request.readyState )
 				process_coordinates_ajax_request.abort();
@@ -398,16 +452,16 @@
 					return;
 				}
 
-		    $( cat_tracker_vars.submission_latitude_selector ).val( response.coordinates.latitude ).prop( 'readonly', false );
-		    $( cat_tracker_vars.submission_longitude_selector ).val( response.coordinates.longitude ).prop( 'readonly', false );
-		    $( cat_tracker_vars.submission_address_selector ).val( response.coordinates.formatted_address ).prop( 'readonly', false );
-		    $( cat_tracker_vars.submission_confidence_level_selector ).val( response.coordinates.confidence );
+				$( cat_tracker_vars.submission_latitude_selector ).val( response.coordinates.latitude ).prop( 'readonly', false );
+				$( cat_tracker_vars.submission_longitude_selector ).val( response.coordinates.longitude ).prop( 'readonly', false );
+				$( cat_tracker_vars.submission_address_selector ).val( response.coordinates.formatted_address ).prop( 'readonly', false );
+				$( cat_tracker_vars.submission_confidence_level_selector ).val( response.coordinates.confidence );
 
 				if ( _.isEmpty( submission_marker ) ) {
-	      	submission_marker = new L.Marker( [response.coordinates.latitude, response.coordinates.longitude], { title : cat_tracker_vars.new_submission_popup_text, clickable : true, draggable : true } ).addTo( map );
-		     	submission_marker.on( 'dragend', capture_submission_marker_drag_end );
-	     	} else {
-	     		submission_marker.setLatLng( [response.coordinates.latitude, response.coordinates.longitude] );
+					submission_marker = new L.Marker( [response.coordinates.latitude, response.coordinates.longitude], { title : cat_tracker_vars.new_submission_popup_text, clickable : true, draggable : true } ).addTo( map );
+					submission_marker.on( 'dragend', capture_submission_marker_drag_end );
+				} else {
+					submission_marker.setLatLng( [response.coordinates.latitude, response.coordinates.longitude] );
 				}
 
 				map.setView( [response.coordinates.latitude, response.coordinates.longitude], map_args.map_zoom_level, true );
@@ -416,7 +470,7 @@
 				$( '#cat-tracker-relocate' ).prop( 'disabled', false );
 				$( cat_tracker_vars.publish_button_selector ).prop( 'disabled', false );
 
-	    });
+			});
 
 		}
 
