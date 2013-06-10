@@ -486,7 +486,7 @@ function cat_mapper_admin_bar_sites_menu( $wp_admin_bar ) {
 			$wp_admin_bar->add_menu( array(
 				'parent' => $menu_id,
 				'id'     => $menu_id . '-e',
-				'title'  => __( 'View map', 'cat-mapper' ),
+				'title'  => __( 'View Internal Map', 'cat-mapper' ),
 				'href'   => add_query_arg( array( 'page' => 'internal-map' ), admin_url( 'admin.php' ) ),
 			) );
 		}
@@ -535,7 +535,7 @@ function cat_mapper_admin_bar_sightings_menu( $wp_admin_bar ) {
 
 	$wp_admin_bar->add_menu( array(
 		'id'    => 'view_map',
-		'title' => __( 'View Map', 'cat_mapper' ),
+		'title' => __( 'View Internal Map', 'cat_mapper' ),
 		'href'  => add_query_arg( array( 'page' => 'internal-map' ), admin_url( 'admin.php' ) ),
 	) );
 

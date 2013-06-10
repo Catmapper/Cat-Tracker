@@ -52,10 +52,11 @@ class Cat_Mapper_Markers_Admin {
 	 */
 	public static function instance() {
 		if ( isset( self::$instance ) )
-			return $instance;
+			return self::$instance;
 
 		self::$instance = new Cat_Mapper_Markers_Admin;
 		self::$instance->run_hooks();
+		return self::$instance;
 	}
 
 	/**
@@ -143,7 +144,7 @@ class Cat_Mapper_Markers_Admin {
 				echo '<span class="trash"><a href="' . esc_url( get_delete_post_link( $marker_id ) ) . '" class="submitdelete">' . __( 'Trash' ) . '</a> | </span>';
 			}
 
-			echo '<span class="view"><a href="' . esc_url( add_query_arg( array( 'page' => 'internal-map' ), 'admin.php' ) ) . '">' . __( 'View on Map' ) . '</a></span>';
+			echo '<span class="view"><a href="' . esc_url( add_query_arg( array( 'page' => 'internal-map' ), 'admin.php' ) ) . '">' . __( 'View on Internal Map' ) . '</a></span>';
 			echo '</div>';
 		}
 
