@@ -41,6 +41,10 @@
 /* ===================================================
    taxonomy fields
    ================================================== */
+.edit-tags-php .tagcloud {
+	display: none;
+}
+
 .cat-tracker-term-fields .wp-picker-input-wrap {
   width: 150px;
 }

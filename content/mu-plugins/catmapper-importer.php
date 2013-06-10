@@ -461,7 +461,6 @@ class Cat_Mapper_Importer {
 		$taxonomy_terms = array(
 			Cat_Tracker::MARKER_TAXONOMY => array(
 				'SPCA Intake Cats',
-				'Community Cats',
 			),
 			CAT_MAPPER_INTERNAL_TAXONOMY => array(
 				'Stray Cat' => $stray_sub_types,

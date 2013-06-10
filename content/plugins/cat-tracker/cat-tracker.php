@@ -432,8 +432,7 @@ class Cat_Tracker {
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'sighting_map', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Map', 'display_callback' => 'cat_tracker_sighting_map' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'address', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Address' ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'confidence_level', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Confidence Level', 'readonly' => true ) );
-		// x_add_metadata_field( Cat_Tracker::META_PREFIX . 'cross_street', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Cross Street' ) );
-		// x_add_metadata_field( Cat_Tracker::META_PREFIX . 'postal_code', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Postal Code' ) );
+
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'latitude', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Latitude', ) );
 		x_add_metadata_field( Cat_Tracker::META_PREFIX . 'longitude', array( Cat_Tracker::MARKER_POST_TYPE ), array( 'field_type' => 'text', 'group' => 'marker_geo_information', 'label' => 'Longitude' ) );
 
@@ -499,8 +498,9 @@ class Cat_Tracker {
 			'submission_longitude_selector' => '#cat_tracker_longitude',
 			'submission_address_selector' => '#cat_tracker_address',
 			'submission_confidence_level_selector' => '#cat_tracker_confidence_level',
-			'publish_button_selector' => '#publish',
-			'relocate_text' => __( 'Relocate sighting', 'cat-tracker' ),
+			'publish_button_selector' => '#publish, #save-post',
+			'publish_button_disabled_title' => __( 'Confirm that you are done relocating the marker before saving', 'cat-tracker' ),
+			'relocate_text' => __( 'Use mouse pointer to relocate sighting', 'cat-tracker' ),
 			'relocate_done_text' => __( "Ok, I'm done relocating the marker", 'cat-tracker' ),
 			'fetching_address_text' => __( "Looking up address... shouldn't be more than a few seconds.", 'cat-tracker' ),
 			'default_address' => __( 'n/a', 'cat-tracker' ),
@@ -650,16 +650,20 @@ class Cat_Tracker {
 
 			$content .= '<div class="cat-tracker-map" id="' . esc_attr( 'map-' . $map_id ) . '"></div>';
 
+
 			$marker_types = $this->get_marker_types( $map_id );
 			if ( empty( $marker_types ) )
 				return $content;
-
-			$content .= '<div class="leaflet-control-layers leaflet-control leaflet-control-layers-expanded" id="cat-tracker-custom-controls"><div class="leaflet-control-layers-overlays">';
-			$content .= '<span>' . __( 'Select types of sightings:', 'cat-tracker' ) . '</span>';
-			$content .= '<form>';
-			foreach ( $marker_types as $marker_type )
-				$content .= '<label><input data-marker-type="' . esc_attr( $marker_type->slug ) . '" class="cat-tracker-layer-control cat-tracker-layer-control-marker-type" type="checkbox" checked="checked">' . esc_html( $marker_type->name ) . '</label>';
-			$content .= '</div></form></div>';
+//
+//			$content .= '<div class="leaflet-control-layers leaflet-control leaflet-control-layers-expanded" id="cat-tracker-custom-controls"><div class="leaflet-control-layers-overlays">';
+//			$content .= '<span>' . __( 'Select types of sightings:', 'cat-tracker' ) . '</span>';
+//			$content .= '<form>';
+//			foreach ( $marker_types as $marker_type ) {
+//				if ( ! empty( $marker_type->slug ) ) {
+//					$content .= '<label><input data-marker-type="' . esc_attr( $marker_type->slug ) . '" class="cat-tracker-layer-control cat-tracker-layer-control-marker-type" type="checkbox" checked="checked">' . esc_html( $marker_type->name ) . '</label>';
+//				}
+//			}
+//			$content .= '</div></form></div>';
 		}
 
 		return $content;
@@ -1256,11 +1260,11 @@ class Cat_Tracker {
 			$longitude = $this->get_marker_longitude( $object_id );
 			if ( ! empty( $latitude ) && ! empty( $longitude ) ) {
 				echo '<p>' . __( 'The following is a preview of how this sighting will appear on the map, it does not include the description or colouring that the sighting will have on the internal or public map(s). To modify the location of the sighting, click on the relocate button, or modify the address or coordinates directly below. When you click on the relocate button, you will be able to click or drag the marker to place it in a new location. Once you\'re done moving it, just click done or hit the update button.' ) . '</p>';
-				submit_button( __( 'Relocate sighting', 'cat-tracker' ), 'primary', 'cat-tracker-relocate', false );
+				submit_button( __( 'Use mouse pointer to relocate sighting', 'cat-tracker' ), 'primary', 'cat-tracker-relocate', false );
 				echo '<div class="clear"></div><br>';
 			} else {
 				echo '<p>' . __( 'The following is a blank map upon which you can place the sighting. To place the sighting, click on the locate button, or add an address or coordinates directly below. When you click on the locate button, you will be able to click or drag the marker to place it. Once you\'re done moving it, just click done or hit the publish button. Note that this preview does not include the description or colouring that the sighting will have on the internal or public map(s).' ) . '</p>';
-				submit_button( __( 'Locate sighting', 'cat-tracker' ), 'primary', 'cat-tracker-relocate', false );
+				submit_button( __( 'Use mouse pointer to locate sighting', 'cat-tracker' ), 'primary', 'cat-tracker-relocate', false );
 				echo '<div class="clear"></div><br>';
 			}
 			?>
