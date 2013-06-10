@@ -123,8 +123,10 @@ class Cat_Mapper_Internal_Map {
 						echo '<div class="leaflet-control-layers-overlays">';
 							echo '<form>';
 								echo '<span>' . __( 'Select types of sightings:', 'cat-tracker' ) . '</span>';
-								foreach ( $marker_types as $marker_type )
-									echo '<label><input data-marker-type="' . esc_attr( $marker_type->slug ) . '" class="cat-tracker-layer-control cat-tracker-layer-control-marker-type" type="checkbox" checked="checked"> ' . esc_html( $marker_type->name ) . '</label>';
+								foreach ( $marker_types as $marker_type ) {
+									if ( false !== $marker_type )
+										echo '<label><input data-marker-type="' . esc_attr( $marker_type->slug ) . '" class="cat-tracker-layer-control cat-tracker-layer-control-marker-type" type="checkbox" checked="checked"> ' . esc_html( $marker_type->name ) . '</label>';
+								}
 									echo '<div class="leaflet-control-layers-separator" style=""></div>';
 									foreach ( Cat_Tracker::instance()->get_sortable_attributes() as $sortable_attribute => $sortable_attribute_params ) {
 										echo '<span>' . sprintf( __( 'Select %s:', 'cat-tracker' ),  $sortable_attribute_params['name'] ) . '</span>';
@@ -273,7 +275,7 @@ class Cat_Mapper_Internal_Map {
 	 */
 	static function get_map_id_for_current_community() {
 		$map_id = absint( get_option( 'catmapper_community_main_map_id' ) );
-		if ( 0 === $map_id || 1 === $map_id )
+		if ( 0 === $map_id )
 			return false;
 
 		return $map_id;
