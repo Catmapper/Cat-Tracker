@@ -94,7 +94,7 @@ class Cat_Mapper_Internal_Map {
 		add_menu_page( 'Internal Map', 'Internal Map', 'read_map', 'internal-map', array( $this, 'render_page' ), ' ', 30 );
 		$map_id = self::get_map_id_for_current_community();
 		if ( ! empty( $map_id ) ) {
-			add_submenu_page( 'internal-map', 'Edit Map', 'Edit Map', 'edit_maps', 'post.php?post=' . $map_id . ' &action=edit' );
+			add_submenu_page( 'internal-map', 'Edit Map Details', 'Edit Map Details', 'edit_maps', 'post.php?post=' . $map_id . ' &action=edit' );
 		}
 	}
 

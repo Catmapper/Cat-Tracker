@@ -542,7 +542,7 @@ function cat_mapper_admin_bar_sightings_menu( $wp_admin_bar ) {
 	if ( current_user_can( 'edit_maps' ) ) {
 		$wp_admin_bar->add_menu( array(
 			'id'    => 'edit_map',
-			'title' => __( 'Edit Map', 'cat_mapper' ),
+			'title' => __( 'Edit Map Details', 'cat_mapper' ),
 			'href'  => add_query_arg( array( 'post' => $map_id, 'action' => 'edit' ), admin_url( 'post.php' ) ),
 		) );
 	}
