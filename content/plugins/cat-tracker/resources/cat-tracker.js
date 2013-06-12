@@ -47,6 +47,9 @@
 					scrollWheelZoom : false
 				});
 
+				markers_by_type = $.parseJSON( map_args.markers );
+				build_markers();
+
 			} else {
 
 				map = L.map( selector, {
