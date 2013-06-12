@@ -22,7 +22,7 @@ License: GPLv2
  *
  * 	-- 	Taxonomy Metadata, without it term meta / sighting type colors will not work
  * 			@link http://wordpress.org/extend/plugins/taxonomy-metadata/
-*/
+ */
 
 /*
 This program is free software; you can redistribute it and/or
@@ -294,29 +294,29 @@ class Cat_Tracker {
 		register_post_type( Cat_Tracker::MARKER_POST_TYPE, $markers_cpt_args );
 
 		$marker_taxonomy_labels = apply_filters( 'cat_tracker_marker_type_taxonomy_labels', array(
-	    'name' => __( 'Sighting Types', 'cat_tracker' ),
-	    'singular_name' => __( 'Sighting Type', 'cat_tracker' ),
-	    'search_items' => __( 'Search Sighting Types', 'cat_tracker' ),
-	    'all_items' => __( 'All Sighting Types', 'cat_tracker' ),
-	    'parent_item' => __( 'Parent Sighting Type', 'cat_tracker' ),
-	    'parent_item_colon' => __( 'Search Sighting:', 'cat_tracker' ),
-	    'edit_item' => __( 'Edit Sighting Type', 'cat_tracker' ),
-	    'update_item' => __( 'Update Sighting Type', 'cat_tracker' ),
-	    'add_new_item' => __( 'Add New Sighting Type', 'cat_tracker' ),
-	    'new_item_name' => __( 'New Sighting Type', 'cat_tracker' ),
-	    'separate_items_with_commas' => __( 'Separate Sighting Types with Commas', 'cat_tracker' ),
-	    'add_or_remove_items' => __( 'Add or remove sighting types', 'cat_tracker' ),
-	    'choose_from_most_used' => __( 'Choose from the most used sighting types', 'cat_tracker' ),
-	    'menu_name' => __( 'Types', 'cat_tracker' ),
+			'name' => __( 'Sighting Types', 'cat_tracker' ),
+			'singular_name' => __( 'Sighting Type', 'cat_tracker' ),
+			'search_items' => __( 'Search Sighting Types', 'cat_tracker' ),
+			'all_items' => __( 'All Sighting Types', 'cat_tracker' ),
+			'parent_item' => __( 'Parent Sighting Type', 'cat_tracker' ),
+			'parent_item_colon' => __( 'Search Sighting:', 'cat_tracker' ),
+			'edit_item' => __( 'Edit Sighting Type', 'cat_tracker' ),
+			'update_item' => __( 'Update Sighting Type', 'cat_tracker' ),
+			'add_new_item' => __( 'Add New Sighting Type', 'cat_tracker' ),
+			'new_item_name' => __( 'New Sighting Type', 'cat_tracker' ),
+			'separate_items_with_commas' => __( 'Separate Sighting Types with Commas', 'cat_tracker' ),
+			'add_or_remove_items' => __( 'Add or remove sighting types', 'cat_tracker' ),
+			'choose_from_most_used' => __( 'Choose from the most used sighting types', 'cat_tracker' ),
+			'menu_name' => __( 'Types', 'cat_tracker' ),
 		) );
 
 		$marker_taxonomy_args = apply_filters( 'cat_tracker_marker_type_taxonomy_args', array(
 			'labels' => $marker_taxonomy_labels,
 			'hierarchical' => false,
-    	'query_var' => false,
-    	'public' => false,
-    	'show_ui' => true,
-    	'show_tagcloud' => false,
+			'query_var' => false,
+			'public' => false,
+			'show_ui' => true,
+			'show_tagcloud' => false,
 		) );
 
 		register_taxonomy( Cat_Tracker::MARKER_TAXONOMY, Cat_Tracker::MARKER_POST_TYPE, $marker_taxonomy_args );
@@ -331,52 +331,52 @@ class Cat_Tracker {
 	 * @return (array) $messages the filtered messages
 	 */
 	function post_updated_messages( $messages ) {
-	  global $post, $post_ID;
+		global $post, $post_ID;
 
-	  if ( self::MAP_POST_TYPE == get_post_type( $post_ID ) ) {
-	  	$map_url = apply_filters( 'cat_tracker_admin_map_url', esc_url( get_permalink( $post_ID ) ), $post_ID );
+		if ( self::MAP_POST_TYPE == get_post_type( $post_ID ) ) {
+			$map_url = apply_filters( 'cat_tracker_admin_map_url', esc_url( get_permalink( $post_ID ) ), $post_ID );
 
-		  $messages[self::MAP_POST_TYPE] = array(
-		    1 => sprintf( __( 'Map updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
-		    2 => sprintf( __( 'Map updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
-		    3 => sprintf( __( 'Map updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
-		    4 => sprintf( __( 'Map updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
-		    5 => isset( $_GET['revision'] ) ? sprintf( __( 'Map restored to revision from %s', 'cat_tracker '), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
-		    6 => sprintf( __( 'Map published. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
-		    7 => __('Book saved.', 'cat_tracker'),
-		    6 => sprintf( __( 'Map published. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
-		    7 => __( 'Map saved.', 'cat_tracker' ),
-		    9 => sprintf( __( 'Map scheduled to appear on: <strong>%1$s</strong>. <a target="_blank" href="%2$s">View Map</a>', 'cat_tracker' ),
-		      // translators: Publish box date format, see http://php.net/date
-		      date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), $map_url ),
-		    10 => sprintf( __( 'Map draft updated.', 'cat_tracker' ) ),
-		    11 => sprintf( __( "The new community site for <strong>%s</strong> has been created. Now, please create a map for this community.", 'cat_tracker' ), get_bloginfo( 'name' ) ),
-		  );
+			$messages[self::MAP_POST_TYPE] = array(
+				1 => sprintf( __( 'Map updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
+				2 => sprintf( __( 'Map updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
+				3 => sprintf( __( 'Map updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
+				4 => sprintf( __( 'Map updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
+				5 => isset( $_GET['revision'] ) ? sprintf( __( 'Map restored to revision from %s', 'cat_tracker '), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+				6 => sprintf( __( 'Map published. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
+				7 => __('Book saved.', 'cat_tracker'),
+				6 => sprintf( __( 'Map published. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
+				7 => __( 'Map saved.', 'cat_tracker' ),
+				9 => sprintf( __( 'Map scheduled to appear on: <strong>%1$s</strong>. <a target="_blank" href="%2$s">View Map</a>', 'cat_tracker' ),
+					// translators: Publish box date format, see http://php.net/date
+					date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), $map_url ),
+				10 => sprintf( __( 'Map draft updated.', 'cat_tracker' ) ),
+				11 => sprintf( __( "The new community site for <strong>%s</strong> has been created. Now, please create a map for this community.", 'cat_tracker' ), get_bloginfo( 'name' ) ),
+			);
 
 		}
 
 		if ( self::MARKER_POST_TYPE == get_post_type( $post_ID ) ) {
-	  	$map_url = apply_filters( 'cat_tracker_admin_map_url', esc_url( get_permalink( $this->get_map_id_for_marker( $post_ID ) ) ), $post_ID );
+			$map_url = apply_filters( 'cat_tracker_admin_map_url', esc_url( get_permalink( $this->get_map_id_for_marker( $post_ID ) ) ), $post_ID );
 
-		  $messages[self::MARKER_POST_TYPE] = array(
-		    1 => sprintf( __( 'Sighting updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
-		    2 => sprintf( __( 'Sighting updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
-		    3 => sprintf( __( 'Sighting updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
-		    4 => sprintf( __( 'Sighting updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
-		    5 => isset( $_GET['revision'] ) ? sprintf( __( 'Sighting restored to revision from %s', 'cat_tracker '), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
-		    6 => sprintf( __( 'Sighting published. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
-		    7 => __('Book saved.', 'cat_tracker'),
-		    6 => sprintf( __( 'Sighting approved. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
-		    7 => __( 'Sighting saved.', 'cat_tracker' ),
-		    9 => sprintf( __( 'Sighting scheduled to appear in map on: <strong>%1$s</strong>. <a target="_blank" href="%2$s">View Map</a>', 'cat_tracker' ),
-		      // translators: Publish box date format, see http://php.net/date
-		      date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), $map_url ),
-		    10 => sprintf( __( 'Sighting draft updated.', 'cat_tracker' ) ),
-		  );
+			$messages[self::MARKER_POST_TYPE] = array(
+				1 => sprintf( __( 'Sighting updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
+				2 => sprintf( __( 'Sighting updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
+				3 => sprintf( __( 'Sighting updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
+				4 => sprintf( __( 'Sighting updated. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
+				5 => isset( $_GET['revision'] ) ? sprintf( __( 'Sighting restored to revision from %s', 'cat_tracker '), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+				6 => sprintf( __( 'Sighting published. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
+				7 => __('Book saved.', 'cat_tracker'),
+				6 => sprintf( __( 'Sighting approved. <a href="%s">View Map</a>', 'cat_tracker' ), $map_url ),
+				7 => __( 'Sighting saved.', 'cat_tracker' ),
+				9 => sprintf( __( 'Sighting scheduled to appear in map on: <strong>%1$s</strong>. <a target="_blank" href="%2$s">View Map</a>', 'cat_tracker' ),
+					// translators: Publish box date format, see http://php.net/date
+					date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), $map_url ),
+				10 => sprintf( __( 'Sighting draft updated.', 'cat_tracker' ) ),
+			);
 
 		}
 
-  	return $messages;
+		return $messages;
 	}
 
 
@@ -391,10 +391,10 @@ class Cat_Tracker {
 
 		/**
 		 * Note: this plugin requires Custom Metadata Manager plugin in
- 		 * order to properly function, without it custom fields will not work
- 		 * @link http://wordpress.org/extend/plugins/custom-metadata/
- 		 *
- 		 * bail if the needed functions don't exist
+		 * order to properly function, without it custom fields will not work
+		 * @link http://wordpress.org/extend/plugins/custom-metadata/
+		 *
+		 * bail if the needed functions don't exist
 		 */
 		if ( ! function_exists( 'x_add_metadata_field' ) || ! function_exists( 'x_add_metadata_group' ) )
 			return;
@@ -627,10 +627,10 @@ class Cat_Tracker {
 	public function enqueue_ie_styles() {
 		?>
 		<!--[if lte IE 8]>
-    	<link rel="stylesheet" href="<?php echo esc_url( add_query_arg( array( 'ver' => self::LEAFLET_VERSION ), plugins_url( 'resources/leaflet-ie.css', __FILE__ ) ) ); ?>" />
-    	<link rel="stylesheet" href="<?php echo esc_url( add_query_arg( array( 'ver' => self::LEAFLET_VERSION ), plugins_url( 'resources/leaflet-marker-cluster-ie.css', __FILE__ ) ) ); ?>" />
+		<link rel="stylesheet" href="<?php echo esc_url( add_query_arg( array( 'ver' => self::LEAFLET_VERSION ), plugins_url( 'resources/leaflet-ie.css', __FILE__ ) ) ); ?>" />
+		<link rel="stylesheet" href="<?php echo esc_url( add_query_arg( array( 'ver' => self::LEAFLET_VERSION ), plugins_url( 'resources/leaflet-marker-cluster-ie.css', __FILE__ ) ) ); ?>" />
 		<![endif]-->
-		<?php
+	<?php
 	}
 
 	public function map_content( $content ) {
@@ -654,16 +654,16 @@ class Cat_Tracker {
 			$marker_types = $this->get_marker_types( $map_id );
 			if ( empty( $marker_types ) )
 				return $content;
-//
-//			$content .= '<div class="leaflet-control-layers leaflet-control leaflet-control-layers-expanded" id="cat-tracker-custom-controls"><div class="leaflet-control-layers-overlays">';
-//			$content .= '<span>' . __( 'Select types of sightings:', 'cat-tracker' ) . '</span>';
-//			$content .= '<form>';
-//			foreach ( $marker_types as $marker_type ) {
-//				if ( ! empty( $marker_type->slug ) ) {
-//					$content .= '<label><input data-marker-type="' . esc_attr( $marker_type->slug ) . '" class="cat-tracker-layer-control cat-tracker-layer-control-marker-type" type="checkbox" checked="checked">' . esc_html( $marker_type->name ) . '</label>';
-//				}
-//			}
-//			$content .= '</div></form></div>';
+			//
+			//			$content .= '<div class="leaflet-control-layers leaflet-control leaflet-control-layers-expanded" id="cat-tracker-custom-controls"><div class="leaflet-control-layers-overlays">';
+			//			$content .= '<span>' . __( 'Select types of sightings:', 'cat-tracker' ) . '</span>';
+			//			$content .= '<form>';
+			//			foreach ( $marker_types as $marker_type ) {
+			//				if ( ! empty( $marker_type->slug ) ) {
+			//					$content .= '<label><input data-marker-type="' . esc_attr( $marker_type->slug ) . '" class="cat-tracker-layer-control cat-tracker-layer-control-marker-type" type="checkbox" checked="checked">' . esc_html( $marker_type->name ) . '</label>';
+			//				}
+			//			}
+			//			$content .= '</div></form></div>';
 		}
 
 		return $content;
@@ -959,7 +959,7 @@ class Cat_Tracker {
 		if ( wp_is_post_revision( $post_id ) || ( ! in_array( $post_type, array( Cat_Tracker::MAP_POST_TYPE, Cat_Tracker::MARKER_POST_TYPE ) ) ) )
 			return;
 
-	 	// though not strictly required, passing the time paramater ensures the event is unique enough to run again if it's called shortly after this event has occurred already
+		// though not strictly required, passing the time paramater ensures the event is unique enough to run again if it's called shortly after this event has occurred already
 		wp_schedule_single_event( time(), 'cat_tracker_flush_all_markers_cache', array( 'time' => time() ) );
 	}
 
@@ -971,7 +971,7 @@ class Cat_Tracker {
 	 */
 	public function queue_flush_marker_cache() {
 
-	 	// though not strictly required, passing the time paramater ensures the event is unique enough to run again if it's called shortly after this event has occurred already
+		// though not strictly required, passing the time paramater ensures the event is unique enough to run again if it's called shortly after this event has occurred already
 		wp_schedule_single_event( time(), 'cat_tracker_flush_all_markers_cache', array( 'time' => time() ) );
 	}
 
@@ -1248,29 +1248,29 @@ class Cat_Tracker {
 			return;
 
 		echo '<div class="custom-metadata-field text">';
-			echo '<label>' . __( 'Sighting Preview/Set-up', 'cat-tracker' ) . '</label>';
+		echo '<label>' . __( 'Sighting Preview/Set-up', 'cat-tracker' ) . '</label>';
 
-			$map = get_post( $this->get_map_id_for_marker( $object_id ) );
-			if ( empty( $map ) || self::MAP_POST_TYPE != get_post_type( $map->ID ) ) {
-				echo '<p>' . __( 'A map ID needs to be assigned to the sighting to get a preview', 'cat_tracker' ) . '</p>';
-				return;
-			}
+		$map = get_post( $this->get_map_id_for_marker( $object_id ) );
+		if ( empty( $map ) || self::MAP_POST_TYPE != get_post_type( $map->ID ) ) {
+			echo '<p>' . __( 'A map ID needs to be assigned to the sighting to get a preview', 'cat_tracker' ) . '</p>';
+			return;
+		}
 
-			$latitude = $this->get_marker_latitude( $object_id );
-			$longitude = $this->get_marker_longitude( $object_id );
-			if ( ! empty( $latitude ) && ! empty( $longitude ) ) {
-				echo '<p>' . __( 'The following is a preview of how this sighting will appear on the map, it does not include the description or colouring that the sighting will have on the internal or public map(s). To modify the location of the sighting, click on the relocate button, or modify the address or coordinates directly below. When you click on the relocate button, you will be able to click or drag the marker to place it in a new location. Once you\'re done moving it, just click done or hit the update button.' ) . '</p>';
-				submit_button( __( 'Use mouse pointer to relocate sighting', 'cat-tracker' ), 'primary', 'cat-tracker-relocate', false );
-				echo '<div class="clear"></div><br>';
-			} else {
-				echo '<p>' . __( 'The following is a blank map upon which you can place the sighting. To place the sighting, click on the locate button, or add an address or coordinates directly below. When you click on the locate button, you will be able to click or drag the marker to place it. Once you\'re done moving it, just click done or hit the publish button. Note that this preview does not include the description or colouring that the sighting will have on the internal or public map(s).' ) . '</p>';
-				submit_button( __( 'Use mouse pointer to locate sighting', 'cat-tracker' ), 'primary', 'cat-tracker-relocate', false );
-				echo '<div class="clear"></div><br>';
-			}
-			?>
-			<div class="cat-tracker-map-preview" id="<?php echo esc_attr( 'map-' . $this->get_map_id_for_marker( get_the_ID() ) ); ?>"></div>
+		$latitude = $this->get_marker_latitude( $object_id );
+		$longitude = $this->get_marker_longitude( $object_id );
+		if ( ! empty( $latitude ) && ! empty( $longitude ) ) {
+			echo '<p>' . __( 'The following is a preview of how this sighting will appear on the map, it does not include the description or colouring that the sighting will have on the internal or public map(s). To modify the location of the sighting, click on the relocate button, or modify the address or coordinates directly below. When you click on the relocate button, you will be able to click or drag the marker to place it in a new location. Once you\'re done moving it, just click done or hit the update button.' ) . '</p>';
+			submit_button( __( 'Use mouse pointer to relocate sighting', 'cat-tracker' ), 'primary', 'cat-tracker-relocate', false );
+			echo '<div class="clear"></div><br>';
+		} else {
+			echo '<p>' . __( 'The following is a blank map upon which you can place the sighting. To place the sighting, click on the locate button, or add an address or coordinates directly below. When you click on the locate button, you will be able to click or drag the marker to place it. Once you\'re done moving it, just click done or hit the publish button. Note that this preview does not include the description or colouring that the sighting will have on the internal or public map(s).' ) . '</p>';
+			submit_button( __( 'Use mouse pointer to locate sighting', 'cat-tracker' ), 'primary', 'cat-tracker-relocate', false );
+			echo '<div class="clear"></div><br>';
+		}
+		?>
+		<div class="cat-tracker-map-preview" id="<?php echo esc_attr( 'map-' . $this->get_map_id_for_marker( get_the_ID() ) ); ?>"></div>
 		</div>
-		<?php
+	<?php
 	}
 
 	public function marker_publish_meta_box( $post ) {
@@ -1289,29 +1289,29 @@ class Cat_Tracker {
 		if ( ! function_exists( 'get_term_meta' ) )
 			return;
 
-    $color = get_term_meta( $term->term_id, 'color', true );
-    $internal_type = get_term_meta( $term->term_id, 'internal_type', true );
-?>
-    <tr class="form-field cat-tracker-term-fields">
-        <th scope="row" valign="top"><label for="term_color"><?php _e( 'Assigned Color', 'cat-tracker' ) ?></label></th>
-        <td>
-            <input type="text" name="term_color" id="term_color" value="<?php echo esc_attr( $color ); ?>"><br />
-        </td>
-    </tr>
+		$color = get_term_meta( $term->term_id, 'color', true );
+		$internal_type = get_term_meta( $term->term_id, 'internal_type', true );
+		?>
+		<tr class="form-field cat-tracker-term-fields">
+			<th scope="row" valign="top"><label for="term_color"><?php _e( 'Assigned Color', 'cat-tracker' ) ?></label></th>
+			<td>
+				<input type="text" name="term_color" id="term_color" value="<?php echo esc_attr( $color ); ?>"><br />
+			</td>
+		</tr>
 
-    <tr class="form-field cat-tracker-term-fields">
-      <th scope="row" valign="top"><label for="internal_type"><?php _e( 'Internal Type?', 'cat-tracker' ) ?></label></th>
-      <td>
-          <input type="checkbox" name="internal_type" id="internal_type" <?php checked( $internal_type ); ?>><br />
-					<span class="description"><?php _e( 'If checked, this type will not be available for users when they submit a new sighting', 'cat-tracker' ); ?></span>
-      </td>
-    </tr>
+		<tr class="form-field cat-tracker-term-fields">
+			<th scope="row" valign="top"><label for="internal_type"><?php _e( 'Internal Type?', 'cat-tracker' ) ?></label></th>
+			<td>
+				<input type="checkbox" name="internal_type" id="internal_type" <?php checked( $internal_type ); ?>><br />
+				<span class="description"><?php _e( 'If checked, this type will not be available for users when they submit a new sighting', 'cat-tracker' ); ?></span>
+			</td>
+		</tr>
 
-    <script type="text/javascript">
-    jQuery(document).ready(function($) {
-			$( '#term_color' ).wpColorPicker();
-		});
-    </script>
+		<script type="text/javascript">
+			jQuery(document).ready(function($) {
+				$( '#term_color' ).wpColorPicker();
+			});
+		</script>
 	<?php
 	}
 
