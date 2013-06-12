@@ -135,6 +135,22 @@ class Cat_Tracker {
 	public $current_context;
 
 	/**
+	 * cat tracker "intake" sighting type slugs
+	 * since there are different "versions" of this, it's an array
+	 * @since 1.0
+	 */
+	public $_marker_intake_types = array(
+		'intake',
+		'spca-intake-cat',
+		'spca-intake-cats',
+		'spca-cat-intake',
+		'spca-cats-intake',
+		'bc-spca-unowned-intake-cat',
+		'bc-spca-unowned-intake-kitten',
+	);
+
+
+	/**
 	 * Singleton class for this Cat Tracker
 	 *
 	 * @since 1.0
@@ -650,23 +666,22 @@ class Cat_Tracker {
 
 			$content .= '<div class="cat-tracker-map" id="' . esc_attr( 'map-' . $map_id ) . '"></div>';
 
-
-			$marker_types = $this->get_marker_types( $map_id );
-			if ( empty( $marker_types ) )
+			if ( ! Cat_Tracker::has_community_and_intake() )
 				return $content;
-			//
-			//			$content .= '<div class="leaflet-control-layers leaflet-control leaflet-control-layers-expanded" id="cat-tracker-custom-controls"><div class="leaflet-control-layers-overlays">';
-			//			$content .= '<span>' . __( 'Select types of sightings:', 'cat-tracker' ) . '</span>';
-			//			$content .= '<form>';
-			//			foreach ( $marker_types as $marker_type ) {
-			//				if ( ! empty( $marker_type->slug ) ) {
-			//					$content .= '<label><input data-marker-type="' . esc_attr( $marker_type->slug ) . '" class="cat-tracker-layer-control cat-tracker-layer-control-marker-type" type="checkbox" checked="checked">' . esc_html( $marker_type->name ) . '</label>';
-			//				}
-			//			}
-			//			$content .= '</div></form></div>';
+
+			$content .= '<div class="leaflet-control-layers leaflet-control leaflet-control-layers-expanded" id="cat-tracker-custom-controls"><div class="leaflet-control-layers-overlays">';
+			$content .= '<span>' . __( 'Select types of sightings:', 'cat-tracker' ) . '</span>';
+			$content .= '<form>';
+				$content .= '<label><input data-marker-type="community" class="cat-tracker-layer-control cat-tracker-layer-control-marker-type" type="checkbox" checked="checked">Community Cats</label>';
+				$content .= '<label><input data-marker-type="intake" class="cat-tracker-layer-control cat-tracker-layer-control-marker-type" type="checkbox" checked="checked">SPCA Intake Cats</label>';
+			$content .= '</div></form></div>';
 		}
 
 		return $content;
+	}
+
+	public static function has_community_and_intake() {
+		return get_option( 'has_community_and_intake' );
 	}
 
 	public static function is_showing_map() {
@@ -766,17 +781,6 @@ class Cat_Tracker {
 	}
 
 	/**
-	 * generate the cache key used for caching the map marker types
-	 *
-	 * @since 1.0
-	 * @param (int) $map_id the map ID
-	 * @return (string) the cache key
-	 */
-	public function _get_marker_types_cache_key( $map_id ) {
-		return sanitize_key( Cat_Tracker::MARKERS_CACHE_KEY_PREFIX . 'mid_' . absint( $map_id ) . '_mtypes' );
-	}
-
-	/**
 	 * validate a map marker context against the allowed marker contexts
 	 *
 	 * @since 1.0
@@ -855,7 +859,7 @@ class Cat_Tracker {
 		$max_num_pages = $offset = 1;
 		$markers = $cache_keys = $marker_types = array();
 		while ( $offset <= $max_num_pages ) {
-			$_markers = $this->_get_markers_query_with_offset( $map_id, $offset );
+			$_markers = $this->_get_markers_query_with_offset( $map_id, $offset, $context );
 			if ( empty( $_markers ) )
 				return $markers;
 
@@ -866,11 +870,6 @@ class Cat_Tracker {
 			$markers = array_merge_recursive( $markers, $_markers['markers'] );
 			$offset++;
 		}
-
-		foreach ( $markers as $marker_type => $markers_of_type )
-			$marker_types[] = get_term_by( 'slug', $marker_type, Cat_Tracker::MARKER_TAXONOMY );
-
-		set_transient( $this->_get_marker_types_cache_key( $map_id ), $marker_types );
 
 		set_transient( $this->_get_map_cache_keys_cache_key( $map_id, $context ), $cache_keys );
 
@@ -885,7 +884,7 @@ class Cat_Tracker {
 	 * @param (int) $paged the offset/page
 	 * @return (array) markers, found posts and max offset for this query
 	 */
-	public function _get_markers_query_with_offset( $map_id, $paged = 1 ) {
+	public function _get_markers_query_with_offset( $map_id, $paged = 1, $context = 'front_end' ) {
 		$markers = array();
 		$_markers = new WP_Query();
 		$_markers->query( array(
@@ -913,12 +912,43 @@ class Cat_Tracker {
 
 			$marker_type = $this->get_marker_type_slug( $marker_id );
 
-			if ( ! isset( $markers[$marker_type] ) ) {
-				$markers[$marker_type] = array(
-					'title' => $this->get_marker_type( $marker_id ),
-					'slug' => $marker_type,
-					'sightings' => array(),
-				);
+			// front-end should only display 2 types - community vs. intake
+			if ( 'front_end' == $context ) {
+
+				$has_intake = $has_community = false;
+
+				if ( in_array( $marker_type, $this->_marker_intake_types ) ) {
+					$marker_type = 'intake';
+					if ( ! isset( $markers['intake'] ) ) {
+						$markers['intake'] = array(
+							'title' => 'SPCA Intake Cats',
+							'slug' => 'intake',
+							'sightings' => array(),
+						);
+					}
+					$has_intake = true;
+				} else {
+					$marker_type = 'community';
+					if ( ! isset( $markers['community'] ) ) {
+						$markers['community'] = array(
+							'title' => 'Community Cats',
+							'slug' => 'community',
+							'sightings' => array(),
+						);
+					}
+					$has_community = true;
+				}
+
+				// keep track if this site has both community and intake
+				update_option( 'has_community_and_intake', ( $has_intake && $has_community ) );
+			} else {
+				if ( ! isset( $markers[$marker_type] ) ) {
+					$markers[$marker_type] = array(
+						'title' => $this->get_marker_type( $marker_id ),
+						'slug' => $marker_type,
+						'sightings' => array(),
+					);
+				}
 			}
 
 			$number_of_markers_to_insert = ( is_numeric( $this->get_marker_num_of_cats( $marker_id ) ) && $this->get_marker_num_of_cats( $marker_id ) > 1 ) ? $this->get_marker_num_of_cats( $marker_id ) : 1;
@@ -1027,17 +1057,7 @@ class Cat_Tracker {
 	 * @return array the marker types
 	 */
 	public function get_marker_types( $map_id ) {
-		$marker_types = get_transient( $this->_get_marker_types_cache_key( $map_id ) );
-
-		if ( empty( $marker_types ) ) {
-			$this->queue_flush_marker_cache();
-			return array();
-		}
-
-		if ( empty( $marker_types ) || empty( $marker_types[0] ) )
-			return array();
-
-		return $marker_types;
+		return get_terms( self::MARKER_TAXONOMY );
 	}
 
 	public function get_marker_for_preview( $marker_id ) {
