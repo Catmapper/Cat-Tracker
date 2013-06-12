@@ -169,6 +169,9 @@
 
 		function build_markers() {
 
+			if (  _.isEmpty( markers_by_type ) )
+				return;
+
 			// loop the marker types/marker array and create a marker object for each marker
 			$.each( markers_by_type, function( marker_type, marker_data ){
 
