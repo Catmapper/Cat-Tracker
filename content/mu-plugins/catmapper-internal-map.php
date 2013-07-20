@@ -131,8 +131,11 @@ class Cat_Mapper_Internal_Map {
 									foreach ( Cat_Tracker::instance()->get_sortable_attributes() as $sortable_attribute => $sortable_attribute_params ) {
 										echo '<span>' . sprintf( __( 'Select %s:', 'cat-tracker' ),  $sortable_attribute_params['name'] ) . '</span>';
 											if ( ! empty( $sortable_attribute_params['display_any'] ) )
-												echo '<label><input data-' . esc_attr( $sortable_attribute ) . '="all" class="cat-tracker-layer-control cat-tracker-layer-control-' . esc_attr( $sortable_attribute ) . '" type="' . esc_attr( $sortable_attribute_params['type'] ) . '" name="' . esc_attr( $sortable_attribute ) . '" checked="checked"> ' . __( 'Any', 'cat-mapper' ) . '</label>';
+												echo '<label><input data-' . esc_attr( $sortable_attribute ) . '="all" class="cat-tracker-layer-control cat-tracker-layer-control-' . esc_attr( $sortable_attribute ) . '" type="' . esc_attr( $sortable_attribute_params['type'] ) . '" name="' . esc_attr( $sortable_attribute ) . '" checked="checked"> ' . __( 'All', 'cat-mapper' ) . '</label>';
 												foreach ( $sortable_attribute_params['values'] as $sortable_attribute_value => $sortable_attribute_value_name ) {
+													if ( 'unknown' == $sortable_attribute_value )
+														continue;
+
 													echo '<label><input data-' . esc_attr( $sortable_attribute ) . '="' . esc_attr( $sortable_attribute_value ) . '" class="cat-tracker-layer-control cat-tracker-layer-control-' . esc_attr( $sortable_attribute ) . '" type="' . esc_attr( $sortable_attribute_params['type'] ) . '" name="' . esc_attr( $sortable_attribute ) . '"> ' . esc_html( $sortable_attribute_value_name ) . '</label>';
 												}
 									}

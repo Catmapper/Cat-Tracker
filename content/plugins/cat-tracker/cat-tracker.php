@@ -963,6 +963,7 @@ class Cat_Tracker {
 					'text' => $this->get_marker_text( $marker_id ),
 					'sortable_attributes' => array(
 						'neuter_status' => $this->get_marker_neuter_status( $marker_id ),
+						'year' => $this->get_year( $marker_id ),
 					),
 				);
 			}
@@ -1197,6 +1198,11 @@ class Cat_Tracker {
 		return strip_tags( $this->marker_meta_helper( 'cat_neuter_status', $marker_id, $singular, $default ) );
 	}
 
+	public function get_year( $marker_id = null, $singular = true, $default = null ) {
+		$_date = $this->marker_meta_helper( 'sighting_date', $marker_id, $singular, $default );
+		return ( ! empty( $_date ) ) ? date( 'Y', intval( $_date ) ) : date( 'Y' );
+	}
+
 	public function get_marker_num_of_cats( $marker_id = null, $singular = true, $default = 1 ) {
 		return absint( $this->marker_meta_helper( 'num_of_cats', $marker_id, $singular, $default ) );
 	}
@@ -1205,9 +1211,22 @@ class Cat_Tracker {
 		return array( 'unknown' => __( 'Unknown', 'cat-tracker' ), 'yes' => __( 'Spayed/Neutered', 'cat-tracker' ), 'no' => __( 'Not Spayed/Neutered', 'cat-tracker' ) );
 	}
 
+	public function get_possible_years() {
+		global $wpdb;
+		$earliest_date = $wpdb->get_var( "SELECT meta_value FROM $wpdb->postmeta WHERE `meta_key` = 'cat_tracker_sighting_date' order by meta_value LIMIT 1" );
+		$earliest_year = date( 'Y', intval( $earliest_date ) );
+		$_years = range( $earliest_year, date( 'Y' ) );
+		$years = array();
+		foreach( $_years as $year ) {
+			$years[$year] = $year;
+		}
+		return $years;
+	}
+
 	public function get_sortable_attributes() {
 		return array(
 			'neuter_status' => array( 'name' => 'spay/neuter status', 'values' => $this->get_possible_neuter_status(), 'display_any' => true, 'type' => 'radio' ),
+			'year' => array( 'name' => 'year', 'values' => $this->get_possible_years(), 'display_any' => true, 'type' => 'radio' ),
 		);
 	}
 
