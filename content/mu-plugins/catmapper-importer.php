@@ -232,6 +232,9 @@ class Cat_Mapper_Importer {
 	 * @return void
 	 */
 	public function handle_import() {
+
+		set_time_limit(0);
+
 		echo '<p>' . __( 'Importer has started... IMPORTANT: If this page has finished loading and the FINISHED message has not appeared, then you need to refresh the page.', 'cat-tracker' ) . '</p>';
 		$map_id = get_option( 'catmapper_community_main_map_id' );
 		if ( empty( $map_id ) ) {
