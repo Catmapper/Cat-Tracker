@@ -963,7 +963,7 @@ class Cat_Tracker {
 					'text' => $this->get_marker_text( $marker_id ),
 					'sortable_attributes' => array(
 						'neuter_status' => $this->get_marker_neuter_status( $marker_id ),
-						'year' => $this->get_year( $marker_id ),
+						'year' => $this->get_marker_year( $marker_id ),
 					),
 				);
 			}
@@ -1194,13 +1194,76 @@ class Cat_Tracker {
 		return strip_tags( $this->marker_meta_helper( 'address', $marker_id, $singular, $default ) );
 	}
 
+	public function get_marker_animal_id( $marker_id = null, $singular = true, $default = 'n/a' ) {
+		return absint( $this->marker_meta_helper( 'animal_id', $marker_id, $singular, $default ) );
+	}
+
+	public function get_marker_number_of_cats( $marker_id = null, $singular = true, $default = 1 ) {
+		return absint( $this->marker_meta_helper( 'number_of_cats', $marker_id, $singular, $default ) );
+	}
+
 	public function get_marker_neuter_status( $marker_id = null, $singular = true, $default = 'unknown' ) {
 		return strip_tags( $this->marker_meta_helper( 'cat_neuter_status', $marker_id, $singular, $default ) );
 	}
 
-	public function get_year( $marker_id = null, $singular = true, $default = null ) {
+	public function get_marker_year( $marker_id = null, $singular = true, $default = null ) {
 		$_date = $this->marker_meta_helper( 'sighting_date', $marker_id, $singular, $default );
 		return ( ! empty( $_date ) ) ? date( 'Y', intval( $_date ) ) : date( 'Y' );
+	}
+
+	public function get_marker_date( $marker_id = null, $singular = true, $default = null ) {
+		$_date = $this->marker_meta_helper( 'sighting_date', $marker_id, $singular, $default );
+		return ( ! empty( $_date ) ) ? date( 'Y-m-d', intval( $_date ) ) : 'n/a';
+	}
+
+	public function get_marker_name_of_reporter( $marker_id = null, $singular = true, $default = 'unknown' ) {
+		return strip_tags( $this->marker_meta_helper( 'name_of_reporter', $marker_id, $singular, $default ) );
+	}
+
+	public function get_marker_email_of_reporter( $marker_id = null, $singular = true, $default = null ) {
+		$email = $this->marker_meta_helper( 'email_of_reporter', $marker_id, $singular, $default );
+		return ( empty( $email ) || ! is_email( $email ) ) ? 'unknown' : $email;
+	}
+
+	public function get_marker_telephone_of_reporter( $marker_id = null, $singular = true, $default = 'unknown' ) {
+		return strip_tags( $this->marker_meta_helper( 'telephone_of_reporter', $marker_id, $singular, $default ) );
+	}
+
+	public function get_marker_contact_reporter( $marker_id = null, $singular = true, $default = null ) {
+		$contact_reporter = $this->marker_meta_helper( 'contact_reporter', $marker_id, $singular, $default );
+		return ( ! empty( $contact_reporter ) ) ? 'yes' : 'no';
+	}
+
+	public function get_marker_intake_type( $marker_id = null, $singular = true, $default = 'unknown' ) {
+		return strip_tags( $this->marker_meta_helper( 'intake_type', $marker_id, $singular, $default ) );
+	}
+
+	public function get_marker_source( $marker_id = null, $singular = true, $default = 'unknown' ) {
+		return strip_tags( $this->marker_meta_helper( 'source', $marker_id, $singular, $default ) );
+	}
+
+	public function get_marker_breed( $marker_id = null, $singular = true, $default = 'unknown' ) {
+		return strip_tags( $this->marker_meta_helper( 'breed', $marker_id, $singular, $default ) );
+	}
+
+	public function get_marker_color( $marker_id = null, $singular = true, $default = 'unknown' ) {
+		return strip_tags( $this->marker_meta_helper( 'color', $marker_id, $singular, $default ) );
+	}
+
+	public function get_marker_gender( $marker_id = null, $singular = true, $default = 'unknown' ) {
+		return strip_tags( $this->marker_meta_helper( 'gender', $marker_id, $singular, $default ) );
+	}
+
+	public function get_marker_age_group( $marker_id = null, $singular = true, $default = 'unknown' ) {
+		return strip_tags( $this->marker_meta_helper( 'age_group', $marker_id, $singular, $default ) );
+	}
+
+	public function get_marker_incoming_spay_neuter_status( $marker_id = null, $singular = true, $default = 'unknown' ) {
+		return strip_tags( $this->marker_meta_helper( 'incoming_spay_neuter_status', $marker_id, $singular, $default ) );
+	}
+
+	public function get_marker_current_spay_neuter_status( $marker_id = null, $singular = true, $default = 'unknown' ) {
+		return strip_tags( $this->marker_meta_helper( 'current_spay_neuter_status', $marker_id, $singular, $default ) );
 	}
 
 	public function get_marker_num_of_cats( $marker_id = null, $singular = true, $default = 1 ) {
