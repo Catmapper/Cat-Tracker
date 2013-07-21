@@ -87,6 +87,9 @@ function catmapper_roles_and_permissions() {
     // import permissions
     $administrator->add_cap( 'import_markers' );
 
+	// export permissions
+    $administrator->add_cap( 'export_markers' );
+
 		remove_role( 'bcspca_employee' );
 		add_role( 'bcspca_employee', 'BC SPCA Employee', array(
 			// dashboard access
@@ -117,6 +120,9 @@ function catmapper_roles_and_permissions() {
 
 			// import permissions
 			'import_markers' => true,
+
+			// export permissions
+			'export_markers' => true,
 
 			// limited page permissions
 			'edit_pages' => true,
