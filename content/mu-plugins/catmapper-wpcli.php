@@ -22,7 +22,7 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 		foreach( $blog_ids as $blog_id ) {
 			switch_to_blog( $blog_id );
 			WP_CLI::line( "Flushing marker cache for " . get_bloginfo() . "..." );
-			do_action( 'cat_tracker_flush_all_markers_cache' );
+			Cat_Tracker::instance()->_flush_all_markers_cache();
 			restore_current_blog();
 		}
 
