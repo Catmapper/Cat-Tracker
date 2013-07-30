@@ -397,7 +397,7 @@ class Cat_Mapper_Importer {
 				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'map', $map_id, true );
 
 				// insert sighting type
-				$sighting_type = get_term_by( 'name', 'Intake', Cat_Tracker::MARKER_TAXONOMY );
+				$sighting_type = get_term_by( 'name', 'SPCA Intake Cats', Cat_Tracker::MARKER_TAXONOMY );
 				add_post_meta( $sighting_id, Cat_Tracker::MARKER_TAXONOMY, absint( $sighting_type->term_id ), true );
 				wp_set_object_terms( $sighting_id, absint( $sighting_type->term_id ), Cat_Tracker::MARKER_TAXONOMY );
 
