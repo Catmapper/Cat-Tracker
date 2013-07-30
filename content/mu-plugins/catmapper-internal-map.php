@@ -127,18 +127,24 @@ class Cat_Mapper_Internal_Map {
 									if ( false !== $marker_type )
 										echo '<label><input data-marker-type="' . esc_attr( $marker_type->slug ) . '" class="cat-tracker-layer-control cat-tracker-layer-control-marker-type" type="checkbox" checked="checked"> ' . esc_html( $marker_type->name ) . '</label>';
 								}
-									echo '<div class="leaflet-control-layers-separator" style=""></div>';
-									foreach ( Cat_Tracker::instance()->get_sortable_attributes() as $sortable_attribute => $sortable_attribute_params ) {
-										echo '<span>' . sprintf( __( 'Select %s:', 'cat-tracker' ),  $sortable_attribute_params['name'] ) . '</span>';
-											if ( ! empty( $sortable_attribute_params['display_any'] ) )
-												echo '<label><input data-' . esc_attr( $sortable_attribute ) . '="all" class="cat-tracker-layer-control cat-tracker-layer-control-' . esc_attr( $sortable_attribute ) . '" type="' . esc_attr( $sortable_attribute_params['type'] ) . '" name="' . esc_attr( $sortable_attribute ) . '" checked="checked"> ' . __( 'All', 'cat-mapper' ) . '</label>';
-												foreach ( $sortable_attribute_params['values'] as $sortable_attribute_value => $sortable_attribute_value_name ) {
-													if ( 'unknown' == $sortable_attribute_value )
-														continue;
 
-													echo '<label><input data-' . esc_attr( $sortable_attribute ) . '="' . esc_attr( $sortable_attribute_value ) . '" class="cat-tracker-layer-control cat-tracker-layer-control-' . esc_attr( $sortable_attribute ) . '" type="' . esc_attr( $sortable_attribute_params['type'] ) . '" name="' . esc_attr( $sortable_attribute ) . '"> ' . esc_html( $sortable_attribute_value_name ) . '</label>';
-												}
-									}
+								echo '<div class="leaflet-control-layers-separator" style=""></div>';
+								echo '<span>Select View:</span>';
+								echo '<label><input class="cat-tracker-layer-control cat-tracker-layer-control-view" type="radio" name="cluster" checked="checked"> ' . __( 'Clustered', 'cat-mapper' ) . '</label>';
+								echo '<label><input class="cat-tracker-layer-control cat-tracker-layer-control-view" type="radio" name="single"> ' . __( 'Scattered', 'cat-mapper' ) . '</label>';
+
+								echo '<div class="leaflet-control-layers-separator" style=""></div>';
+								foreach ( Cat_Tracker::instance()->get_sortable_attributes() as $sortable_attribute => $sortable_attribute_params ) {
+									echo '<span>' . sprintf( __( 'Select %s:', 'cat-tracker' ),  $sortable_attribute_params['name'] ) . '</span>';
+										if ( ! empty( $sortable_attribute_params['display_any'] ) )
+											echo '<label><input data-' . esc_attr( $sortable_attribute ) . '="all" class="cat-tracker-layer-control cat-tracker-layer-control-' . esc_attr( $sortable_attribute ) . '" type="' . esc_attr( $sortable_attribute_params['type'] ) . '" name="' . esc_attr( $sortable_attribute ) . '" checked="checked"> ' . __( 'All', 'cat-mapper' ) . '</label>';
+											foreach ( $sortable_attribute_params['values'] as $sortable_attribute_value => $sortable_attribute_value_name ) {
+												if ( 'unknown' == $sortable_attribute_value )
+													continue;
+
+												echo '<label><input data-' . esc_attr( $sortable_attribute ) . '="' . esc_attr( $sortable_attribute_value ) . '" class="cat-tracker-layer-control cat-tracker-layer-control-' . esc_attr( $sortable_attribute ) . '" type="' . esc_attr( $sortable_attribute_params['type'] ) . '" name="' . esc_attr( $sortable_attribute ) . '"> ' . esc_html( $sortable_attribute_value_name ) . '</label>';
+											}
+								}
 							echo '</form>';
 						echo '</div>';
 					echo '</div>';

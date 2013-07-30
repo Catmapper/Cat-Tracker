@@ -241,13 +241,31 @@
 		function init_legend() {
 			var $custom_controls = $( '#cat-tracker-custom-controls' );
 			$custom_controls.appendTo( '.leaflet-top.leaflet-right' );
-			$custom_controls.on( 'change.cat_tracker_controls', '.cat-tracker-layer-control', function() {
+
+			$custom_controls.on( 'change.cat_tracker_controls', '.cat-tracker-layer-control, .cat-tracker-layer-control-view', function() {
 
 				// figure out which marker type is currently enabled
-				var $active_marker_types = $custom_controls.find( '.cat-tracker-layer-control-marker-type:checked' );
-				var active_marker_types = [];
-				var active_markers_by_type = [];
-				var layer_key = '';
+				var $this = $( this ),
+					$active_marker_types = $custom_controls.find( '.cat-tracker-layer-control-marker-type:checked' ).not( '.cat-tracker-layer-control-view' ),
+					$view_controllers = $( '.cat-tracker-layer-control-view' ),
+					active_marker_types = [],
+					active_markers_by_type = [],
+					layer_key = '',
+					disableClusteringAtZoom = false;
+
+				// fix the checking of the view controllers
+				if ( $this.hasClass( 'cat-tracker-layer-control-view' ) ) {
+					$view_controllers.prop( 'checked', false );
+					$this.prop( 'checked', true );
+				}
+
+				var $active_view_controller = $( '.cat-tracker-layer-control-view:checked' ).first();
+
+				if ( 'single' == $active_view_controller.attr( 'name' ) )
+					disableClusteringAtZoom = true;
+				else
+					disableClusteringAtZoom = false;
+
 				$.each( $active_marker_types, function( i, marker_type_checkbox ){
 					var marker_type = $( marker_type_checkbox ).data( 'marker-type' );
 					layer_key += marker_type + '_';
@@ -306,7 +324,8 @@
 						}
 
 						return new L.DivIcon({ html: '<div><span>' + childCount + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point( 40, 40 ) });
-					}
+					},
+					disableClusteringAtZoom : disableClusteringAtZoom,
 				});
 
 				$.each( active_marker_layers, function( i, marker_group ){
