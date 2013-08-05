@@ -49,6 +49,40 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 	}
 
 	/**
+	 * Add superadmins as admins to existing communities
+	 */
+	function superadmins() {
+		WP_CLI::line( 'Going to add all super admins as admins to all communities' );
+		$super_admins = get_super_admins();
+		$blog_ids = catmapper_refresh_all_blog_ids();
+		foreach( $super_admins as $super_admin ) {
+			$user = get_user_by( 'login', $super_admin );
+
+			if ( empty( $user ) || is_wp_error( $user ) )
+				continue;
+
+			WP_CLI::line( sprintf( "\nChecking %s...", $user->user_login ) );
+			foreach( $blog_ids as $_blog_id ) {
+				switch_to_blog( $_blog_id );
+
+				if ( is_user_member_of_blog( $user->ID, $_blog_id ) ) {
+					WP_CLI::line( sprintf( '%s is already a member of %s', $user->user_login, get_bloginfo() ) );
+				} else {
+					add_user_to_blog( $_blog_id, $user->ID, 'administrator' );
+					if ( is_user_member_of_blog( $user->ID, $_blog_id ) ) {
+						WP_CLI::line( sprintf( '%s has been added to %s', $user->user_login, get_bloginfo() ) );
+					} else {
+						WP_CLI::error( sprintf( '%s has not been added to %s', $user->user_login, get_bloginfo() ) );
+					}
+				}
+
+				restore_current_blog();
+			}
+		}
+
+	}
+
+	/**
 	 * Update type for each sighting to SPCA intake sighting type
 	 */
 	function updatetype() {
