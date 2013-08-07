@@ -63,6 +63,25 @@
 }
 
 /* ===================================================
+   map admin
+   ================================================== */
+
+/* hide misc pub sections */
+.catmapper-maps .misc-pub-section {
+	display: none;
+}
+
+/* hide preview button */
+.catmapper-maps #post-preview {
+	display: none;
+}
+
+/* hide delete button */
+.catmapper-maps #delete-action {
+	display: none;
+}
+
+/* ===================================================
    import page
    ================================================== */
 
