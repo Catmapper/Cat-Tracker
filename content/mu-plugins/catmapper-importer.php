@@ -281,6 +281,7 @@ class Cat_Mapper_Importer {
 
 			$row_num = 1;
 			$start_importing = false;
+			$new_report_type = false;
 			$count_imported = $cat_count = $kitten_count = $dupe = $count_excluded = $count_no_address = $count_bad_address = 0;
 			while ( $row_data = fgetcsv( $open_file ) ) {
 				$row_num++;
@@ -288,17 +289,34 @@ class Cat_Mapper_Importer {
 				if ( empty( $row_data[0] ) || empty( $row_data[23] ) )
 					continue;
 
-				$animal_id = $row_data[0];
-				$date = $row_data[2];
-				$type = $row_data[3];
-				$source = $row_data[4];
-				$breed = $row_data[12];
-				$color = $row_data[13];
-				$age_group = $row_data[15];
-				$gender = $row_data[16];
-				$incoming_spay_neuter_status = $row_data[17];
-				$current_spay_neuter_status = $row_data[18];
-				$address = $row_data[23];
+				if ( ! empty( $row_data[50] ) )
+					$new_report_type = true;
+
+				if ( $new_report_type ) {
+					$animal_id = $row_data[0];
+					$date = $row_data[2];
+					$type = $row_data[3];
+					$source = $row_data[4];
+					$breed = $row_data[13];
+					$color = $row_data[14];
+					$age_group = $row_data[16];
+					$gender = $row_data[17];
+					$incoming_spay_neuter_status = $row_data[18];
+					$current_spay_neuter_status = $row_data[19];
+					$address = $row_data[50];
+				} else {
+					$animal_id = $row_data[0];
+					$date = $row_data[2];
+					$type = $row_data[3];
+					$source = $row_data[4];
+					$breed = $row_data[12];
+					$color = $row_data[13];
+					$age_group = $row_data[15];
+					$gender = $row_data[16];
+					$incoming_spay_neuter_status = $row_data[17];
+					$current_spay_neuter_status = $row_data[18];
+					$address = $row_data[23];
+				}
 
 				// determine when to start importing
 				if ( 'Animal ID' == $animal_id && 'L/F Address' == $address ) {
