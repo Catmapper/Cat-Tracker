@@ -286,10 +286,10 @@ class Cat_Mapper_Importer {
 			while ( $row_data = fgetcsv( $open_file ) ) {
 				$row_num++;
 
-				if ( empty( $row_data[0] ) || empty( $row_data[23] ) )
+				if ( empty( $row_data[0] ) || ( empty( $row_data[23] ) && empty( $row_data[51] ) ) )
 					continue;
 
-				if ( ! empty( $row_data[50] ) )
+				if ( ! empty( $row_data[51] ) )
 					$new_report_type = true;
 
 				if ( $new_report_type ) {
@@ -303,7 +303,7 @@ class Cat_Mapper_Importer {
 					$gender = $row_data[17];
 					$incoming_spay_neuter_status = $row_data[18];
 					$current_spay_neuter_status = $row_data[19];
-					$address = $row_data[50];
+					$address = $row_data[51];
 				} else {
 					$animal_id = $row_data[0];
 					$date = $row_data[2];
@@ -319,7 +319,7 @@ class Cat_Mapper_Importer {
 				}
 
 				// determine when to start importing
-				if ( 'Animal ID' == $animal_id && 'L/F Address' == $address ) {
+				if ( 'Animal ID' == $animal_id && false !== strpos( strtolower( $address ), "address" ) ) {
 					$start_importing = true;
 					continue;
 				}
