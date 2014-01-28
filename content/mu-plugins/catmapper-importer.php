@@ -281,18 +281,37 @@ class Cat_Mapper_Importer {
 
 			$row_num = 1;
 			$start_importing = false;
-			$new_report_type = false;
+			$report_type = false;
 			$count_imported = $cat_count = $kitten_count = $dupe = $count_excluded = $count_no_address = $count_bad_address = 0;
 			while ( $row_data = fgetcsv( $open_file ) ) {
 				$row_num++;
 
-				if ( empty( $row_data[0] ) || ( empty( $row_data[23] ) && empty( $row_data[51] ) ) )
+				if ( ! $report_type ) {
+					if ( ! empty( $row_data[1] ) && 'Voucher Type' == $row_data[1] ) {
+						$report_type = 'voucher';
+					} elseif ( ! empty( $row_data[52] ) ) {
+						$report_type = 'improved';
+					} elseif ( ! empty( $row_data[0] ) && false !== strpos( strtolower( $row_data[0] ), "animal id" ) ) {
+						$report_type = 'original';
+					}
+				}
+
+				if ( ! $start_importing && ! $report_type )
 					continue;
 
-				if ( ! empty( $row_data[51] ) )
-					$new_report_type = true;
-
-				if ( $new_report_type ) {
+				if ( 'voucher' == $report_type ) {
+					$animal_id = $row_data[11];
+					$date = $row_data[0];
+					$type = $row_data[12];
+					$source = 'Community Cat Spay/Neuter Recipient';
+					$breed = 'n/a';
+					$color = 'n/a';
+					$age_group = 'adult';
+					$gender = $row_data[13];
+					$incoming_spay_neuter_status = 'yes';
+					$current_spay_neuter_status = 'yes';
+					$address = $row_data[7] . ' ' . $row_data[9] . ' ' . $row_data[10];
+				} elseif ( 'improved' == $report_type ) {
 					$animal_id = $row_data[0];
 					$date = $row_data[2];
 					$type = $row_data[3];
@@ -303,7 +322,7 @@ class Cat_Mapper_Importer {
 					$gender = $row_data[17];
 					$incoming_spay_neuter_status = $row_data[18];
 					$current_spay_neuter_status = $row_data[19];
-					$address = $row_data[51];
+					$address = $row_data[52];
 				} else {
 					$animal_id = $row_data[0];
 					$date = $row_data[2];
@@ -319,27 +338,13 @@ class Cat_Mapper_Importer {
 				}
 
 				// determine when to start importing
-				if ( 'Animal ID' == $animal_id && false !== strpos( strtolower( $address ), "address" ) ) {
+				if ( false !== strpos( strtolower( $animal_id ), "animal id" ) && false !== strpos( strtolower( $address ), "address" ) ) {
 					$start_importing = true;
 					continue;
 				}
 
 				if ( ! $start_importing )
 					continue;
-
-				$_already_exists = new WP_Query();
-				$_already_exists->query( array(
-					'post_type' => Cat_Tracker::MARKER_POST_TYPE,
-					'meta_key' => Cat_Tracker::META_PREFIX . 'animal_id',
-					'meta_value' => $animal_id,
-					'fields' => 'ids',
-				) );
-
-				if ( $_already_exists->have_posts() ) {
-					$dupe++;
-					printf( '<p>' . __( 'Animal ID #%d has already been imported and is being to be skipped from this import.' ) . '</p>', $animal_id );
-					continue;
-				}
 
 				// exclude if no address
 				if ( empty( $address ) ) {
@@ -348,7 +353,7 @@ class Cat_Mapper_Importer {
 				}
 
 				// parse the source and determine the intake type ID
-				$intake_type = $this->parse_source( $source, $type );
+				$intake_type = $this->parse_source( $source, $type, $report_type );
 
 				// if the intake type is false, than we are excluding this sighting
 				if ( false === $intake_type || is_wp_error( $intake_type ) ) {
@@ -373,64 +378,69 @@ class Cat_Mapper_Importer {
 					$description = sprintf( __( "%s.\nColor: %s.\nGender: %s.\nBreed: %s", 'cat-tracker' ), ucfirst( $type ), $color, $gender, $breed );
 				}
 
-				$sighting_id = wp_insert_post( array(
-					'post_title' => sprintf( _x( 'Community cat sighting from imported file at %s', 'Post title for imported sightings with the current timestamp/date', 'cat_tracker' ), date( 'Y-m-d g:i:a' ) ),
-					'post_status' => 'publish',
-					'post_type' => Cat_Tracker::MARKER_POST_TYPE,
-					'to_ping' => false,
-				) );
+				if ( 'voucher' == $report_type ) {
+					if ( false === strpos( $type, 'cat' ) ) {
+						printf( '<p>' . __( 'Animal ID #%s was not a cat (or several cats), and thus has been skipped.' ) . '</p>', esc_html( $animal_id ) );
+						continue;
+					}
 
-				if ( empty( $sighting_id ) || is_wp_error( $sighting_id ) ) {
-					printf( '<p>' . __( 'Could not insert Animal ID #%d from attachment ID #%d.' ) . '</p>', $animal_id, $attachment_id );
-					continue;
-				}
+					$cats = array();
+					$only_one_cat = ( false === strpos( $type, ' ' ) );
 
-				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'description', $description, true );
-				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'animal_id', $animal_id, true );
-				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'source', $source, true );
-				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'breed', $breed, true );
-				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'color', $color, true );
-				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'gender', $gender, true );
-				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'age_group', $age_group, true );
+					if ( $only_one_cat ) {
+						$cats[] = array(
+							'animal_id' => $animal_id,
+							'gender' => $gender,
+						);
 
-				if ( ! empty( $date ) ) {
-					$date = strtotime( $date );
-					if ( ! empty( $date ) ) {
-						add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'sighting_date', $date, true );
-						if ( $date > strtotime( 'July 2011' ) ) {
-							add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'incoming_spay_neuter_status', $incoming_spay_neuter_status, true );
-							add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'current_spay_neuter_status', $current_spay_neuter_status, true );
+					} else {
+						$cat_or_dogs = explode( ' ', $type );
+						$cat_keys = array_keys( $cat_or_dogs, 'cat' );
+						$a_ids = explode( ',', $animal_id );
+						if ( $a_ids == ( 2 * count( $cat_keys ) ) ) {
+							$__a_ids = array();
+							foreach ( $a_ids as $k => $a_id ) {
+								if ( $k % 2 == 0 ) {
+									$__a_ids[] = $a_id . $a_ids[$k+1];
+								}
+							}
+							$a_ids = $__a_ids;
 						}
+						$genders = explode( ' ', $gender );
+						foreach ( $cat_keys as $key ) {
+							$cats[] = array(
+								'animal_id' => $a_ids[$key],
+								'gender' => $genders[$key],
+							);
+						}
+					}
+
+					foreach ( $cats as $cat ) {
+						$sighting_id = $this->insert_sighting( $attachment_id, $cat['animal_id'], $source, $breed, $color, $cat['gender'], $age_group, $description, $incoming_spay_neuter_status, $current_spay_neuter_status, $location, $map_id, $intake_type );
+						printf( '<p>' . __( 'Animal ID #%d successfully imported with Sighting ID #%d.' ) . '</p>', $animal_id, $sighting_id );
+						$cat_count++;
+						if ( $sighting_id == -1 ) {
+							$dupe++;
+						} else {
+							$count_imported++;
+						}
+					}
+				} else {
+					$sighting_id = $this->insert_sighting( $attachment_id, $animal_id, $source, $breed, $color, $gender, $age_group, $description, $incoming_spay_neuter_status, $current_spay_neuter_status, $location, $map_id, $intake_type );
+					printf( '<p>' . __( 'Animal ID #%d successfully imported with Sighting ID #%d.' ) . '</p>', $animal_id, $sighting_id );
+					if ( $type == 'kitten' ) {
+						$kitten_count++;
+					} else {
+						$cat_count++;
+					}
+
+					if ( $sighting_id == -1 ) {
+						$dupe++;
+					} else {
+						$count_imported++;
 					}
 				}
 
-				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'name_of_reporter', 'BC SPCA', true );
-				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'latitude', $location['latitude'], true );
-				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'longitude', $location['longitude'], true );
-				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'address', $location['formatted_address'], true );
-				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'confidence_level', $location['confidence'], true );
-				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'ip_address_of_reporter', $_SERVER['REMOTE_ADDR'], true );
-				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'browser_info_of_reporter', $_SERVER['HTTP_USER_AGENT'] , true );
-				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'imported_on', time(), true );
-				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'map', $map_id, true );
-
-				// insert sighting type
-				$sighting_type = get_term_by( 'name', 'SPCA Intake Cats', Cat_Tracker::MARKER_TAXONOMY );
-				add_post_meta( $sighting_id, Cat_Tracker::MARKER_TAXONOMY, absint( $sighting_type->term_id ), true );
-				wp_set_object_terms( $sighting_id, absint( $sighting_type->term_id ), Cat_Tracker::MARKER_TAXONOMY );
-
-				// insert intake type
-				add_post_meta( $sighting_id, CAT_MAPPER_INTERNAL_TAXONOMY, $intake_type->term_id, true );
-				wp_set_object_terms( $sighting_id, absint( $intake_type->term_id ), CAT_MAPPER_INTERNAL_TAXONOMY );
-
-				printf( '<p>' . __( 'Animal ID #%d successfully imported.' ) . '</p>', $animal_id );
-				if ( $type == 'kitten' ) {
-					$kitten_count++;
-				} else {
-					$cat_count++;
-				}
-
-				$count_imported++;
 			}
 
 			fclose( $open_file );
@@ -441,6 +451,81 @@ class Cat_Mapper_Importer {
 
 		}
 	}
+
+	/**
+	 * insert a sighting
+	 *
+	 * @since 1.2
+	 * @return int the ID of the inserted sighting
+	 */
+	function insert_sighting( $attachment_id, $animal_id, $source, $breed, $color, $gender, $age_group, $description, $incoming_spay_neuter_status, $current_spay_neuter_status, $location, $map_id, $intake_type ) {
+
+		$_already_exists = new WP_Query();
+		$_already_exists->query( array(
+			'post_type' => Cat_Tracker::MARKER_POST_TYPE,
+			'meta_key' => Cat_Tracker::META_PREFIX . 'animal_id',
+			'meta_value' => $animal_id,
+			'fields' => 'ids',
+		) );
+
+		if ( $_already_exists->have_posts() ) {
+			printf( '<p>' . __( 'Animal ID #%d has already been imported and is being to be skipped from this import.' ) . '</p>', $animal_id );
+			return -1;
+		}
+
+		$sighting_id = wp_insert_post( array(
+			'post_title' => sprintf( _x( 'Community cat sighting from imported file at %s', 'Post title for imported sightings with the current timestamp/date', 'cat_tracker' ), date( 'Y-m-d g:i:a' ) ),
+			'post_status' => 'publish',
+			'post_type' => Cat_Tracker::MARKER_POST_TYPE,
+			'to_ping' => false,
+		) );
+
+		if ( empty( $sighting_id ) || is_wp_error( $sighting_id ) ) {
+			printf( '<p>' . __( 'Could not insert Animal ID #%d from attachment ID #%d.' ) . '</p>', $animal_id, $attachment_id );
+			return;
+		}
+
+		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'description', $description, true );
+		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'animal_id', $animal_id, true );
+		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'source', $source, true );
+		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'breed', $breed, true );
+		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'color', $color, true );
+		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'gender', $gender, true );
+		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'age_group', $age_group, true );
+
+		if ( ! empty( $date ) ) {
+			$date = strtotime( $date );
+			if ( ! empty( $date ) ) {
+				add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'sighting_date', $date, true );
+				if ( $date > strtotime( 'July 2011' ) ) {
+					add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'incoming_spay_neuter_status', $incoming_spay_neuter_status, true );
+					add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'current_spay_neuter_status', $current_spay_neuter_status, true );
+				}
+			}
+		}
+
+		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'name_of_reporter', 'BC SPCA', true );
+		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'latitude', $location['latitude'], true );
+		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'longitude', $location['longitude'], true );
+		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'address', $location['formatted_address'], true );
+		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'confidence_level', $location['confidence'], true );
+		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'ip_address_of_reporter', $_SERVER['REMOTE_ADDR'], true );
+		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'browser_info_of_reporter', $_SERVER['HTTP_USER_AGENT'] , true );
+		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'imported_on', time(), true );
+		add_post_meta( $sighting_id, Cat_Tracker::META_PREFIX . 'map', $map_id, true );
+
+		// insert sighting type
+		$sighting_type = get_term_by( 'name', 'SPCA Intake Cats', Cat_Tracker::MARKER_TAXONOMY );
+		add_post_meta( $sighting_id, Cat_Tracker::MARKER_TAXONOMY, absint( $sighting_type->term_id ), true );
+		wp_set_object_terms( $sighting_id, absint( $sighting_type->term_id ), Cat_Tracker::MARKER_TAXONOMY );
+
+		// insert intake type
+		add_post_meta( $sighting_id, CAT_MAPPER_INTERNAL_TAXONOMY, $intake_type->term_id, true );
+		wp_set_object_terms( $sighting_id, absint( $intake_type->term_id ), CAT_MAPPER_INTERNAL_TAXONOMY );
+
+		return $sighting_id;
+	}
+
 
 	/**
 	 * create default terms if they do not exist yet
@@ -544,7 +629,13 @@ class Cat_Mapper_Importer {
 	 * @since 1.1
 	 * @return mixed, false if not a valid source, taxonomy term object if valid
 	 */
-	function parse_source( $source, $type ) {
+	function parse_source( $source, $type, $report_type = false ) {
+
+		var_dump( $report_type );
+		if ( 'voucher' == $report_type ) {
+			$this->create_term_if_not_exists( CAT_MAPPER_INTERNAL_TAXONOMY, $source );
+			return get_term_by( 'name', $source, CAT_MAPPER_INTERNAL_TAXONOMY );
+		}
 
 		$type = trim( strtolower( $type ) );
 
