@@ -379,7 +379,7 @@ class Cat_Mapper_Importer {
 				}
 
 				if ( 'voucher' == $report_type ) {
-					if ( false === strpos( $type, 'cat' ) ) {
+					if ( false === strpos( strtolower( $type ), 'cat' ) ) {
 						printf( '<p>' . __( 'Animal ID #%s was not a cat (or several cats), and thus has been skipped.' ) . '</p>', esc_html( $animal_id ) );
 						continue;
 					}
@@ -417,27 +417,26 @@ class Cat_Mapper_Importer {
 
 					foreach ( $cats as $cat ) {
 						$sighting_id = $this->insert_sighting( $attachment_id, $cat['animal_id'], $source, $breed, $color, $cat['gender'], $age_group, $description, $incoming_spay_neuter_status, $current_spay_neuter_status, $location, $map_id, $intake_type );
-						printf( '<p>' . __( 'Animal ID #%d successfully imported with Sighting ID #%d.' ) . '</p>', $animal_id, $sighting_id );
-						$cat_count++;
-						if ( $sighting_id == -1 ) {
+						if ( -1 == $sighting_id ) {
 							$dupe++;
 						} else {
+							printf( '<p>' . __( 'Animal ID #%d successfully imported with Sighting ID #%d.' ) . '</p>', $animal_id, $sighting_id );
 							$count_imported++;
+							$cat_count++;
 						}
 					}
 				} else {
 					$sighting_id = $this->insert_sighting( $attachment_id, $animal_id, $source, $breed, $color, $gender, $age_group, $description, $incoming_spay_neuter_status, $current_spay_neuter_status, $location, $map_id, $intake_type );
-					printf( '<p>' . __( 'Animal ID #%d successfully imported with Sighting ID #%d.' ) . '</p>', $animal_id, $sighting_id );
-					if ( $type == 'kitten' ) {
-						$kitten_count++;
-					} else {
-						$cat_count++;
-					}
-
-					if ( $sighting_id == -1 ) {
+					if ( -1 == $sighting_id ) {
 						$dupe++;
 					} else {
+						printf( '<p>' . __( 'Animal ID #%d successfully imported with Sighting ID #%d.' ) . '</p>', $animal_id, $sighting_id );
 						$count_imported++;
+						if ( $type == 'kitten' ) {
+							$kitten_count++;
+						} else {
+							$cat_count++;
+						}
 					}
 				}
 
