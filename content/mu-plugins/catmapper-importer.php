@@ -631,7 +631,6 @@ class Cat_Mapper_Importer {
 	 */
 	function parse_source( $source, $type, $report_type = false ) {
 
-		var_dump( $report_type );
 		if ( 'voucher' == $report_type ) {
 			$this->create_term_if_not_exists( CAT_MAPPER_INTERNAL_TAXONOMY, $source );
 			return get_term_by( 'name', $source, CAT_MAPPER_INTERNAL_TAXONOMY );
