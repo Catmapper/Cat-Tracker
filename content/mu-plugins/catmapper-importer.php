@@ -416,7 +416,7 @@ class Cat_Mapper_Importer {
 					}
 
 					foreach ( $cats as $cat ) {
-						$sighting_id = $this->insert_sighting( $attachment_id, $cat['animal_id'], $source, $breed, $color, $cat['gender'], $age_group, $description, $incoming_spay_neuter_status, $current_spay_neuter_status, $location, $map_id, $intake_type );
+						$sighting_id = $this->insert_sighting( $attachment_id, $cat['animal_id'], $source, $breed, $color, $cat['gender'], $age_group, $description, $incoming_spay_neuter_status, $current_spay_neuter_status, $location, $map_id, $intake_type, $date );
 						if ( -1 == $sighting_id ) {
 							$dupe++;
 						} else {
@@ -426,7 +426,7 @@ class Cat_Mapper_Importer {
 						}
 					}
 				} else {
-					$sighting_id = $this->insert_sighting( $attachment_id, $animal_id, $source, $breed, $color, $gender, $age_group, $description, $incoming_spay_neuter_status, $current_spay_neuter_status, $location, $map_id, $intake_type );
+					$sighting_id = $this->insert_sighting( $attachment_id, $animal_id, $source, $breed, $color, $gender, $age_group, $description, $incoming_spay_neuter_status, $current_spay_neuter_status, $location, $map_id, $intake_type, $date );
 					if ( -1 == $sighting_id ) {
 						$dupe++;
 					} else {
@@ -457,7 +457,7 @@ class Cat_Mapper_Importer {
 	 * @since 1.2
 	 * @return int the ID of the inserted sighting
 	 */
-	function insert_sighting( $attachment_id, $animal_id, $source, $breed, $color, $gender, $age_group, $description, $incoming_spay_neuter_status, $current_spay_neuter_status, $location, $map_id, $intake_type ) {
+	function insert_sighting( $attachment_id, $animal_id, $source, $breed, $color, $gender, $age_group, $description, $incoming_spay_neuter_status, $current_spay_neuter_status, $location, $map_id, $intake_type, $date ) {
 
 		$_already_exists = new WP_Query();
 		$_already_exists->query( array(
