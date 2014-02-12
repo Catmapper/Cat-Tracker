@@ -44,13 +44,11 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 	 */
 	function deletebaddata() {
 
-		WP_CLI::line( "Going to delete sightings with bad data." );
-		WP_CLI::line( "Generating community blog IDs list..." );
+		WP_CLI::line( "Going to delete sightings which were imported after January 26, 2013 and contain invalid date." );
 		$blog_ids = catmapper_refresh_all_blog_ids();
 		foreach( $blog_ids as $blog_id ) {
 			$count = 0;
 			switch_to_blog( $blog_id );
-			WP_CLI::line( "Checking data for " . get_bloginfo() . "..." );
 			$q = new WP_Query( array(
 				'post_type' => 'cat_tracker_marker',
 				'posts_per_page' => -1,
@@ -77,12 +75,22 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 				$count++;
 			}
 
-			global $wpdb;
-			$oldest_sighting_date = $wpdb->get_var( "SELECT max(cast(meta_value as unsigned)) FROM $wpdb->postmeta WHERE meta_key='cat_tracker_sighting_date'" );
+			$old_q = new WP_Query( array(
+				'post_type' => 'cat_tracker_marker',
+				'posts_per_page' => 1,
+				'meta_key' => 'cat_tracker_sighting_date',
+				'orderby' => 'meta_value_num',
+				'order' => 'DESC',
+				'tax_query' => array( array(
+					'taxonomy' => 'cat_tracker_marker_type',
+					'field' => 'slug',
+					'terms' => 'spca-intake-cats',
+				) )
+			) );
 			$marker_count = wp_count_posts( 'cat_tracker_marker' );
-			WP_CLI::line( 'Deleted ' . $count . ' markers in '. get_bloginfo() .'; There are ' . $marker_count->publish . ' markers left in this community.' );
+			WP_CLI::line( get_bloginfo() . ' | Deleted ' . $count . ' sightings with empty dates | Total sightings left: ' . $marker_count->publish . ' | INTAKE sightings left: ' . $old_q->found_posts );
 			if ( $marker_count > 0 ) {
-				WP_CLI::line( 'The oldest marker left for ' . get_bloginfo() . ' has a sighting date of: ' . date( 'Y-m-d', $oldest_sighting_date ) );
+				WP_CLI::line( 'The oldest INTAKE sighting left for ' . get_bloginfo() . ' has a sighting date of: ' . date( 'Y-m-d', get_post_meta( $old_q->posts[0]->ID, 'cat_tracker_sighting_date', true ) ) );
 			}
 
 			restore_current_blog();
