@@ -48,6 +48,7 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 		WP_CLI::line( "Generating community blog IDs list..." );
 		$blog_ids = catmapper_refresh_all_blog_ids();
 		foreach( $blog_ids as $blog_id ) {
+			$count = 0;
 			switch_to_blog( $blog_id );
 			WP_CLI::line( "Checking data for " . get_bloginfo() . "..." );
 			$q = new WP_Query( array(
@@ -74,11 +75,12 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 
 			foreach( $q->posts as $post ) {
 				WP_CLI::line( 'would delete marker ID #' . $post->ID . ' with animal ID #' . get_post_meta( $post->ID, 'cat_tracker_animal_id', true ) . ', sighting date of: "' . get_post_meta( $post->ID, 'cat_tracker_sighting_date', true ) . '" and date of: "' . $post->post_date_gmt . '"' );
+				$count++;
 			}
 
 			global $wpdb;
 			$oldest_sighting_date = $wpdb->get_var( "SELECT max(cast(meta_value as unsigned)) FROM $wpdb->postmeta WHERE meta_key='cat_tracker_sighting_date'" );
-			WP_CLI::line( 'the oldest marker left for ' . get_bloginfo() . ' has a sighting date of: ' . date( 'Y-m-d', $oldest_sighting_date ) );
+			WP_CLI::line( 'Deleted ' . $count . ' markers in '. get_bloginfo() .'; the oldest marker left for ' . get_bloginfo() . ' has a sighting date of: ' . date( 'Y-m-d', $oldest_sighting_date ) );
 
 			restore_current_blog();
 		}
