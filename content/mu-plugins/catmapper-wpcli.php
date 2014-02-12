@@ -74,7 +74,6 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 			}
 
 			foreach( $q->posts as $post ) {
-				WP_CLI::line( 'would delete marker ID #' . $post->ID . ' with animal ID #' . get_post_meta( $post->ID, 'cat_tracker_animal_id', true ) . ', sighting date of: "' . get_post_meta( $post->ID, 'cat_tracker_sighting_date', true ) . '" and date of: "' . $post->post_date_gmt . '"' );
 				$count++;
 			}
 
