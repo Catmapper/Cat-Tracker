@@ -40,6 +40,49 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 	}
 
 	/**
+	 * Delete bad data
+	 */
+	function deletebaddata() {
+
+		WP_CLI::line( "Going to delete sightings with bad data." );
+		WP_CLI::line( "Generating community blog IDs list..." );
+		$blog_ids = catmapper_refresh_all_blog_ids();
+		foreach( $blog_ids as $blog_id ) {
+			switch_to_blog( $blog_id );
+			WP_CLI::line( "Checking data for " . get_bloginfo() . "..." );
+			$q = new WP_Query( array(
+				'post_type' => 'cat_tracker_marker',
+				'posts_per_page' => -1,
+				'meta_query' => array(
+					array(
+						'key' => 'cat_tracker_sighting_date',
+						'compare' => 'NOT EXISTS',
+						'value' => '',
+					)
+				)
+			) );
+			if ( ! $q->have_posts() ) {
+				WP_CLI::line( get_bloginfo() . " didn't have any bad data." );
+				restore_current_blog();
+				continue;
+			}
+
+			foreach( $q->posts as $post ) {
+				WP_CLI::line( 'would delete marker ID #' . $post->ID . ' with animal ID #' . get_post_meta( $post->ID, 'cat_tracker_animal_id', true ) . ', sighting date of: "' . get_post_meta( $post->ID, 'cat_tracker_sighting_date', true ) . '" and date of: "' . $post->post_date_gmt . '"' );
+			}
+
+			global $wpdb;
+			$oldest_sighting_date = $wpdb->get_var( "SELECT max(cast(meta_value as unsigned)) FROM $wpdb->postmeta WHERE meta_key='cat_tracker_sighting_date'" );
+			WP_CLI::line( 'the oldest marker left for ' . get_bloginfo() . ' has a sighting date of: ' . date( 'c', $oldest_sighting_date ) );
+
+			restore_current_blog();
+		}
+
+		WP_CLI::success( "Done flashing cache." );
+
+	}
+
+	/**
 	 * Update roles for each community
 	 */
 	function updateroles() {
