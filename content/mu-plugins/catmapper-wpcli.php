@@ -59,7 +59,12 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 						'compare' => 'NOT EXISTS',
 						'value' => '',
 					)
-				)
+				),
+				'date_query' => array(
+					array(
+						'after' => 'January 26, 2013',
+					)
+				),
 			) );
 			if ( ! $q->have_posts() ) {
 				WP_CLI::line( get_bloginfo() . " didn't have any bad data." );
@@ -73,7 +78,7 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 
 			global $wpdb;
 			$oldest_sighting_date = $wpdb->get_var( "SELECT max(cast(meta_value as unsigned)) FROM $wpdb->postmeta WHERE meta_key='cat_tracker_sighting_date'" );
-			WP_CLI::line( 'the oldest marker left for ' . get_bloginfo() . ' has a sighting date of: ' . date( 'c', $oldest_sighting_date ) );
+			WP_CLI::line( 'the oldest marker left for ' . get_bloginfo() . ' has a sighting date of: ' . date( 'Y-m-d', $oldest_sighting_date ) );
 
 			restore_current_blog();
 		}
