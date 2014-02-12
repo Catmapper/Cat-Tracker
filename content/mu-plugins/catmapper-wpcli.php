@@ -79,7 +79,11 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 
 			global $wpdb;
 			$oldest_sighting_date = $wpdb->get_var( "SELECT max(cast(meta_value as unsigned)) FROM $wpdb->postmeta WHERE meta_key='cat_tracker_sighting_date'" );
-			WP_CLI::line( 'Deleted ' . $count . ' markers in '. get_bloginfo() .'; the oldest marker left for ' . get_bloginfo() . ' has a sighting date of: ' . date( 'Y-m-d', $oldest_sighting_date ) );
+			$marker_count = wp_count_posts( 'cat_tracker_marker' );
+			WP_CLI::line( 'Deleted ' . $count . ' markers in '. get_bloginfo() .'; There are ' . $marker_count->publish . ' markers left in this community.' );
+			if ( $marker_count > 0 ) {
+				WP_CLI::line( 'The oldest marker left for ' . get_bloginfo() . ' has a sighting date of: ' . date( 'Y-m-d', $oldest_sighting_date ) );
+			}
 
 			restore_current_blog();
 		}
