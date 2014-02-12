@@ -31,6 +31,15 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 	}
 
 	/**
+	 * flushes marker cache for specified blog
+	 */
+	function flushmarkercache() {
+		WP_CLI::line( "Flushing marker cache for " . get_bloginfo() . "..." );
+		Cat_Tracker::instance()->_flush_all_markers_cache();
+		WP_CLI::success( "Done flashing cache." );
+	}
+
+	/**
 	 * Update roles for each community
 	 */
 	function updateroles() {
