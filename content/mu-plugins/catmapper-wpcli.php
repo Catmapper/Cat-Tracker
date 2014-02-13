@@ -190,7 +190,6 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 		$wp_object_cache->stats = array();
 		$wp_object_cache->memcache_debug = array();
 		$wp_object_cache->cache = array();
-		$wp_object_cache->__remoteset(); // important
 	}
 
 }
