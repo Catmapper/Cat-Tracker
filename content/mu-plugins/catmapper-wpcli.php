@@ -23,6 +23,7 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 			switch_to_blog( $blog_id );
 			WP_CLI::line( "Flushing marker cache for " . get_bloginfo() . "..." );
 			Cat_Tracker::instance()->_flush_all_markers_cache();
+			$this->_stop_the_insanity();
 			restore_current_blog();
 		}
 
@@ -89,10 +90,12 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 			) );
 			$marker_count = wp_count_posts( 'cat_tracker_marker' );
 			WP_CLI::line( get_bloginfo() . ' | Deleted ' . $count . ' sightings with empty dates | Total sightings left: ' . $marker_count->publish . ' | INTAKE sightings left: ' . $old_q->found_posts );
-			if ( $marker_count > 0 ) {
+			if ( $old_q->have_posts() ) {
 				WP_CLI::line( 'The oldest INTAKE sighting left for ' . get_bloginfo() . ' has a sighting date of: ' . date( 'Y-m-d', get_post_meta( $old_q->posts[0]->ID, 'cat_tracker_sighting_date', true ) ) );
 			}
 
+//			Cat_Tracker::instance()->_flush_all_markers_cache();
+//			$this->_stop_the_insanity();
 			restore_current_blog();
 		}
 
@@ -172,6 +175,21 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 			add_post_meta( get_the_ID(), 'cat_tracker_marker_type', absint( $sighting_type->term_id ), true );
 			wp_set_object_terms( get_the_ID(), absint( $sighting_type->term_id ), 'cat_tracker_marker_type' );
 		}
+	}
+
+	function _stop_the_insanity() {
+		global $wpdb, $wp_object_cache;
+
+		$wpdb->queries = array(); // or define( 'WP_IMPORTING', true );
+
+		if ( !is_object( $wp_object_cache ) )
+			return;
+
+		$wp_object_cache->group_ops = array();
+		$wp_object_cache->stats = array();
+		$wp_object_cache->memcache_debug = array();
+		$wp_object_cache->cache = array();
+		$wp_object_cache->__remoteset(); // important
 	}
 
 }
