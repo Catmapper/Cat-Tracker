@@ -73,6 +73,7 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 			}
 
 			foreach( $q->posts as $post ) {
+				wp_delete_post( $post->ID );
 				$count++;
 			}
 
@@ -94,12 +95,12 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 				WP_CLI::line( 'The oldest INTAKE sighting left for ' . get_bloginfo() . ' has a sighting date of: ' . date( 'Y-m-d', get_post_meta( $old_q->posts[0]->ID, 'cat_tracker_sighting_date', true ) ) );
 			}
 
-//			Cat_Tracker::instance()->_flush_all_markers_cache();
-//			$this->_stop_the_insanity();
+			Cat_Tracker::instance()->_flush_all_markers_cache();
+			$this->_stop_the_insanity();
 			restore_current_blog();
 		}
 
-		WP_CLI::success( "Done flashing cache." );
+		WP_CLI::success( "Done with cleanup." );
 
 	}
 
