@@ -1,0 +1,589 @@
+"Animal ID","Number of Cats","Sighting Date","Sighting Type",Description,"Neuter Status",Address,Latitude,Longitude,"Intake Type","Intake Source",Breed,Color,Gender,"Age group","Incoming neuter status (intake)","Current neuter status (intake)","Name of reporter","Email of reporter","Tel of reporter","Reporter would like to be contacted regarding spay/neuter programs"
+285013,1,2012-11-20,"SPCA Intake Cats","Stray Kitten.
+Color: White / Orange.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"Beasley Rd, Strathcona, BC V0P, Canada",50.0591888,-124.9835892,unknown,Stray,"Domestic Short  Hair Mix","White / Orange",Male,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+285014,1,2012-11-20,"SPCA Intake Cats","Stray Kitten.
+Color: White / Orange.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"Beasley Rd, Strathcona, BC V0P, Canada",50.0591888,-124.9835892,unknown,Stray,"Domestic Short  Hair Mix","White / Orange",Male,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+285009,1,2012-11-20,"SPCA Intake Cats","Stray Kitten.
+Color: Grey / White.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"Beasley Rd, Strathcona, BC V0P, Canada",50.0591888,-124.9835892,unknown,Stray,"Domestic Short  Hair Mix","Grey / White",Female,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+285010,1,2012-11-20,"SPCA Intake Cats","Stray Kitten.
+Color: Grey / White.
+Gender: Female.
+Breed: Domestic  Medium Hair Mix",unknown,"Beasley Rd, Strathcona, BC V0P, Canada",50.0591888,-124.9835892,unknown,Stray,"Domestic  Medium Hair Mix","Grey / White",Female,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+285011,1,2012-11-20,"SPCA Intake Cats","Stray Kitten.
+Color: Grey Tabby /  White.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"Beasley Rd, Strathcona, BC V0P, Canada",50.0591888,-124.9835892,unknown,Stray,"Domestic Short  Hair Mix","Grey Tabby /  White",Female,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+285012,1,2012-11-20,"SPCA Intake Cats","Stray Kitten.
+Color: Grey Tabby /  None.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"Beasley Rd, Strathcona, BC V0P, Canada",50.0591888,-124.9835892,unknown,Stray,"Domestic Short  Hair Mix","Grey Tabby /  None",Male,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+280224,1,2012-09-27,"SPCA Intake Cats","Stray Kitten.
+Color: Grey Tabby /  White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"375 2nd Ave, Campbell River, BC V9W 3V1, Canada",50.0110054,-125.2432785,unknown,Stray,"Domestic Short  Hair Mix","Grey Tabby /  White",Male,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+280225,1,2012-09-27,"SPCA Intake Cats","Stray Kitten.
+Color: Black / White.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"375 2nd Ave, Campbell River, BC V9W 3V1, Canada",50.0110054,-125.2432785,unknown,Stray,"Domestic Short  Hair Mix","Black / White",Female,Kitten,No,No,"BC SPCA",unknown,unknown,no
+280226,1,2012-09-27,"SPCA Intake Cats","Stray Kitten.
+Color: Tabby / White.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"375 2nd Ave, Campbell River, BC V9W 3V1, Canada",50.0110054,-125.2432785,unknown,Stray,"Domestic Short  Hair Mix","Tabby / White",Female,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+283302,1,2012-11-01,"SPCA Intake Cats","Stray Kitten.
+Color: Grey Tabby /  White.
+Gender: Unknown.
+Breed: Domestic Short  Hair Mix",unknown,"375 2nd Ave, Campbell River, BC V9W 3V1, Canada",50.0110054,-125.2432785,unknown,Stray,"Domestic Short  Hair Mix","Grey Tabby /  White",Unknown,Kitten,No,No,"BC SPCA",unknown,unknown,no
+285008,1,2012-11-20,"SPCA Intake Cats","Stray Kitten.
+Color: Grey / White.
+Gender: Female.
+Breed: Domestic  Medium Hair Mix",unknown,"Beasley Rd, Strathcona, BC V0P, Canada",50.0591888,-124.9835892,unknown,Stray,"Domestic  Medium Hair Mix","Grey / White",Female,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+280220,1,2012-09-27,"SPCA Intake Cats","Stray Kitten.
+Color: Black / None.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"375 2nd Ave, Campbell River, BC V9W 3V1, Canada",50.0110054,-125.2432785,unknown,Stray,"Domestic Short  Hair Mix","Black / None",Male,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+280221,1,2012-09-27,"SPCA Intake Cats","Stray Kitten.
+Color: Black / White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"375 2nd Ave, Campbell River, BC V9W 3V1, Canada",50.0110054,-125.2432785,unknown,Stray,"Domestic Short  Hair Mix","Black / White",Male,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+280223,1,2012-09-27,"SPCA Intake Cats","Stray Kitten.
+Color: Grey Tabby /  White.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"375 2nd Ave, Campbell River, BC V9W 3V1, Canada",50.0110054,-125.2432785,unknown,Stray,"Domestic Short  Hair Mix","Grey Tabby /  White",Female,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+255323,1,2011-12-14,"SPCA Intake Cats","Stray Kitten.
+Color: Grey / White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"301 11th Ave, Campbell River, BC V9W 4G2, Canada",50.0256805,-125.2455978,unknown,Stray,"Domestic Short  Hair Mix","Grey / White",Male,Kitten,No,No,"BC SPCA",unknown,unknown,no
+255324,1,2011-12-14,"SPCA Intake Cats","Stray Kitten.
+Color: Grey / White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"301 11th Ave, Campbell River, BC V9W 4G2, Canada",50.0256805,-125.2455978,unknown,Stray,"Domestic Short  Hair Mix","Grey / White",Male,Kitten,No,No,"BC SPCA",unknown,unknown,no
+280218,1,2012-09-27,"SPCA Intake Cats","Stray Kitten.
+Color: Black / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"375 2nd Ave, Campbell River, BC V9W 3V1, Canada",50.0110054,-125.2432785,unknown,Stray,"Domestic Short  Hair Mix","Black / None",Female,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+280219,1,2012-09-27,"SPCA Intake Cats","Stray Kitten.
+Color: Black / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"375 2nd Ave, Campbell River, BC V9W 3V1, Canada",50.0110054,-125.2432785,unknown,Stray,"Domestic Short  Hair Mix","Black / None",Female,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+239176,1,2011-06-30,"SPCA Intake Cats","Stray Cat.
+Color: Black / Tabby.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"181 Lennea Pl, Campbell River, BC V9H 1G7, Canada",49.9175034,-125.1939163,unknown,Stray,"Domestic Short  Hair Mix","Black / Tabby",Male,Senior,unknown,unknown,"BC SPCA",unknown,unknown,no
+226111,1,2011-01-29,"SPCA Intake Cats","Stray Cat.
+Color: Orange Tabby /  None.
+Gender: Male.
+Breed: Domestic  Longhair Mix",unknown,"Fir St, Alert Bay, BC V0N, Canada",50.5769691,-126.9187317,unknown,Stray,"Domestic  Longhair Mix","Orange Tabby /  None",Male,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+226112,1,2011-01-29,"SPCA Intake Cats","Stray Cat.
+Color: Tabby / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"Fir St, Alert Bay, BC V0N, Canada",50.5769691,-126.9187317,unknown,Stray,"Domestic Short  Hair Mix","Tabby / None",Female,"Young Adult",unknown,unknown,"BC SPCA",unknown,unknown,no
+226113,1,2011-01-29,"SPCA Intake Cats","Stray Cat.
+Color: Cream Ginger  Tabby / White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"Fir St, Alert Bay, BC V0N, Canada",50.5769691,-126.9187317,unknown,Stray,"Domestic Short  Hair Mix","Cream Ginger  Tabby / White",Male,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+234628,1,2011-05-17,"SPCA Intake Cats","Stray Cat.
+Color: Black / White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"1384 16th Ave, Campbell River, BC V9W 2E1, Canada",50.0295982,-125.2483597,unknown,Stray,"Domestic Short  Hair Mix","Black / White",Male,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+224099,1,2011-01-04,"SPCA Intake Cats","Stray Cat.
+Color: Black  Tortoiseshell /  None.
+Gender: Female.
+Breed: Domestic  Medium Hair Mix",unknown,Canada,62.833000183105,-95.914001464844,unknown,Stray,"Domestic  Medium Hair Mix","Black  Tortoiseshell /  None",Female,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+224067,1,2011-01-04,"SPCA Intake Cats","Cat.
+Color: Muted Calico /  None.
+Gender: Female.
+Breed: Domestic  Medium Hair Mix",unknown,"Cedar St & 7th Ave, Campbell River, BC V9W, Canada",50.0198517,-125.2463303,unknown,"ACO Impound","Domestic  Medium Hair Mix","Muted Calico /  None",Female,"Young Adult",unknown,unknown,"BC SPCA",unknown,unknown,no
+243048,1,2011-08-04,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Black / White.
+Gender: Female.
+Breed: Domestic  Medium Hair Mix",unknown,"391 Island Hwy, Campbell River, BC V9W 2B5, Canada",50.0144386,-125.2342529,unknown,Stray,"Domestic  Medium Hair Mix","Black / White",Female,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
+283235,1,2012-10-31,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Torbie / None.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"8 Nelson Rd, Campbell River, BC V9H, Canada",49.9600945,-125.224556,unknown,Stray,"Domestic  Medium Hair Mix","Torbie / None",Male,Kitten,No,No,"BC SPCA",unknown,unknown,no
+283234,1,2012-10-31,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Ginger Tabby /  White.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"8 Nelson Rd, Campbell River, BC V9H, Canada",49.9600945,-125.224556,unknown,Stray,"Domestic  Medium Hair Mix","Ginger Tabby /  White",Male,Kitten,No,No,"BC SPCA",unknown,unknown,no
+283001,1,2012-10-29,"BC SPCA unowned intake - Kitten","Kitten.
+Color: Orange Tabby /  White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"910 Hemlock St, Campbell River, BC V9W 5H5, Canada",50.0233192,-125.2543335,unknown,"ACO Impound","Domestic Short  Hair Mix","Orange Tabby /  White",Male,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+283231,1,2012-10-31,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Brown Tabby /  White.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"8 Nelson Rd, Campbell River, BC V9H, Canada",49.9600945,-125.224556,unknown,Stray,"Domestic  Medium Hair Mix","Brown Tabby /  White",Male,Kitten,No,No,"BC SPCA",unknown,unknown,no
+282488,1,2012-10-23,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Grey Tabby /  None.
+Gender: Female.
+Breed: Domestic  Longhair Mix",unknown,"1681 Dogwood St, Campbell River, BC V9W 8H3, Canada",50.0315018,-125.2491837,unknown,Stray,"Domestic  Longhair Mix","Grey Tabby /  None",Female,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+281533,1,2012-10-12,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Black / None.
+Gender: Female.
+Breed: Domestic  Medium Hair Mix",unknown,"Merecroft Rd, Campbell River, BC V9W, Canada",50.0002785,-125.24823,unknown,Stray,"Domestic  Medium Hair Mix","Black / None",Female,Kitten,No,No,"BC SPCA",unknown,unknown,no
+281534,1,2012-10-12,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Black / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"Merecroft Rd, Campbell River, BC V9W, Canada",50.0002785,-125.24823,unknown,Stray,"Domestic Short  Hair Mix","Black / None",Female,Kitten,No,No,"BC SPCA",unknown,unknown,no
+274398,1,2012-07-27,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Black / White.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"Birch St & 2nd Ave, Campbell River, BC V9W, Canada",50.0111389,-125.2418365,unknown,Stray,"Domestic Short  Hair Mix","Black / White",Female,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+274397,1,2012-07-27,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Black / White.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"Birch St & 2nd Ave, Campbell River, BC V9W, Canada",50.0111389,-125.2418365,unknown,Stray,"Domestic  Medium Hair Mix","Black / White",Male,unknown,Yes,Yes,"BC SPCA",unknown,unknown,no
+273036,1,2012-07-16,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Grey / White.
+Gender: Unknown.
+Breed: Domestic Short  Hair Mix",unknown,"2160 Willis Rd, Campbell River, BC V9W 6X2, Canada",50.0141335,-125.2776566,unknown,Stray,"Domestic Short  Hair Mix","Grey / White",Unknown,Kitten,No,No,"BC SPCA",unknown,unknown,no
+273037,1,2012-07-16,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: White / None.
+Gender: Unknown.
+Breed: Domestic Short  Hair Mix",unknown,"2160 Willis Rd, Campbell River, BC V9W 6X2, Canada",50.0141335,-125.2776566,unknown,Stray,"Domestic Short  Hair Mix","White / None",Unknown,Kitten,No,No,"BC SPCA",unknown,unknown,no
+273035,1,2012-07-16,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Grey Tabby /  White.
+Gender: Unknown.
+Breed: Domestic Short  Hair Mix",unknown,"2160 Willis Rd, Campbell River, BC V9W 6X2, Canada",50.0141335,-125.2776566,unknown,Stray,"Domestic Short  Hair Mix","Grey Tabby /  White",Unknown,Kitten,No,No,"BC SPCA",unknown,unknown,no
+268825,1,2012-06-02,"BC SPCA unowned intake - Kitten","Kitten.
+Color: Grey / White.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"904 Ironwood St, Campbell River, BC V9W 5K7, Canada",50.0232887,-125.2564163,unknown,"ACO Impound","Domestic  Medium Hair Mix","Grey / White",Male,Kitten,No,No,"BC SPCA",unknown,unknown,no
+270661,1,2012-06-21,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Grey / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"465 Merecroft Rd, Campbell River, BC V9W 6K6, Canada",50.000145,-125.2472229,unknown,Stray,"Domestic Short  Hair Mix","Grey / None",Female,Kitten,No,No,"BC SPCA",unknown,unknown,no
+250854,1,2011-10-20,"BC SPCA unowned intake - Kitten","Kitten.
+Color: Grey / None.
+Gender: Unknown.
+Breed: Domestic Short  Hair Mix",unknown,"141 Delvecchio Rd, Campbell River, BC V9W 2T6, Canada",50.0048599,-125.2430191,unknown,"ACO Impound","Domestic Short  Hair Mix","Grey / None",Unknown,Kitten,Unknown,Unknown,"BC SPCA",unknown,unknown,no
+247570,1,2011-09-16,"BC SPCA unowned intake - Kitten","Kitten.
+Color: Black / White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"2160 15th Ave, Campbell River, BC V9W 4K4, Canada",50.0300598,-125.2767334,unknown,"ACO Impound","Domestic Short  Hair Mix","Black / White",Male,Kitten,No,No,"BC SPCA",unknown,unknown,no
+247571,1,2011-09-16,"BC SPCA unowned intake - Kitten","Kitten.
+Color: Black / White.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"2160 15th Ave, Campbell River, BC V9W 4K4, Canada",50.0300598,-125.2767334,unknown,"ACO Impound","Domestic Short  Hair Mix","Black / White",Female,Kitten,No,No,"BC SPCA",unknown,unknown,no
+236468,1,2011-06-03,"BC SPCA unowned intake - Kitten","Kitten.
+Color: Grey Tabby /  Black.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"670 Island Hwy, Campbell River, BC V9W 2C3, Canada",50.0207787,-125.2391281,unknown,"ACO Impound","Domestic Short  Hair Mix","Grey Tabby /  Black",Male,Kitten,unknown,unknown,"BC SPCA",unknown,unknown,no
+247290,1,2011-09-14,"BC SPCA unowned intake - Kitten","Kitten.
+Color: Grey Tabby /  None.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"1400 Weiwaikum Rd, Campbell River, BC V9W 5W8, Canada",50.0306625,-125.2509537,unknown,"ACO Impound","Domestic Short  Hair Mix","Grey Tabby /  None",Male,Kitten,No,No,"BC SPCA",unknown,unknown,no
+247569,1,2011-09-16,"BC SPCA unowned intake - Kitten","Kitten.
+Color: Grey / None.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"2160 15th Ave, Campbell River, BC V9W 4K4, Canada",50.0300598,-125.2767334,unknown,"ACO Impound","Domestic  Medium Hair Mix","Grey / None",Male,Kitten,No,No,"BC SPCA",unknown,unknown,no
+236179,1,2011-06-01,"BC SPCA unowned intake - Kitten","Kitten.
+Color: Grey / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"1370 Island Hwy, Campbell River, BC V9W 8C9, Canada",50.0325317,-125.247261,unknown,"ACO Impound","Domestic Short  Hair Mix","Grey / None",Female,Kitten,unknown,unknown,"BC SPCA",unknown,unknown,no
+236180,1,2011-06-01,"BC SPCA unowned intake - Kitten","Kitten.
+Color: Grey / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"1370 Island Hwy, Campbell River, BC V9W 8C9, Canada",50.0325317,-125.247261,unknown,"ACO Impound","Domestic Short  Hair Mix","Grey / None",Female,Kitten,unknown,unknown,"BC SPCA",unknown,unknown,no
+236177,1,2011-06-01,"BC SPCA unowned intake - Kitten","Kitten.
+Color: Grey / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"1370 Island Hwy, Campbell River, BC V9W 8C9, Canada",50.0325317,-125.247261,unknown,"ACO Impound","Domestic Short  Hair Mix","Grey / None",Female,Kitten,unknown,unknown,"BC SPCA",unknown,unknown,no
+236178,1,2011-06-01,"BC SPCA unowned intake - Kitten","Kitten.
+Color: Grey / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"1370 Island Hwy, Campbell River, BC V9W 8C9, Canada",50.0325317,-125.247261,unknown,"ACO Impound","Domestic Short  Hair Mix","Grey / None",Female,Kitten,unknown,unknown,"BC SPCA",unknown,unknown,no
+274399,1,2012-07-27,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Black / None.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"Birch St & 2nd Ave, Campbell River, BC V9W, Canada",50.0111389,-125.2418365,unknown,Stray,"Domestic  Medium Hair Mix","Black / None",Male,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+250745,1,2011-10-19,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Muted  Tortoiseshell /  None.
+Gender: Female.
+Breed: Domestic  Medium Hair Mix",unknown,"323 Dogwood St, Campbell River, BC V9W 8C8, Canada",50.0131912,-125.2472992,unknown,Stray,"Domestic  Medium Hair Mix","Muted  Tortoiseshell /  None",Female,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+250746,1,2011-10-19,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Grey / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"323 Dogwood St, Campbell River, BC V9W 8C8, Canada",50.0131912,-125.2472992,unknown,Stray,"Domestic Short  Hair Mix","Grey / None",Female,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+250744,1,2011-10-19,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Grey Tabby /  None.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"323 Dogwood St, Campbell River, BC V9W 8C8, Canada",50.0131912,-125.2472992,unknown,Stray,"Domestic Short  Hair Mix","Grey Tabby /  None",Male,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+250036,1,2011-10-12,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Black / White.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"61 Alder St, Campbell River, BC V9W 2N2, Canada",50.0084114,-125.2392731,unknown,Stray,"Domestic  Medium Hair Mix","Black / White",Male,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+250740,1,2011-10-19,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Muted  Tortoiseshell /  None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"323 Dogwood St, Campbell River, BC V9W 8C8, Canada",50.0131912,-125.2472992,unknown,Stray,"Domestic Short  Hair Mix","Muted  Tortoiseshell /  None",Female,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+250035,1,2011-10-12,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Black / White.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"61 Alder St, Campbell River, BC V9W 2N2, Canada",50.0084114,-125.2392731,unknown,Stray,"Domestic  Medium Hair Mix","Black / White",Male,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+250034,1,2011-10-12,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Black / None.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"61 Alder St, Campbell River, BC V9W 2N2, Canada",50.0084114,-125.2392731,unknown,Stray,"Domestic  Medium Hair Mix","Black / None",Male,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+237827,1,2011-06-17,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Brown / White.
+Gender: Female.
+Breed: Domestic Short  Hair / Siamese",unknown,"665 Old Petersen Rd, Campbell River, BC V9W 3N1, Canada",50.018631,-125.2651978,unknown,Stray,"Domestic Short  Hair / Siamese","Brown / White",Female,Kitten,unknown,unknown,"BC SPCA",unknown,unknown,no
+237828,1,2011-06-17,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Black / None.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"665 Old Petersen Rd, Campbell River, BC V9W 3N1, Canada",50.018631,-125.2651978,unknown,Stray,"Domestic Short  Hair Mix","Black / None",Male,Kitten,unknown,unknown,"BC SPCA",unknown,unknown,no
+243743,1,2011-08-11,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Calico / White.
+Gender: Female.
+Breed: Domestic  Medium Hair Mix",unknown,"2164 Dalton Rd, Campbell River, BC V9W 1H4, Canada",49.9702415,-125.2198715,unknown,Stray,"Domestic  Medium Hair Mix","Calico / White",Female,Kitten,Yes,Yes,"BC SPCA",unknown,unknown,no
+236469,1,2011-06-03,"BC SPCA unowned intake - Kitten","Kitten.
+Color: Grey Tabby /  Black.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"670 Island Hwy, Campbell River, BC V9W 2C3, Canada",50.0207787,-125.2391281,unknown,"ACO Impound","Domestic Short  Hair Mix","Grey Tabby /  Black",Male,Kitten,unknown,unknown,"BC SPCA",unknown,unknown,no
+237826,1,2011-06-17,"BC SPCA unowned intake - Kitten","Stray kitten.
+Color: Brown / Black.
+Gender: Female.
+Breed: Snowshoe /  Siamese",unknown,"665 Old Petersen Rd, Campbell River, BC V9W 3N1, Canada",50.018631,-125.2651978,unknown,Stray,"Snowshoe /  Siamese","Brown / Black",Female,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+287888,1,2012-12-31,"BC SPCA unowned intake - Cat","Cat.
+Color: Tortoiseshell /  Black.
+Gender: Female.
+Breed: Domestic  Medium Hair Mix",unknown,"Ridge Rd & Westmere Rd, Campbell River, BC V9W, Canada",50.0188217,-125.251091,unknown,"DOA -  Ambulance","Domestic  Medium Hair Mix","Tortoiseshell /  Black",Female,"Young Adult",Unknown,Unknown,"BC SPCA",unknown,unknown,no
+285334,1,2012-11-23,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Grey Tabby /  White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"2700 Woodburn Rd, Campbell River, BC V9W 4R4, Canada",50.0434494,-125.2844849,unknown,Stray,"Domestic Short  Hair Mix","Grey Tabby /  White",Male,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
+285336,1,2012-11-23,"BC SPCA unowned intake - Cat","Stray cat.
+Color: White / None.
+Gender: Male.
+Breed: Domestic  Longhair Mix",unknown,"2700 Woodburn Rd, Campbell River, BC V9W 4R4, Canada",50.0434494,-125.2844849,unknown,Stray,"Domestic  Longhair Mix","White / None",Male,Adult,Unknown,Unknown,"BC SPCA",unknown,unknown,no
+282799,1,2012-10-26,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Black / None.
+Gender: Unknown.
+Breed: Domestic  Medium Hair Mix",unknown,"1437 16th Ave, Campbell River, BC V9W 2E4, Canada",50.0300598,-125.2533722,unknown,Stray,"Domestic  Medium Hair Mix","Black / None",Unknown,Adult,No,No,"BC SPCA",unknown,unknown,no
+279539,1,2012-09-20,"BC SPCA unowned intake - Cat","Cat.
+Color: Black / None.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"205 Westgate Rd, Campbell River, BC V9W, Canada",49.9692574,-125.2193604,unknown,"DOA - Stray","Domestic  Medium Hair Mix","Black / None",Male,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
+278997,1,2012-09-14,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Cream Ginger  Tabby / White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"744 7th Ave, Campbell River, BC V9W 4A4, Canada",50.0199852,-125.2495117,unknown,Stray,"Domestic Short  Hair Mix","Cream Ginger  Tabby / White",Male,Adult,No,No,"BC SPCA",unknown,unknown,no
+274950,1,2012-08-02,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Orange / White.
+Gender: Unknown.
+Breed: Domestic  Medium Hair Mix",unknown,"34 Alder St, Campbell River, BC V9W 2M8, Canada",50.008152,-125.2395935,unknown,Stray,"Domestic  Medium Hair Mix","Orange / White",Unknown,Adult,Unknown,Unknown,"BC SPCA",unknown,unknown,no
+274251,1,2012-07-26,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Grey Tabby /  White.
+Gender: Female.
+Breed: Domestic  Medium Hair Mix",unknown,"964 Springbok Rd, Campbell River, BC V9W 7G4, Canada",49.9886703,-125.2458191,unknown,Stray,"Domestic  Medium Hair Mix","Grey Tabby /  White",Female,"Young Adult",Yes,Yes,"BC SPCA",unknown,unknown,no
+273381,1,2012-07-19,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Orange Tabby /  White.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"301 St Anns Rd, Campbell River, BC V9W, Canada",50.0237885,-125.2430115,unknown,Stray,"Domestic  Medium Hair Mix","Orange Tabby /  White",Male,Senior,Yes,Yes,"BC SPCA",unknown,unknown,no
+271675,1,2012-06-30,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Tortoiseshell /  None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"826 7th Ave, Campbell River, BC V9W 4A4, Canada",50.0199394,-125.251442,unknown,Stray,"Domestic Short  Hair Mix","Tortoiseshell /  None",Female,Adult,Unknown,Unknown,"BC SPCA",unknown,unknown,no
+273000,1,2012-07-16,"BC SPCA unowned intake - Cat","Cat.
+Color: Grey / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"572 Hilchey Rd, Campbell River, BC V9W 8E6, Canada",49.9736404,-125.2400284,unknown,"DOA -  Ambulance","Domestic Short  Hair Mix","Grey / None",Female,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
+271503,1,2012-06-29,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Black / Smoke.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"469 Candy Ln, Campbell River, BC V9W 8B5, Canada",49.9830399,-125.2359085,unknown,Stray,"Domestic Short  Hair Mix","Black / Smoke",Male,Adult,No,No,"BC SPCA",unknown,unknown,no
+270721,1,2012-06-21,"BC SPCA unowned intake - Cat","Cat.
+Color: Brown Tabby /  None.
+Gender: Female.
+Breed: Domestic  Medium Hair Mix",unknown,"445 Merecroft Rd, Campbell River, BC V9W 6K6, Canada",50.000145,-125.244751,unknown,"ACO Impound","Domestic  Medium Hair Mix","Brown Tabby /  None",Female,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
+268593,1,2012-05-31,"BC SPCA unowned intake - Cat","Stray cat.
+Color: White / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"2700 Woodburn Rd, Campbell River, BC V9W 4R4, Canada",50.0434494,-125.2844849,unknown,Stray,"Domestic Short  Hair Mix","White / None",Female,Adult,Unknown,Unknown,"BC SPCA",unknown,unknown,no
+269789,1,2012-06-12,"BC SPCA unowned intake - Cat","Cat.
+Color: Black / None.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"1260 Mountainview Pl, Campbell River, BC V9W 7Z4, Canada",49.9851799,-125.2359695,unknown,"ACO Impound","Domestic Short  Hair Mix","Black / None",Male,Adult,No,No,"BC SPCA",unknown,unknown,no
+266797,1,2012-05-10,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Seal Point /  Cream.
+Gender: Female.
+Breed: Snowshoe Mix",unknown,"681 Dogwood St, Campbell River, BC V9W, Canada",50.0195465,-125.247673,unknown,Stray,"Snowshoe Mix","Seal Point /  Cream",Female,Adult,Unknown,Unknown,"BC SPCA",unknown,unknown,no
+266938,1,2012-05-11,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Grey / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"2700 Woodburn Rd, Campbell River, BC V9W 4R4, Canada",50.0434494,-125.2844849,unknown,Stray,"Domestic Short  Hair Mix","Grey / None",Female,Adult,Unknown,Unknown,"BC SPCA",unknown,unknown,no
+266790,1,2012-05-10,"BC SPCA unowned intake - Cat","Cat.
+Color: Tortoiseshell /  None.
+Gender: Female.
+Breed: Domestic  Longhair Mix",unknown,"Quadra Ave & Cortez Rd, Campbell River, BC V9W, Canada",49.9965096,-125.2521362,unknown,"DOA - Stray","Domestic  Longhair Mix","Tortoiseshell /  None",Female,Senior,Yes,Yes,"BC SPCA",unknown,unknown,no
+264999,1,2012-04-19,"BC SPCA unowned intake - Cat","Cat.
+Color: Grey / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"2175 Campbell River Rd, Campbell River, BC V9W 4N8, Canada",50.0338516,-125.277092,unknown,"ACO Impound","Domestic Short  Hair Mix","Grey / None",Female,Senior,Yes,Yes,"BC SPCA",unknown,unknown,no
+263361,1,2012-03-29,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Torbie / White.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"1808 Island Hwy, Campbell River, BC V9W 1B8, Canada",50.0327263,-125.2688217,unknown,Stray,"Domestic Short  Hair Mix","Torbie / White",Female,Adult,Unknown,Unknown,"BC SPCA",unknown,unknown,no
+263612,1,2012-03-31,"BC SPCA unowned intake - Cat","Stray cat.
+Color: White / None.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"Dogwood St & 6th Ave, Campbell River, BC V9W, Canada",50.0180893,-125.2478485,unknown,Stray,"Domestic  Medium Hair Mix","White / None",Male,Adult,No,No,"BC SPCA",unknown,unknown,no
+262783,1,2012-03-21,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Black / White.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"376 Island Hwy, Campbell River, BC V9W 2B6, Canada",50.0143013,-125.2358627,unknown,Stray,"Domestic  Medium Hair Mix","Black / White",Male,Adult,No,No,"BC SPCA",unknown,unknown,no
+262006,1,2012-03-10,"BC SPCA unowned intake - Cat","Cat.
+Color: Grey / White.
+Gender: Male.
+Breed: Domestic  Longhair Mix",unknown,"651 McPhedran Rd, Campbell River, BC V9W 7M7, Canada",50.0137444,-125.2528763,unknown,"DOA - ACO","Domestic  Longhair Mix","Grey / White",Male,Adult,No,No,"BC SPCA",unknown,unknown,no
+262150,1,2012-03-13,"BC SPCA unowned intake - Cat","Cat.
+Color: Muted Calico /  None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"1020 Evergreen Rd, Campbell River, BC V9W 3R9, Canada",50.0075989,-125.255722,unknown,"DOA - ACO","Domestic Short  Hair Mix","Muted Calico /  None",Female,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
+260263,1,2012-02-16,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Black / White.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"1000 Alder St S, Campbell River, BC V9W, Canada",49.9888229,-125.2322083,unknown,Stray,"Domestic Short  Hair Mix","Black / White",Female,Adult,No,No,"BC SPCA",unknown,unknown,no
+257008,1,2012-01-06,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Orange / White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"2164 Dalton Rd, Campbell River, BC V9W 1H4, Canada",49.9702415,-125.2198715,unknown,Stray,"Domestic Short  Hair Mix","Orange / White",Male,"Young Adult",Yes,Yes,"BC SPCA",unknown,unknown,no
+258589,1,2012-01-25,"BC SPCA unowned intake - Cat","Stray cat.
+Color: White / None.
+Gender: Unknown.
+Breed: Domestic Short  Hair Mix",unknown,"3120 Island Hwy, Campbell River, BC V9W, Canada",50.0488091,-125.2706528,unknown,Stray,"Domestic Short  Hair Mix","White / None",Unknown,Adult,Unknown,Unknown,"BC SPCA",unknown,unknown,no
+256392,1,2011-12-30,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Grey / White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"402 Cedar St, Campbell River, BC V9W 2V5, Canada",50.0148697,-125.2466202,unknown,Stray,"Domestic Short  Hair Mix","Grey / White",Male,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
+254930,1,2011-12-09,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Grey / White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"1808 Island Hwy, Campbell River, BC V9W 1B8, Canada",50.0327263,-125.2688217,unknown,Stray,"Domestic Short  Hair Mix","Grey / White",Male,"Young Adult",No,No,"BC SPCA",unknown,unknown,no
+255980,1,2011-12-22,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Brown Tabby /  None.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"Erickson Rd & Nelson Rd, Campbell River, BC V9W, Canada",49.9598694,-125.224472,unknown,Stray,"Domestic Short  Hair Mix","Brown Tabby /  None",Male,Adult,Unknown,Unknown,"BC SPCA",unknown,unknown,no
+253991,1,2011-11-26,"BC SPCA unowned intake - Cat","Cat.
+Color: Grey Tabby /  None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"451 Alder St, Campbell River, BC V9W 5V2, Canada",50.0153999,-125.2392349,unknown,"DOA - ACO","Domestic Short  Hair Mix","Grey Tabby /  None",Female,Adult,Unknown,Unknown,"BC SPCA",unknown,unknown,no
+253281,1,2011-11-17,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Tabby / White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"8515 Lory Rd, Black Creek, BC V9J 1B8, Canada",49.8454475,-125.1698685,unknown,Stray,"Domestic Short  Hair Mix","Tabby / White",Male,Adult,No,No,"BC SPCA",unknown,unknown,no
+253439,1,2011-11-18,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Grey / White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"2169 Albea Rd, Campbell River, BC V9W 6E6, Canada",49.9699783,-125.2237778,unknown,Stray,"Domestic Short  Hair Mix","Grey / White",Male,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
+253005,1,2011-11-14,"BC SPCA unowned intake - Cat","Cat.
+Color: Black / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"Rockland Rd & Galerno Rd, Campbell River, BC V9W, Canada",49.9842606,-125.2272034,unknown,"DOA -  Ambulance","Domestic Short  Hair Mix","Black / None",Female,Adult,No,No,"BC SPCA",unknown,unknown,no
+253006,1,2011-11-14,"BC SPCA unowned intake - Cat","Stray cat.
+Color: White / Grey.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"48 Dogwood St, Campbell River, BC V9W 2X7, Canada",50.0081787,-125.2483673,unknown,Stray,"Domestic Short  Hair Mix","White / Grey",Female,Adult,No,No,"BC SPCA",unknown,unknown,no
+252108,1,2011-11-02,"BC SPCA unowned intake - Cat","Cat.
+Color: Brown Tabby /  Black.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"869 Alder St, Campbell River, BC V9W 2P4, Canada",50.0223885,-125.242691,unknown,"ACO Impound","Domestic Short  Hair Mix","Brown Tabby /  Black",Male,Adult,No,No,"BC SPCA",unknown,unknown,no
+252821,1,2011-11-10,"BC SPCA unowned intake - Cat","Stray cat.
+Color: White / Grey.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"2700 Woodburn Rd, Campbell River, BC V9W 4R4, Canada",50.0434494,-125.2844849,unknown,Stray,"Domestic Short  Hair Mix","White / Grey",Male,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
+250909,1,2011-10-21,"BC SPCA unowned intake - Cat","Cat.
+Color: Black / None.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"250 Dogwood St, Campbell River, BC V9W 6Y7, Canada",50.0118904,-125.2490616,unknown,Ambulance,"Domestic Short  Hair Mix","Black / None",Male,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
+251147,1,2011-10-24,"BC SPCA unowned intake - Cat","Cat.
+Color: Black / None.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"535 Rockland Rd, Campbell River, BC V9W 8B7, Canada",49.9835205,-125.238533,unknown,Ambulance,"Domestic Short  Hair Mix","Black / None",Male,Adult,No,No,"BC SPCA",unknown,unknown,no
+247438,1,2011-09-15,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Grey Tabby /  None.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"4456 Island Hwy, Campbell River, BC V9H 1E6, Canada",50.0651627,-125.2859421,unknown,Stray,"Domestic Short  Hair Mix","Grey Tabby /  None",Male,"Young Adult",Yes,Yes,"BC SPCA",unknown,unknown,no
+249499,1,2011-10-06,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Black / None.
+Gender: Female.
+Breed: Domestic  Medium Hair Mix",unknown,"2700 Woodburn Rd, Campbell River, BC V9W 4R4, Canada",50.0434494,-125.2844849,unknown,Stray,"Domestic  Medium Hair Mix","Black / None",Female,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
+247258,1,2011-09-14,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Black / None.
+Gender: Male.
+Breed: Domestic  Longhair Mix",unknown,"2700 Woodburn Rd, Campbell River, BC V9W 4R4, Canada",50.0434494,-125.2844849,unknown,Stray,"Domestic  Longhair Mix","Black / None",Male,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
+246422,1,2011-09-06,"BC SPCA unowned intake - Cat","Cat.
+Color: White / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"700 7th Ave, Campbell River, BC V9W 4A4, Canada",50.0199852,-125.2487259,unknown,"ACO Impound","Domestic Short  Hair Mix","White / None",Female,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
+246439,1,2012-05-11,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Ginger Tabby /  White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"181 Larwood Rd, Campbell River, BC V9W 1S3, Canada",49.9675064,-125.2137222,unknown,Stray,"Domestic Short  Hair Mix","Ginger Tabby /  White",Male,"Young Adult",Yes,Yes,"BC SPCA",unknown,unknown,no
+244625,1,2011-08-19,"BC SPCA unowned intake - Cat","Cat.
+Color: Black / White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"1710 16th Ave, Campbell River, BC V9W 4K8, Canada",50.03088,-125.2671738,unknown,"ACO Impound","Domestic Short  Hair Mix","Black / White",Male,Senior,Yes,Yes,"BC SPCA",unknown,unknown,no
+244544,1,2011-08-18,"BC SPCA unowned intake - Cat","Cat.
+Color: Brown Tabby /  Black.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"4860 Regent Rd, Campbell River, BC V9H 1E1, Canada",49.8711662,-125.1272583,unknown,Ambulance,"Domestic Short  Hair Mix","Brown Tabby /  Black",Female,Geriatric,Unknown,Unknown,"BC SPCA",unknown,unknown,no
+243558,1,2011-08-09,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Brown / White.
+Gender: Male.
+Breed: Domestic  Longhair Mix",unknown,"460 Dogwood St S, Campbell River, BC V9W, Canada",49.9988213,-125.2490616,unknown,Stray,"Domestic  Longhair Mix","Brown / White",Male,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
+243047,1,2011-08-04,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Brown Tabby /  White.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"391 Island Hwy, Campbell River, BC V9W 2B5, Canada",50.0144386,-125.2342529,unknown,Stray,"Domestic Short  Hair Mix","Brown Tabby /  White",Female,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
+240997,1,2011-07-17,"BC SPCA unowned intake - Cat","Cat.
+Color: Black / White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"Alder St & Evergreen Rd, Campbell River, BC V9W, Canada",50.0075111,-125.239418,unknown,"DOA - ACO","Domestic Short  Hair Mix","Black / White",Male,Adult,No,No,"BC SPCA",unknown,unknown,no
+241241,1,2011-07-20,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Black / None.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"300 Robron Rd, Campbell River, BC V9W 5P2, Canada",49.9950447,-125.236557,unknown,Stray,"Domestic Short  Hair Mix","Black / None",Male,"Young Adult",Yes,Yes,"BC SPCA",unknown,unknown,no
+242024,1,2011-07-25,"BC SPCA unowned intake - Cat","Cat.
+Color: Black / White.
+Gender: Unknown.
+Breed: Domestic Short  Hair Mix",unknown,"1100 Merecroft Rd, Campbell River, BC V9W 6B2, Canada",50.0003586,-125.2570114,unknown,"DOA -  Ambulance","Domestic Short  Hair Mix","Black / White",Unknown,Senior,Yes,Yes,"BC SPCA",unknown,unknown,no
+240483,1,2011-07-13,"BC SPCA unowned intake - Cat","Cat.
+Color: Grey Tabby /  None.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"4084 Island Hwy, Campbell River, BC V9H 1B5, Canada",50.0590515,-125.2762985,unknown,"DOA -  Ambulance","Domestic Short  Hair Mix","Grey Tabby /  None",Male,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
+238993,1,2011-06-29,"BC SPCA unowned intake - Cat","Cat.
+Color: Tortoiseshell /  None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"316 McCarthy St, Campbell River, BC V9W 2R6, Canada",50.0133171,-125.240715,unknown,"ACO Impound","Domestic Short  Hair Mix","Tortoiseshell /  None",Female,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+237953,1,2011-06-18,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Grey / White.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"Wood Rd, Campbell River, BC V9W, Canada",50.0639496,-125.2712708,unknown,Stray,"Domestic  Medium Hair Mix","Grey / White",Male,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+238135,1,2011-06-21,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Black / White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"1632 Coulter Rd, Campbell River, BC V9W 7M1, Canada",50.0451202,-125.2665482,unknown,Stray,"Domestic Short  Hair Mix","Black / White",Male,"Young Adult",unknown,unknown,"BC SPCA",unknown,unknown,no
+237925,1,2011-06-27,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Grey / Grey  Tabby.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"1600 Belair Rd, Comox Valley, BC V9M, Canada",49.7141418,-124.9169769,unknown,Stray,"Domestic Short  Hair Mix","Grey / Grey  Tabby",Male,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+236449,1,2011-06-03,"BC SPCA unowned intake - Cat","Cat.
+Color: Grey / None.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"Merecroft Rd & Dogwood St S, Campbell River, BC V9W, Canada",50.0002785,-125.2474289,unknown,Ambulance,"Domestic  Medium Hair Mix","Grey / None",Male,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+237007,1,2011-06-09,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Black / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"156 McCarthy St S, Campbell River, BC V9W 5M5, Canada",50.0045891,-125.2412186,unknown,Stray,"Domestic Short  Hair Mix","Black / None",Female,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+234837,1,2011-05-18,"BC SPCA unowned intake - Cat","Cat.
+Color: Grey / None.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"620 Elkhorn Rd, Campbell River, BC V9W 3X1, Canada",50.0148697,-125.2482834,unknown,"ACO Impound","Domestic  Medium Hair Mix","Grey / None",Male,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+234881,1,2011-05-19,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Brown Tabby /  White.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"1808 Island Hwy, Campbell River, BC V9W 1B8, Canada",50.0327263,-125.2688217,unknown,Stray,"Domestic Short  Hair Mix","Brown Tabby /  White",Female,"Young Adult",unknown,unknown,"BC SPCA",unknown,unknown,no
+234633,1,2011-05-17,"BC SPCA unowned intake - Cat","Cat.
+Color: Grey Tabby /  White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"Dogwood St & 9th Ave, Campbell River, BC V9W, Canada",50.0231781,-125.2480164,unknown,"DOA -  Ambulance","Domestic Short  Hair Mix","Grey Tabby /  White",Male,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+233359,1,2011-05-03,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Black / White.
+Gender: Unknown.
+Breed: Domestic  Medium Hair Mix",unknown,"565 Dogwood St, Campbell River, BC V9W 2Y4, Canada",50.0171318,-125.2475662,unknown,Stray,"Domestic  Medium Hair Mix","Black / White",Unknown,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+232880,1,2011-04-28,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Seal Point /  Cream.
+Gender: Female.
+Breed: Domestic Short  Hair / Siamese",unknown,"70 Island Hwy, Campbell River, BC V9W 1A1, Canada",50.0080452,-125.2346344,unknown,Stray,"Domestic Short  Hair / Siamese","Seal Point /  Cream",Female,Senior,unknown,unknown,"BC SPCA",unknown,unknown,no
+232667,1,2011-04-26,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Black / None.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"2904 Apple Dr, Campbell River, BC V9W 7X7, Canada",49.9611282,-125.220993,unknown,Stray,"Domestic Short  Hair Mix","Black / None",Male,Senior,unknown,unknown,"BC SPCA",unknown,unknown,no
+231706,1,2011-04-12,"BC SPCA unowned intake - Cat","Cat.
+Color: Orange Tabby /  None.
+Gender: Female.
+Breed: Persian Mix",unknown,"5th Ave, Campbell River, BC V9W, Canada",50.0159607,-125.2406998,unknown,"DOA - Stray","Persian Mix","Orange Tabby /  None",Female,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+231843,1,2011-04-14,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Brown Tabby /  White.
+Gender: Female.
+Breed: Domestic  Medium Hair Mix",unknown,"633 Upland Dr, Campbell River, BC V9W 2A7, Canada",49.9957886,-125.2362671,unknown,Stray,"Domestic  Medium Hair Mix","Brown Tabby /  White",Female,Senior,unknown,unknown,"BC SPCA",unknown,unknown,no
+232545,1,2011-04-23,"BC SPCA unowned intake - Cat","Cat.
+Color: Chocolate  Tabby / None.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"301 Petersen Rd, Campbell River, BC V9W 3H3, Canada",50.0126915,-125.2662888,unknown,"DOA -  Ambulance","Domestic  Medium Hair Mix","Chocolate  Tabby / None",Male,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+231144,1,2011-04-04,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Cream / Brown  Tabby.
+Gender: Male.
+Breed: Domestic Short  Hair / Siamese",unknown,"2311 Galerno Rd, Campbell River, BC V9W 8A5, Canada",49.9690704,-125.2249527,unknown,Stray,"Domestic Short  Hair / Siamese","Cream / Brown  Tabby",Male,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+230908,1,2011-04-01,"BC SPCA unowned intake - Cat","Stray cat.
+Color: White / None.
+Gender: Unknown.
+Breed: Domestic  Longhair Mix",unknown,"48 Dogwood St, Campbell River, BC V9W 2X7, Canada",50.0081787,-125.2483673,unknown,Stray,"Domestic  Longhair Mix","White / None",Unknown,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+230990,1,2011-04-02,"BC SPCA unowned intake - Cat","Stray cat.
+Color: White / Grey.
+Gender: Unknown.
+Breed: Domestic Short  Hair Mix",unknown,"48 Dogwood St, Campbell River, BC V9W 2X7, Canada",50.0081787,-125.2483673,unknown,Stray,"Domestic Short  Hair Mix","White / Grey",Unknown,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+230044,1,2011-03-22,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Grey Tabby /  None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"Petersen Rd & Evergreen Rd, Campbell River, BC V9W, Canada",50.0075111,-125.2660065,unknown,Stray,"Domestic Short  Hair Mix","Grey Tabby /  None",Female,"Young Adult",unknown,unknown,"BC SPCA",unknown,unknown,no
+230568,1,2011-03-28,"BC SPCA unowned intake - Cat","Stray cat.
+Color: White / Ginger  Tabby.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"48 Dogwood St, Campbell River, BC V9W 2X7, Canada",50.0081787,-125.2483673,unknown,Stray,"Domestic Short  Hair Mix","White / Ginger  Tabby",Female,"Young Adult",unknown,unknown,"BC SPCA",unknown,unknown,no
+228858,1,2011-03-07,"BC SPCA unowned intake - Cat","Cat.
+Color: Black / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"2nd Ave & McPhedran Rd, Campbell River, BC V9W, Canada",50.0111504,-125.2530289,unknown,"DOA -  Ambulance","Domestic Short  Hair Mix","Black / None",Female,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+229035,1,2011-03-09,"BC SPCA unowned intake - Cat","Cat.
+Color: Grey Tabby /  Black.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"826 7th Ave, Campbell River, BC V9W 4A4, Canada",50.0199394,-125.251442,unknown,"DOA - ACO","Domestic Short  Hair Mix","Grey Tabby /  Black",Male,"Young Adult",unknown,unknown,"BC SPCA",unknown,unknown,no
+229071,1,2011-03-09,"BC SPCA unowned intake - Cat","Cat.
+Color: White / Black.
+Gender: Male.
+Breed: Domestic  Medium Hair Mix",unknown,"Bowen Dr & Alder St S, Campbell River, BC V9H, Canada",49.9633789,-125.2322464,unknown,"DOA - ACO","Domestic  Medium Hair Mix","White / Black",Male,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+228387,1,2011-03-01,"BC SPCA unowned intake - Cat","Cat.
+Color: Black / White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"Fir St, Vancouver, BC V6J, Canada",49.2692604,-123.1408081,unknown,"DOA -  Ambulance","Domestic Short  Hair Mix","Black / White",Male,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+226248,1,2011-01-31,"BC SPCA unowned intake - Cat","Cat.
+Color: Brown Tabby /  White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"1808 Island Hwy, Campbell River, BC V9W 1B8, Canada",50.0327263,-125.2688217,unknown,Ambulance,"Domestic Short  Hair Mix","Brown Tabby /  White",Male,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+227522,1,2011-02-17,"BC SPCA unowned intake - Cat","Cat.
+Color: Black / White.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"520 9th Ave, Campbell River, BC V9W 4B6, Canada",50.0232582,-125.2473984,unknown,"DOA - ACO","Domestic Short  Hair Mix","Black / White",Male,"Young Adult",unknown,unknown,"BC SPCA",unknown,unknown,no
+227973,1,2011-02-23,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Black / None.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"Simms Rd, Campbell River, BC V9W, Canada",49.9749794,-125.2292175,unknown,Stray,"Domestic Short  Hair Mix","Black / None",Female,"Young Adult",unknown,unknown,"BC SPCA",unknown,unknown,no
+224938,1,2011-01-14,"BC SPCA unowned intake - Cat","Cat.
+Color: Black / None.
+Gender: Unknown.
+Breed: Domestic  Medium Hair Mix",unknown,"854 Island Hwy, Campbell River, BC V9W 2C3, Canada",50.0225716,-125.2399139,unknown,"DOA -  Ambulance","Domestic  Medium Hair Mix","Black / None",Unknown,Adult,unknown,unknown,"BC SPCA",unknown,unknown,no
+183915,1,2012-09-22,"BC SPCA unowned intake - Cat","Cat.
+Color: Black / White.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"750 E 7th Ave, Vancouver, BC V5T 4H5, Canada",49.2640495,-123.0883789,unknown,"ACO Impound","Domestic Short  Hair Mix","Black / White",Female,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
+209760,1,2011-04-21,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Orange Tabby /  None.
+Gender: Male.
+Breed: Domestic Short  Hair Mix",unknown,"445 Merecroft Rd, Campbell River, BC V9W 6K6, Canada",50.000145,-125.244751,unknown,Stray,"Domestic Short  Hair Mix","Orange Tabby /  None",Male,"Young Adult",unknown,unknown,"BC SPCA",unknown,unknown,no
+77106,1,2012-04-04,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Brown Tabby /  White.
+Gender: Male.
+Breed: Domestic  Longhair Mix",unknown,"V9W 5C1, BC",50.00609588623,-125.25081634521,unknown,Stray,"Domestic  Longhair Mix","Brown Tabby /  White",Male,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
+35251,1,2011-10-06,"BC SPCA unowned intake - Cat","Stray cat.
+Color: Cream / Blue  Point.
+Gender: Female.
+Breed: Domestic Short  Hair Mix",unknown,"2700 Woodburn Rd, Campbell River, BC V9W 4R4, Canada",50.0434494,-125.2844849,unknown,Stray,"Domestic Short  Hair Mix","Cream / Blue  Point",Female,Adult,Yes,Yes,"BC SPCA",unknown,unknown,no
