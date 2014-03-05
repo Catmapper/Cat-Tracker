@@ -58,12 +58,12 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 						'key' => 'cat_tracker_sighting_date',
 						'compare' => 'NOT EXISTS',
 						'value' => '',
-					)
-				),
-				'date_query' => array(
+					),
 					array(
-						'after' => 'January 26, 2013',
-					)
+						'key' => 'cat_tracker_imported_on',
+						'compare' => '>',
+						'value' => strtotime( 'January 26, 2014' ),
+					),
 				),
 			) );
 			if ( ! $q->have_posts() ) {
@@ -73,7 +73,7 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 			}
 
 			foreach( $q->posts as $post ) {
-				wp_delete_post( $post->ID );
+//				wp_delete_post( $post->ID );
 				$count++;
 			}
 
@@ -103,6 +103,7 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 		WP_CLI::success( "Done with cleanup." );
 
 	}
+
 
 	/**
 	 * Update roles for each community
