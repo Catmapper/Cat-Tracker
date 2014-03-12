@@ -64,6 +64,7 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 						'compare' => '>',
 						'value' => strtotime( 'January 26, 2014' ),
 					),
+					'relation' => 'AND',
 				),
 			) );
 			if ( ! $q->have_posts() ) {
