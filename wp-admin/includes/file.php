@@ -284,8 +284,8 @@ function wp_handle_upload( &$file, $overrides = false, $time = null ) {
 		if ( $proper_filename )
 			$file['name'] = $proper_filename;
 
-//		if ( ( !$type || !$ext ) && !current_user_can( 'unfiltered_upload' ) )
-//			return call_user_func($upload_error_handler, $file, __( 'Sorry, this file type is not permitted for security reasons.' ));
+		if ( ( !$type || !$ext ) && !current_user_can( 'unfiltered_upload' ) )
+			return call_user_func($upload_error_handler, $file, __( 'Sorry, this file type is not permitted for security reasons.' ));
 
 		if ( !$ext )
 			$ext = ltrim(strrchr($file['name'], '.'), '.');
