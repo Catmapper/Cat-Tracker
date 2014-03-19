@@ -74,7 +74,7 @@ class Cat_Mapper_Command extends WP_CLI_Command {
 			}
 
 			foreach( $q->posts as $post ) {
-//				wp_delete_post( $post->ID );
+				wp_delete_post( $post->ID );
 				$count++;
 			}
 
