@@ -2,7 +2,7 @@
 /*
 Plugin Name: Taxonomy Metadata
 Description: Infrastructure plugin which implements metadata functionality for taxonomy terms, including for tags and categories.
-Version: 0.3
+Version: 0.4
 Author: mitcho (Michael Yoshitaka Erlewine), sirzooro
 Author URI: http://mitcho.com/
 */
@@ -11,8 +11,7 @@ class Taxonomy_Metadata {
 	function __construct() {
 		add_action( 'init', array($this, 'wpdbfix') );
 		add_action( 'switch_blog', array($this, 'wpdbfix') );
-		
-		add_action('wpmu_new_blog', array( $this, 'new_blog' ), 10, 6);
+		add_action('wpmu_new_blog', array($this, 'new_blog'), 10, 6);
 	}
 
 	/*

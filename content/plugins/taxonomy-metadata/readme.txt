@@ -6,8 +6,8 @@ Plugin URI: http://mitcho.com/code/
 Donate link: http://tinyurl.com/donatetomitcho
 Tags: infrastructure, taxonomy, metadata, API
 Requires at least: 3.0
-Tested up to: 3.3
-Stable tag: 0.3
+Tested up to: 3.8
+Stable tag: 0.4
 
 Infrastructure plugin which implements metadata functionality for taxonomy terms, including for tags and categories.
 
@@ -50,6 +50,9 @@ The plugin implements the following functions, from which you can build your own
 Development of this plugin was supported by the [Massachusetts Institute of Technology Shakespeare Project](http://globalshakespeares.org/).
 
 == Changelog ==
+
+= 0.4 =
+* Fixed an issue with [creating new sites on multisite](http://wordpress.org/support/topic/php-warning-when-creating-a-new-site-multisite)
 
 = 0.3 =
 * Better Network Activation handling:
