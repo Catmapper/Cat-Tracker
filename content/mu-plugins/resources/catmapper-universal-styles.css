@@ -13,6 +13,7 @@ body.login {
 .login #login h1 a {
 	background-image : url( '../images/catmapper-login-x2.jpg' );
 	background-size: 328px 76px;
+	width: 328px;
 }
 
 /* hide marker edit screen search & date filtering */
