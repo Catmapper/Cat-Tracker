@@ -13,7 +13,7 @@ License: GPLv2
 /**
  * @package Cat Mapper
  * @author Joachim Kudish
- * @version 1.1
+ * @version 1.2
  */
 
 /*
@@ -286,56 +286,20 @@ class Cat_Mapper_Importer {
 			while ( $row_data = fgetcsv( $open_file ) ) {
 				$row_num++;
 
-				if ( ! $report_type ) {
-					if ( ! empty( $row_data[1] ) && 'Voucher Type' == $row_data[1] ) {
-						$report_type = 'voucher';
-					} elseif ( ! empty( $row_data[52] ) ) {
-						$report_type = 'improved';
-					} elseif ( ! empty( $row_data[0] ) && false !== strpos( strtolower( $row_data[0] ), "animal id" ) ) {
-						$report_type = 'original';
-					}
-				}
+				 if ( empty( $row_data[0] ) )
+					 continue;
 
-				if ( ! $start_importing && ! $report_type )
-					continue;
-
-				if ( 'voucher' == $report_type ) {
-					$animal_id = $row_data[11];
-					$date = $row_data[0];
-					$type = $row_data[12];
-					$source = 'Community Cat Spay/Neuter Recipient';
-					$breed = 'n/a';
-					$color = 'n/a';
-					$age_group = 'adult';
-					$gender = $row_data[13];
-					$incoming_spay_neuter_status = 'yes';
-					$current_spay_neuter_status = 'yes';
-					$address = $row_data[7] . ' ' . $row_data[9] . ' ' . $row_data[10];
-				} elseif ( 'improved' == $report_type ) {
-					$animal_id = $row_data[0];
-					$date = $row_data[2];
-					$type = $row_data[3];
-					$source = $row_data[4];
-					$breed = $row_data[13];
-					$color = $row_data[14];
-					$age_group = $row_data[16];
-					$gender = $row_data[17];
-					$incoming_spay_neuter_status = $row_data[18];
-					$current_spay_neuter_status = $row_data[19];
-					$address = $row_data[52];
-				} else {
-					$animal_id = $row_data[0];
-					$date = $row_data[2];
-					$type = $row_data[3];
-					$source = $row_data[4];
-					$breed = $row_data[12];
-					$color = $row_data[13];
-					$age_group = $row_data[15];
-					$gender = $row_data[16];
-					$incoming_spay_neuter_status = $row_data[17];
-					$current_spay_neuter_status = $row_data[18];
-					$address = $row_data[23];
-				}
+				$animal_id = $row_data[0];
+				$date = $row_data[2];
+				$type = $row_data[3];
+				$source = $row_data[4];
+				$breed = $row_data[15];
+				$color = $row_data[16];
+				$age_group = $row_data[18];
+				$gender = $row_data[19];
+				$incoming_spay_neuter_status = $row_data[20];
+				$current_spay_neuter_status = $row_data[21];
+				$address = $row_data[26];
 
 				// determine when to start importing
 				if ( false !== strpos( strtolower( $animal_id ), "animal id" ) && false !== strpos( strtolower( $address ), "address" ) ) {
@@ -378,65 +342,16 @@ class Cat_Mapper_Importer {
 					$description = sprintf( __( "%s.\nColor: %s.\nGender: %s.\nBreed: %s", 'cat-tracker' ), ucfirst( $type ), $color, $gender, $breed );
 				}
 
-				if ( 'voucher' == $report_type ) {
-					if ( false === strpos( strtolower( $type ), 'cat' ) ) {
-						printf( '<p>' . __( 'Animal ID #%s was not a cat (or several cats), and thus has been skipped.' ) . '</p>', esc_html( $animal_id ) );
-						continue;
-					}
-
-					$cats = array();
-					$only_one_cat = ( false === strpos( $type, ' ' ) );
-
-					if ( $only_one_cat ) {
-						$cats[] = array(
-							'animal_id' => $animal_id,
-							'gender' => $gender,
-						);
-
-					} else {
-						$cat_or_dogs = explode( ' ', $type );
-						$cat_keys = array_keys( $cat_or_dogs, 'cat' );
-						$a_ids = explode( ',', $animal_id );
-						if ( $a_ids == ( 2 * count( $cat_keys ) ) ) {
-							$__a_ids = array();
-							foreach ( $a_ids as $k => $a_id ) {
-								if ( $k % 2 == 0 ) {
-									$__a_ids[] = $a_id . $a_ids[$k+1];
-								}
-							}
-							$a_ids = $__a_ids;
-						}
-						$genders = explode( ' ', $gender );
-						foreach ( $cat_keys as $key ) {
-							$cats[] = array(
-								'animal_id' => $a_ids[$key],
-								'gender' => $genders[$key],
-							);
-						}
-					}
-
-					foreach ( $cats as $cat ) {
-						$sighting_id = $this->insert_sighting( $attachment_id, $cat['animal_id'], $source, $breed, $color, $cat['gender'], $age_group, $description, $incoming_spay_neuter_status, $current_spay_neuter_status, $location, $map_id, $intake_type, $date );
-						if ( -1 == $sighting_id ) {
-							$dupe++;
-						} else {
-							printf( '<p>' . __( 'Animal ID #%d successfully imported with Sighting ID #%d.' ) . '</p>', $animal_id, $sighting_id );
-							$count_imported++;
-							$cat_count++;
-						}
-					}
+				$sighting_id = $this->insert_sighting( $attachment_id, $animal_id, $source, $breed, $color, $gender, $age_group, $description, $incoming_spay_neuter_status, $current_spay_neuter_status, $location, $map_id, $intake_type, $date );
+				if ( -1 == $sighting_id ) {
+					$dupe++;
 				} else {
-					$sighting_id = $this->insert_sighting( $attachment_id, $animal_id, $source, $breed, $color, $gender, $age_group, $description, $incoming_spay_neuter_status, $current_spay_neuter_status, $location, $map_id, $intake_type, $date );
-					if ( -1 == $sighting_id ) {
-						$dupe++;
+					printf( '<p>' . __( 'Animal ID #%d successfully imported with Sighting ID #%d.' ) . '</p>', $animal_id, $sighting_id );
+					$count_imported++;
+					if ( $type == 'kitten' ) {
+						$kitten_count++;
 					} else {
-						printf( '<p>' . __( 'Animal ID #%d successfully imported with Sighting ID #%d.' ) . '</p>', $animal_id, $sighting_id );
-						$count_imported++;
-						if ( $type == 'kitten' ) {
-							$kitten_count++;
-						} else {
-							$cat_count++;
-						}
+						$cat_count++;
 					}
 				}
 
