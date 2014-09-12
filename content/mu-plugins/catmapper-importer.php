@@ -299,7 +299,8 @@ class Cat_Mapper_Importer {
 				$gender = $row_data[19];
 				$incoming_spay_neuter_status = $row_data[20];
 				$current_spay_neuter_status = $row_data[21];
-				$address = $row_data[26];
+				$address = $row_data[53];
+				$address_2 = $row_data[26];
 
 				// determine when to start importing
 				if ( false !== strpos( strtolower( $animal_id ), "animal id" ) && false !== strpos( strtolower( $address ), "address" ) ) {
@@ -311,7 +312,7 @@ class Cat_Mapper_Importer {
 					continue;
 
 				// exclude if no address
-				if ( empty( $address ) ) {
+				if ( empty( $address ) && empty( $address_2 ) ) {
 					$count_no_address++;
 					continue;
 				}
@@ -330,10 +331,13 @@ class Cat_Mapper_Importer {
 
 				$location = Cat_Tracker_Geocode::get_location_by_address( $address );
 
-				if ( is_wp_error( $location ) ) {
-					$count_bad_address++;
-					printf( '<p>' . __( 'Animal ID #%d returned an error while looking up its location. The following error occurred: %s. You may want to adjust the csv and try again.' ) . '</p>', $animal_id, $location->get_error_message() );
-					continue;
+				if ( is_wp_error( $location ) || empty( $location ) ) {
+					$location = Cat_Tracker_Geocode::get_location_by_address( $address_2 );
+					if ( is_wp_error( $location ) || empty( $location ) ) {
+						$count_bad_address ++;
+						printf( '<p>' . __( 'Animal ID #%d returned an error while looking up its location. The following error occurred: %s. You may want to adjust the csv and try again.' ) . '</p>', $animal_id, $location->get_error_message() );
+						continue;
+					}
 				}
 
 				if ( 'stray' == strtolower( $source ) ) {
@@ -383,7 +387,7 @@ class Cat_Mapper_Importer {
 		) );
 
 		if ( $_already_exists->have_posts() ) {
-			printf( '<p>' . __( 'Animal ID #%d has already been imported and is being to be skipped from this import.' ) . '</p>', $animal_id );
+			printf( '<p>' . __( 'Animal ID #%d has already been imported and is going to be skipped from this import.' ) . '</p>', $animal_id );
 			return -1;
 		}
 
